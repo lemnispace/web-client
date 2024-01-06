@@ -100,6 +100,14 @@ const styles = {
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.orange.500)] [--btn-border:theme(colors.orange.600/90%)]",
       "[--btn-icon:theme(colors.orange.300)] data-[active]:[--btn-icon:theme(colors.orange.200)] data-[hover]:[--btn-icon:theme(colors.orange.200)]",
     ],
+    primary: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.primary.500)] [--btn-border:theme(colors.primary.600/90%)]",
+      "[--btn-icon:theme(colors.primary.300)] data-[active]:[--btn-icon:theme(colors.primary.200)] data-[hover]:[--btn-icon:theme(colors.primary.200)]",
+    ],
+    secondary: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.secondary.500)] [--btn-border:theme(colors.secondary.600/90%)]",
+      "[--btn-icon:theme(colors.secondary.300)] data-[active]:[--btn-icon:theme(colors.secondary.200)] data-[hover]:[--btn-icon:theme(colors.secondary.200)]",
+    ],
     amber: [
       "text-amber-950 [--btn-hover-overlay:theme(colors.white/25%)] [--btn-bg:theme(colors.amber.400)] [--btn-border:theme(colors.amber.500/80%)]",
       "[--btn-icon:theme(colors.amber.600)]",

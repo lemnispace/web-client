@@ -1,103 +1,19 @@
-"use client";
-
-import { Popover, Transition } from "@headlessui/react";
-import clsx from "clsx";
-import Link from "next/link";
-import { Fragment } from "react";
-
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
+import Link from "next/link";
 import { Logo } from "./Logo";
-import { NavLink } from "./NavLink";
-
-function MobileNavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Popover.Button as={Link} href={href} className="block w-full p-2">
-      {children}
-    </Popover.Button>
-  );
-}
-
-function MobileNavIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-3.5 w-3.5 overflow-visible stroke-slate-700"
-      fill="none"
-      strokeWidth={2}
-      strokeLinecap="round"
-    >
-      <path
-        d="M0 1H14M0 7H14M0 13H14"
-        className={clsx(
-          "origin-center transition",
-          open && "scale-90 opacity-0"
-        )}
-      />
-      <path
-        d="M2 2L12 12M12 2L2 12"
-        className={clsx(
-          "origin-center transition",
-          !open && "scale-90 opacity-0"
-        )}
-      />
-    </svg>
-  );
-}
-
-function MobileNavigation() {
-  return (
-    <Popover>
-      <Popover.Button
-        className="relative z-10 flex h-8 w-8 items-center justify-center ui-not-focus-visible:outline-none"
-        aria-label="Toggle Navigation"
-      >
-        {({ open }) => <MobileNavIcon open={open} />}
-      </Popover.Button>
-      <Transition.Root>
-        <Transition.Child
-          as={Fragment}
-          enter="duration-150 ease-out"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="duration-150 ease-in"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Popover.Overlay className="fixed inset-0 bg-slate-300/50" />
-        </Transition.Child>
-        <Transition.Child
-          as={Fragment}
-          enter="duration-150 ease-out"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="duration-100 ease-in"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
-        >
-          <Popover.Panel
-            as="div"
-            className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-slate-900 shadow-xl ring-1 ring-slate-900/5"
-          >
-            <MobileNavLink href="#features">Features</MobileNavLink>
-            <MobileNavLink href="#testimonials">Testimonials</MobileNavLink>
-            <MobileNavLink href="#pricing">Pricing</MobileNavLink>
-            <hr className="m-2 border-slate-300/40" />
-            <MobileNavLink href="/login">Sign in</MobileNavLink>
-          </Popover.Panel>
-        </Transition.Child>
-      </Transition.Root>
-    </Popover>
-  );
-}
+import MobileNavigation from "./MobileNavigation";
+import { NavLink, NavLinkProps } from "./NavLink";
+import ShoppingCart from "./ShoppingCart";
 
 export function Header() {
+  const navLinks: NavLinkProps[] = [{ href: "#Mosaic", children: "Mosaics" }];
+  const separatedNavLinks: NavLinkProps[] = [
+    {
+      href: "/cart",
+      children: <ShoppingCart description="items in cart, view bag" />,
+    },
+  ];
   return (
     <header className="py-10">
       <Container>
@@ -107,22 +23,25 @@ export function Header() {
               <Logo className="h-8 w-auto" />
             </Link>
             <div className="hidden md:flex md:gap-x-6">
-              <NavLink href="#features">Features</NavLink>
-              <NavLink href="#testimonials">Testimonials</NavLink>
-              <NavLink href="#pricing">Pricing</NavLink>
+              {navLinks.map((link) => (
+                <NavLink key={link.href} {...link} />
+              ))}
             </div>
           </div>
           <div className="flex items-center gap-x-5 md:gap-x-8">
             <div className="hidden md:block">
-              <NavLink href="/login">Sign in</NavLink>
+              {separatedNavLinks.map((link) => (
+                <NavLink key={link.href} {...link} />
+              ))}
             </div>
-            <Button href="/register" color="orange">
-              <span>
-                Get started <span className="hidden lg:inline">today</span>
-              </span>
+            <Button href="/register" color="primary">
+              <span>Shop now</span>
             </Button>
             <div className="-mr-1 md:hidden">
-              <MobileNavigation />
+              <MobileNavigation
+                items={navLinks}
+                separatedItems={separatedNavLinks}
+              />
             </div>
           </div>
         </nav>
