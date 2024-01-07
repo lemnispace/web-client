@@ -3,10 +3,10 @@ import CollectionSection from "../collection/CollectionSection";
 import SingleCollection from "../collection/SingleCollection";
 
 const item = {
-  title: "Mosaic",
+  title: "Text Mosaic",
   desc: "Create a personalized text mosaic portrait with your own words and messages. Perfect as a gift or a stunning piece of art for your home or office.",
   imgSrc: mosaicImg.src,
-  imgAlt: "Text mosaic portrait",
+  imgAlt: "Text mosaic portrait of a loving couple",
   href: "#",
   blurrDataUrl: mosaicImg.blurDataURL,
 };
@@ -20,7 +20,7 @@ export default function MosaicCollection() {
     >
       <SingleCollection
         {...item}
-        cta="Create your own"
+        cta="Craft Your Own"
         imgContainerClassName="-mr-10 sm:mr-0 md:-mr-4 md:-mt-8 lg:-mt-24"
       />
     </CollectionSection>

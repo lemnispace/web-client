@@ -1,3 +1,4 @@
+import { Button } from "@/components/button";
 import clsx from "clsx";
 import Image from "next/image";
 
@@ -47,17 +48,18 @@ export default function SingleCollection({
       </div>
       <div aria-hidden="true" className="relative h-96 w-full md:hidden" />
       <div aria-hidden="true" className="relative h-32 w-full md:hidden" />
-      <div className="absolute inset-x-0 bottom-0 rounded-bl-lg rounded-br-lg bg-black bg-opacity-75 p-6 backdrop-blur backdrop-filter sm:flex sm:items-center sm:justify-between md:inset-x-auto md:inset-y-0 md:w-96 md:flex-col md:items-start md:rounded-br-none md:rounded-tl-lg">
+      <div className="dark absolute inset-x-0 bottom-0 rounded-bl-lg rounded-br-lg bg-black bg-opacity-75 p-6 backdrop-blur backdrop-filter sm:flex sm:items-center sm:justify-between md:inset-x-auto md:inset-y-0 md:w-96 md:flex-col md:items-start md:rounded-br-none md:rounded-tl-lg">
         <div>
           <h2 className="text-xl font-bold text-white">{title}</h2>
           <p className="mt-1 text-sm text-gray-300">{desc}</p>
         </div>
-        <a
+        <Button
           href={href}
-          className="mt-6 flex flex-shrink-0 items-center justify-center rounded-md border border-white border-opacity-25 bg-white bg-opacity-0 px-4 py-3 text-base font-medium text-white hover:bg-opacity-10 sm:ml-8 sm:mt-0 md:ml-0 md:w-full"
+          outline
+          className="mt-6 flex flex-shrink-0 items-center justify-center sm:ml-8 sm:mt-0 md:ml-0 md:w-full"
         >
           {cta}
-        </a>
+        </Button>
       </div>
     </div>
   );

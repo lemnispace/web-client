@@ -68,7 +68,7 @@ export function Hero() {
         into art that celebrates your individuality.
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
-        <Button href="/register">Craft your personal masterpiece</Button>
+        <Button href="/register">Craft Your Personal Masterpiece</Button>
       </div>
     </Container>
   );

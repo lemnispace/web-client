@@ -5,8 +5,10 @@ import MobileNavigation from "./MobileNavigation";
 import { NavLink, NavLinkProps } from "./NavLink";
 import ShoppingCart from "./ShoppingCart";
 
-export function Header() {
-  const navLinks: NavLinkProps[] = [{ href: "#Mosaic", children: "Mosaics" }];
+interface HeaderProps {
+  navLinks: NavLinkProps[];
+}
+export function Header({ navLinks }: HeaderProps) {
   const separatedNavLinks: NavLinkProps[] = [
     {
       href: "/cart",
