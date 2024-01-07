@@ -1,7 +1,7 @@
 import { type Config } from "tailwindcss";
 
 export default {
-  darkMode: 'class',
+  darkMode: "class",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontSize: {
@@ -120,7 +120,6 @@ export default {
       },
       variants: {},
       plugins: [],
-
       borderRadius: {
         "4xl": "2rem",
       },
