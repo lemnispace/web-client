@@ -21,7 +21,7 @@ export default function MosaicCollection() {
       <SingleCollection
         {...item}
         cta="Create your own"
-        imgContainerClassName="md:-mt-8 lg:-mt-28"
+        imgContainerClassName="-mr-10 sm:mr-0 md:-mr-4 md:-mt-8 lg:-mt-24"
       />
     </CollectionSection>
   );
