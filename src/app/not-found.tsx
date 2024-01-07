@@ -2,6 +2,7 @@ import { Button } from "@/components/button";
 import { Link } from "@/components/link";
 import { Logo } from "./components/Logo";
 import { SlimLayout } from "./components/SlimLayout";
+
 export default function NotFound() {
   return (
     <SlimLayout>

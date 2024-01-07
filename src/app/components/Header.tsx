@@ -1,4 +1,3 @@
-import { Button } from "@/components/button";
 import { Container } from "@/components/container";
 import Link from "next/link";
 import { Logo } from "./Logo";
@@ -34,9 +33,6 @@ export function Header() {
                 <NavLink key={link.href} {...link} />
               ))}
             </div>
-            <Button href="/register" color="primary">
-              <span>Shop now</span>
-            </Button>
             <div className="-mr-1 md:hidden">
               <MobileNavigation
                 items={navLinks}

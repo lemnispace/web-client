@@ -13,6 +13,7 @@ const lexend = Lexend({
   display: "swap",
   variable: "--font-lexend",
 });
+
 const DESCRIPTION =
   "Explore LemniSpace, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.";
 
