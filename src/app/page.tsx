@@ -1,3 +1,4 @@
+import { NAVIGATION_TEXT } from "@/utils/text";
 import { CallToAction } from "./components/CallToAction";
 import ComingSoon from "./components/ComingSoon";
 import { Footer } from "./components/Footer";
@@ -8,8 +9,8 @@ import { MosaicCollection } from "./components/mosaic";
 
 export default function Home() {
   const navLinks: NavLinkProps[] = [
-    { href: "#Mosaic", children: "Mosaics" },
-    { href: "#coming-soon", children: "More Coming Soon" },
+    { href: "#Mosaic", children: NAVIGATION_TEXT.mosaics },
+    { href: "#coming-soon", children: NAVIGATION_TEXT.comingSoon },
   ];
   return (
     <>

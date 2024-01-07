@@ -1,8 +1,8 @@
-import Image from "next/image";
-
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
 import backgroundImage from "@/images/bg-orange.png";
+import { BUTTON_TEXT, CTA_TEXT } from "@/utils/text";
+import Image from "next/image";
 
 export function CallToAction() {
   return (
@@ -21,15 +21,13 @@ export function CallToAction() {
       <Container className="relative">
         <div className="mx-auto max-w-lg text-center">
           <h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-            Begin Your Creative Journey
+            {CTA_TEXT.title}
           </h2>
           <p className="mt-4 text-lg tracking-tight text-white">
-            Embark on a path of personal expression with LemniSpace. Unleash
-            your creativity and transform your vision into bespoke art pieces
-            that tell your unique story.
+            {CTA_TEXT.description}
           </p>
           <Button href="/register" color="white" className="mt-10">
-            Start Crafting Now
+            {BUTTON_TEXT.cta}
           </Button>
         </div>
       </Container>

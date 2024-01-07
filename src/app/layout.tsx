@@ -1,4 +1,5 @@
 import "@/styles/tailwind.css";
+import { LAYOUT_TEXT } from "@/utils/text";
 import clsx from "clsx";
 import { type Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
@@ -14,15 +15,12 @@ const lexend = Lexend({
   variable: "--font-lexend",
 });
 
-const DESCRIPTION =
-  "Explore LemniSpace, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.";
-
 export const metadata: Metadata = {
   title: {
-    template: "%s - LemniSpace",
-    default: "LemniSpace - Customizable E-commerce Platform",
+    template: `%s - ${LAYOUT_TEXT.name}`,
+    default: `${LAYOUT_TEXT.name} - ${LAYOUT_TEXT.title}`,
   },
-  description: DESCRIPTION,
+  description: LAYOUT_TEXT.description,
 };
 
 export default function RootLayout({
