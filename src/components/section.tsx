@@ -1,19 +1,19 @@
 import { Container } from "@/components/container";
 import clsx from "clsx";
 
-interface CollectionProps extends React.HTMLAttributes<HTMLElement> {
+interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   containerClassName?: string;
 }
 
-export default function CollectionSection({
+export default function Section({
   className,
   containerClassName,
   children,
   ...props
-}: CollectionProps) {
+}: SectionProps) {
   return (
-    <section className={clsx("bg-gray-100", className)} {...props}>
+    <section className={clsx("bg-white", className)} {...props}>
       <Container className={containerClassName}>{children}</Container>
     </section>
   );

@@ -1,5 +1,5 @@
+import Section from "@/components/section";
 import mosaicImg from "@/images/mosaic/mosaic-2.jpg";
-import CollectionSection from "../collection/CollectionSection";
 import SingleCollection from "../collection/SingleCollection";
 
 const item = {
@@ -13,9 +13,10 @@ const item = {
 
 export default function MosaicCollection() {
   return (
-    <CollectionSection
+    <Section
       id="Mosaic"
       aria-label="Mosaic product collections"
+      className="bg-gray-100"
       containerClassName="max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl"
     >
       <SingleCollection
@@ -23,6 +24,6 @@ export default function MosaicCollection() {
         cta="Craft Your Own"
         imgContainerClassName="-mr-10 sm:mr-0 md:-mr-4 md:-mt-8 lg:-mt-24"
       />
-    </CollectionSection>
+    </Section>
   );
 }
