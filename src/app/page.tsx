@@ -1,4 +1,5 @@
 import { CallToAction } from "./components/CallToAction";
+import ComingSoon from "./components/ComingSoon";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
@@ -14,6 +15,7 @@ export default function Home() {
         <Hero />
         <MosaicCollection />
         <CallToAction />
+        <ComingSoon />
       </main>
       <Footer navLinks={navLinks} />
     </>
