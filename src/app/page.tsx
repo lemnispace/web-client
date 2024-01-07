@@ -7,7 +7,10 @@ import { NavLinkProps } from "./components/NavLink";
 import { MosaicCollection } from "./components/mosaic";
 
 export default function Home() {
-  const navLinks: NavLinkProps[] = [{ href: "#Mosaic", children: "Mosaics" }];
+  const navLinks: NavLinkProps[] = [
+    { href: "#Mosaic", children: "Mosaics" },
+    { href: "#coming-soon", children: "More Coming Soon" },
+  ];
   return (
     <>
       <Header navLinks={navLinks} />
