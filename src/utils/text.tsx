@@ -62,6 +62,7 @@ export const COMING_SOON_TEXT = {
 
 // *** Hero Text ***
 export const HERO_TEXT = {
+  // break up title into array of strings to allow for styling
   title: ["Crafting", "your visions", "into artistic treasures"],
   shortDescription: "Crafting your visions into artistic treasures",
   description:
