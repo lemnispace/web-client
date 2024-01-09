@@ -125,6 +125,7 @@ dist
 # misc
 .DS_Store
 *.pem
+.swc
 
 # vercel
 .vercel
