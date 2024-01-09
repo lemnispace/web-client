@@ -47,5 +47,6 @@ describe("Hero", () => {
     const buttonElement = getByText("Hero Button");
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toBeEnabled();
+    expect(buttonElement).toHaveAttribute("href", "/shop/mosaic");
   });
 });
