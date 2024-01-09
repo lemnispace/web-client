@@ -42,7 +42,7 @@ export function Avatar({
         <svg
           className="select-none fill-current text-[48px] font-medium uppercase"
           viewBox="0 0 100 100"
-          aria-hidden={alt ? undefined : "true"}
+          {...(alt ? { "aria-hidden": "true" } : {})}
         >
           {alt && <title>{alt}</title>}
           <text
