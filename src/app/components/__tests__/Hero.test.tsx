@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import { Hero, Title } from "../Hero";
+import { Hero, Title } from "../landing_page/Hero";
 
 // mock GLOBAL_APP_TEXT
 jest.mock("@/utils/text", () => ({
