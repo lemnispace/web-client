@@ -5,6 +5,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { Fragment } from "react";
 import { NavLinkProps } from "./NavLink";
+
 function MobileNavLink({ href, children }: NavLinkProps) {
   return (
     <Popover.Button as={Link} href={href} className="block w-full p-2">

@@ -1,5 +1,6 @@
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
+import { BUTTON_TEXT, HERO_TEXT } from "@/utils/text";
 import clsx from "clsx";
 
 interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
@@ -34,7 +35,7 @@ function HighlightedSpan({
   );
 }
 
-function Title({
+export function Title({
   className,
   firstLine,
   highlightedLine,
@@ -59,16 +60,16 @@ export function Hero() {
   return (
     <Container className="pb-16 pt-20 text-center lg:pt-32">
       <Title
-        firstLine="Crafting"
-        highlightedLine="your visions"
-        lastLine="into artistic treasures"
+        firstLine={HERO_TEXT.title[0]}
+        highlightedLine={HERO_TEXT.title[1]}
+        lastLine={HERO_TEXT.title[2]}
+        aria-label={HERO_TEXT.title.join(" ")}
       />
       <p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
-        Every product is a canvas for your imagination, transforming your ideas
-        into art that celebrates your individuality.
+        {HERO_TEXT.description}
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
-        <Button href="/register">Craft Your Personal Masterpiece</Button>
+        <Button href="/register">{BUTTON_TEXT.heroCta}</Button>
       </div>
     </Container>
   );

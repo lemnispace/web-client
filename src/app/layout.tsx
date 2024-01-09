@@ -1,7 +1,11 @@
 import "@/styles/tailwind.css";
+import { LAYOUT_TEXT, NAVIGATION_TEXT } from "@/utils/text";
 import clsx from "clsx";
 import { type Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
+import { Footer } from "./components/Footer";
+import { Header } from "./components/Header";
+import { NavLinkProps } from "./components/NavLink";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,15 +18,12 @@ const lexend = Lexend({
   variable: "--font-lexend",
 });
 
-const DESCRIPTION =
-  "Explore LemniSpace, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.";
-
 export const metadata: Metadata = {
   title: {
-    template: "%s - LemniSpace",
-    default: "LemniSpace - Customizable E-commerce Platform",
+    template: `%s - ${LAYOUT_TEXT.name}`,
+    default: `${LAYOUT_TEXT.name} - ${LAYOUT_TEXT.title}`,
   },
-  description: DESCRIPTION,
+  description: LAYOUT_TEXT.description,
 };
 
 export default function RootLayout({
@@ -30,6 +31,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const navLinks: NavLinkProps[] = [
+    { href: "/#Mosaic", children: NAVIGATION_TEXT.mosaics },
+    { href: "/#coming-soon", children: NAVIGATION_TEXT.comingSoon },
+  ];
   return (
     <html
       lang="en"
@@ -39,7 +44,11 @@ export default function RootLayout({
         lexend.variable
       )}
     >
-      <body className="flex h-full flex-col">{children}</body>
+      <body className="flex h-full flex-col">
+        <Header navLinks={navLinks} />
+        {children}
+        <Footer navLinks={navLinks} />
+      </body>
     </html>
   );
 }
