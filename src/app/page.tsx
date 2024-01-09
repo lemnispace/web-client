@@ -5,13 +5,11 @@ import { MosaicCollection } from "./components/mosaic";
 
 export default function Home() {
   return (
-    <>
-      <main>
-        <Hero />
-        <MosaicCollection />
-        <CallToAction />
-        <ComingSoon />
-      </main>
-    </>
+    <main>
+      <Hero />
+      <MosaicCollection />
+      <CallToAction />
+      <ComingSoon />
+    </main>
   );
 }
