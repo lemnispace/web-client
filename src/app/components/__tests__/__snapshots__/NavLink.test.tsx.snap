@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NavLink renders the link with correct styling 1`] = `
+<DocumentFragment>
+  <a
+    class="inline-block rounded-lg px-2 py-1 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+    href="/about"
+  >
+    About
+  </a>
+</DocumentFragment>
+`;

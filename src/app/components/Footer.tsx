@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Container } from "@/components/container";
 import { GLOBAL_APP_TEXT } from "@/utils/text";
 import { Logo } from "./Logo";
@@ -13,7 +11,7 @@ export function Footer({ navLinks }: FooterProps) {
     <footer className="bg-slate-50">
       <Container>
         <div className="py-16">
-          <Logo className="mx-auto h-10 w-auto" />
+          <Logo className="mx-auto h-10 w-auto" aria-label="Logo" />
           <nav className="mt-10 text-sm" aria-label="quick links">
             <div className="-my-1 flex justify-center gap-x-6">
               {navLinks.map((link) => (

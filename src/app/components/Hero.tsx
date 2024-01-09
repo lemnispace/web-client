@@ -35,7 +35,7 @@ function HighlightedSpan({
   );
 }
 
-function Title({
+export function Title({
   className,
   firstLine,
   highlightedLine,
@@ -63,6 +63,7 @@ export function Hero() {
         firstLine={HERO_TEXT.title[0]}
         highlightedLine={HERO_TEXT.title[1]}
         lastLine={HERO_TEXT.title[2]}
+        aria-label={HERO_TEXT.title.join(" ")}
       />
       <p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
         {HERO_TEXT.description}
