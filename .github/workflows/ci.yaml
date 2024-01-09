@@ -3,7 +3,7 @@ name: Integration
 on:
   pull_request:
   push:
-   branches:
+    branches:
       - main
 
 jobs:
@@ -22,6 +22,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
+      # fixes type-check errors https://github.com/vercel/next.js/issues/53959#issuecomment-1741062235
+      - name: build
+        run: |
+          npm run build
 
       - name: typecheck
         run: |
