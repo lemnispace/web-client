@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import { Hero, Title } from "../landing_page/Hero";
+import { Hero, Title } from "../Hero";
 
 // mock GLOBAL_APP_TEXT
 jest.mock("@/utils/text", () => ({
@@ -47,6 +47,6 @@ describe("Hero", () => {
     const buttonElement = getByText("Hero Button");
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toBeEnabled();
-    expect(buttonElement).toHaveAttribute("href", "/shop/mosaic");
+    expect(buttonElement).toHaveAttribute("href", "/shop");
   });
 });

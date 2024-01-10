@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import { CallToAction } from "../landing_page/CallToAction";
+import { CallToAction } from "../CallToAction";
 
 jest.mock("@/utils/text", () => ({
   CTA_TEXT: {
