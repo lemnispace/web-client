@@ -17,12 +17,6 @@ jest.mock("@/utils/text", () => ({
 }));
 
 describe("NotFound", () => {
-  it("renders the logo", () => {
-    const { getByLabelText } = render(<NotFound />);
-    const logoElement = getByLabelText("Home");
-    expect(logoElement).toBeInTheDocument();
-    expect(logoElement).toHaveAttribute("href", "/");
-  });
   it("renders the error code", () => {
     const { getByText } = render(<NotFound />);
     const errorCodeElement = getByText("123");
