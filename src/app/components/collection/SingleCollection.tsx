@@ -2,13 +2,18 @@ import { Button } from "@/components/button";
 import clsx from "clsx";
 import Image from "next/image";
 
-interface SingleCollectionProps extends React.HTMLAttributes<HTMLElement> {
+export interface Collection {
   imgSrc: string;
   imgAlt: string;
   title: string;
   desc: string;
-  cta: string;
   href: string;
+}
+interface SingleCollectionProps
+  extends React.HTMLAttributes<HTMLElement>,
+    Collection {
+  title: string;
+  cta: string;
   blurrDataUrl?: string;
   imgContainerClassName?: string;
 }

@@ -12,6 +12,7 @@ export const BUTTON_TEXT = {
   goBackHome: "Go Back Home",
   cta: "Start Crafting Now",
   heroCta: "Craft Your Personal Masterpiece",
+  collectionCta: "Craft Your Own",
 } as const;
 
 // *** Navigation Text ***
@@ -68,3 +69,12 @@ export const HERO_TEXT = {
   description:
     "Every product is a canvas for your imagination, transforming your ideas into art that celebrates your individuality.",
 } as const;
+
+export const COLLECTION_TEXT = {
+  textMosaic: {
+    title: "Text Mosaic",
+    shortDescription: "Text Mosaic",
+    description:
+      "Create a personalized text mosaic portrait with your own words and messages. Perfect as a gift or a stunning piece of art for your home or office.",
+  },
+} as const
