@@ -40,10 +40,16 @@ export const ERROR_TEXTS = {
 
 // *** Layout Text ***
 export const LAYOUT_TEXT = {
-  name: GLOBAL_APP_TEXT.name,
-  title: "Customizable E-commerce Platform",
-  shortDescription: "Customizable E-commerce Platform",
-  description: `Explore ${GLOBAL_APP_TEXT.name}, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.`,
+  root: {
+    name: GLOBAL_APP_TEXT.name,
+    title: "Customizable E-commerce Platform",
+    shortDescription: "Customizable E-commerce Platform",
+    description: `Explore ${GLOBAL_APP_TEXT.name}, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.`,
+  },
+  shop: {
+    name: "Shop",
+    description: `Shop ${GLOBAL_APP_TEXT.name}’s collection of customizable products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.`,
+  },
 } as const;
 
 // *** Call To Action Text ***

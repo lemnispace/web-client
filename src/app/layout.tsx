@@ -20,10 +20,10 @@ const lexend = Lexend({
 
 export const metadata: Metadata = {
   title: {
-    template: `%s - ${LAYOUT_TEXT.name}`,
-    default: `${LAYOUT_TEXT.name} - ${LAYOUT_TEXT.title}`,
+    template: `%s - ${LAYOUT_TEXT.root.name}`,
+    default: `${LAYOUT_TEXT.root.name} - ${LAYOUT_TEXT.root.title}`,
   },
-  description: LAYOUT_TEXT.description,
+  description: LAYOUT_TEXT.root.description,
 };
 
 export default function RootLayout({
@@ -33,7 +33,6 @@ export default function RootLayout({
 }) {
   const navLinks: NavLinkProps[] = [
     { href: "/shop/mosaics", children: NAVIGATION_TEXT.mosaics },
-    { href: "/#coming-soon", children: NAVIGATION_TEXT.comingSoon },
   ];
   return (
     <html
