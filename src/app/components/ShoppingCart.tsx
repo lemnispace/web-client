@@ -1,5 +1,5 @@
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
-import clsx from "clsx";
+import { classNames } from "@/utils";
 
 export interface ShoppingCartProps extends React.HTMLAttributes<SVGSVGElement> {
   className?: string;
@@ -16,7 +16,7 @@ function ShoppingCart({
   return (
     <div className="flex">
       <ShoppingBagIcon
-        className={clsx(
+        className={classNames(
           "h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500",
           className
         )}

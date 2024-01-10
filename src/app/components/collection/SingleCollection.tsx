@@ -1,5 +1,5 @@
 import { Button } from "@/components/button";
-import clsx from "clsx";
+import { classNames } from "@/utils";
 import Image from "next/image";
 
 export interface Collection {
@@ -32,10 +32,13 @@ export default function SingleCollection({
 }: SingleCollectionProps) {
   return (
     <div
-      className={clsx("relative overflow-hidden rounded-lg md:h-96", className)}
+      className={classNames(
+        "relative overflow-hidden rounded-lg md:h-96",
+        className
+      )}
       {...props}
     >
-      <div className={clsx("absolute inset-0", imgContainerClassName)}>
+      <div className={classNames("absolute inset-0", imgContainerClassName)}>
         <Image
           src={imgSrc}
           alt={imgAlt}

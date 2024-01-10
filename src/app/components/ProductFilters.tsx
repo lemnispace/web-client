@@ -1,3 +1,4 @@
+import { classNames } from "@/utils";
 import {
   Dialog,
   Disclosure,
@@ -6,7 +7,6 @@ import {
   Transition,
 } from "@headlessui/react";
 import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import clsx from "clsx";
 import { Fragment } from "react";
 
 interface FiltersOption {
@@ -101,7 +101,7 @@ export const MobileFilters = ({
                             </span>
                             <span className="ml-6 flex items-center">
                               <ChevronDownIcon
-                                className={clsx(
+                                className={classNames(
                                   open ? "-rotate-180" : "rotate-0",
                                   "h-5 w-5 transform"
                                 )}
@@ -197,7 +197,7 @@ export const ProductFilters = ({
                   {({ focus }) => (
                     <a
                       href={option.href}
-                      className={clsx(
+                      className={classNames(
                         focus ? "bg-gray-100" : "",
                         "block px-4 py-2 text-sm font-medium text-gray-900"
                       )}

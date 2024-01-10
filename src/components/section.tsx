@@ -1,5 +1,5 @@
 import { Container } from "@/components/container";
-import clsx from "clsx";
+import { classNames } from "@/utils";
 
 interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ export default function Section({
   ...props
 }: SectionProps) {
   return (
-    <section className={clsx("bg-white", className)} {...props}>
+    <section className={classNames("bg-white", className)} {...props}>
       <Container className={containerClassName}>{children}</Container>
     </section>
   );
