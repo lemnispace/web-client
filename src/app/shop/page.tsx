@@ -1,65 +1,6 @@
-import {
-  MobileFilters,
-  ProductFiltersSection,
-} from "@/app/components/ProductFilters";
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
-import { useState } from "react";
+import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 
-const sortOptions = [
-  { name: "Most Popular", href: "#" },
-  { name: "Best Rating", href: "#" },
-  { name: "Newest", href: "#" },
-  { name: "Price: Low to High", href: "#" },
-  { name: "Price: High to Low", href: "#" },
-];
-const filters = [
-  {
-    id: "category",
-    name: "Category",
-    options: [
-      { value: "tees", label: "Tees" },
-      { value: "crewnecks", label: "Crewnecks" },
-      { value: "hats", label: "Hats" },
-      { value: "bundles", label: "Bundles" },
-      { value: "carry", label: "Carry" },
-      { value: "objects", label: "Objects" },
-    ],
-  },
-  {
-    id: "brand",
-    name: "Brand",
-    options: [
-      { value: "clothing-company", label: "Clothing Company" },
-      { value: "fashion-inc", label: "Fashion Inc." },
-      { value: "shoes-n-more", label: "Shoes 'n More" },
-      { value: "supplies-n-stuff", label: "Supplies 'n Stuff" },
-    ],
-  },
-  {
-    id: "color",
-    name: "Color",
-    options: [
-      { value: "white", label: "White" },
-      { value: "black", label: "Black" },
-      { value: "grey", label: "Grey" },
-      { value: "blue", label: "Blue" },
-      { value: "olive", label: "Olive" },
-      { value: "tan", label: "Tan" },
-    ],
-  },
-  {
-    id: "sizes",
-    name: "Sizes",
-    options: [
-      { value: "xs", label: "XS" },
-      { value: "s", label: "S" },
-      { value: "m", label: "M" },
-      { value: "l", label: "L" },
-      { value: "xl", label: "XL" },
-      { value: "2xl", label: "2XL" },
-    ],
-  },
-];
 const products = [
   {
     id: 1,
@@ -100,38 +41,24 @@ function ProductsMainMessageSection() {
   return (
     <div className="py-24 text-center">
       <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-        New Arrivals
+        {PRODUCTS_MAIN_MESSAGE_SECTION_TEXT.title}
       </h1>
       <p className="mx-auto mt-4 max-w-3xl text-base text-gray-500">
-        Thoughtfully designed objects for the workspace, home, and travel.
+        {PRODUCTS_MAIN_MESSAGE_SECTION_TEXT.description}
       </p>
     </div>
   );
 }
 
 export default function Shop() {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
   return (
     <div className="bg-gray-50">
-      <div>
-        <MobileFilters
-          open={mobileFiltersOpen}
-          handleOpen={setMobileFiltersOpen}
-          filters={filters}
-        />
-        <main>
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-            <ProductsMainMessageSection />
-            <ProductFiltersSection
-              handleOpen={setMobileFiltersOpen}
-              filters={filters}
-              sortOptions={sortOptions}
-            />
-            <ProductGridSection products={products} />
-          </div>
-        </main>
-      </div>
+      <main>
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+          <ProductsMainMessageSection />
+          <ProductGridSection products={products} />
+        </div>
+      </main>
     </div>
   );
 }

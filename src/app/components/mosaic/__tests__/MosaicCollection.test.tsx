@@ -36,6 +36,7 @@ describe("MosaicCollection", () => {
     expect(descElement).toBeInTheDocument();
     expect(imgElement).toBeInTheDocument();
     expect(ctaButton).toBeInTheDocument();
+    expect(ctaButton).toHaveAttribute("href", "/shop/mosaics");
     expect(ctaButton).toBeEnabled();
   });
 });

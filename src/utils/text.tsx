@@ -77,4 +77,18 @@ export const COLLECTION_TEXT = {
     description:
       "Create a personalized text mosaic portrait with your own words and messages. Perfect as a gift or a stunning piece of art for your home or office.",
   },
-} as const
+} as const;
+
+/**
+ *********************************
+ ***** SHOP PAGE CONSTANTS *******
+ *********************************
+ */
+
+// *** Product main message section ***
+export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
+  title: "Make It Yours",
+  shortDescription: "Customizable products",
+  description:
+    "The best way to buy the products you love is to personalize them.",
+} as const;

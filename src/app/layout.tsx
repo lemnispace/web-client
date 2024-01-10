@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const navLinks: NavLinkProps[] = [
-    { href: "/#Mosaic", children: NAVIGATION_TEXT.mosaics },
+    { href: "/shop/mosaics", children: NAVIGATION_TEXT.mosaics },
     { href: "/#coming-soon", children: NAVIGATION_TEXT.comingSoon },
   ];
   return (
