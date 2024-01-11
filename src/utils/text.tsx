@@ -96,5 +96,20 @@ export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
   title: "Make It Yours",
   shortDescription: "Customizable products",
   description:
-    "The best way to buy the products you love is to personalize them.",
+    "The best way to buy the products you love is to 0personalize them.",
+} as const;
+
+export const PRODUCT_SECTION_TEXT = {
+  title: "Product Information",
+  shortDescription: "Product information",
+} as const;
+
+export const PRODUCT_RATING_TEXT = {
+  title: "Reviews",
+  getShortDescription(
+    rating: number,
+    total: number
+  ): `${number} out of ${number} stars` {
+    return `${rating} out of ${total} stars`;
+  },
 } as const;

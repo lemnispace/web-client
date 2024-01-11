@@ -1,3 +1,4 @@
+import { PRODUCT_SECTION_TEXT } from "@/utils/text";
 import clsx from "clsx";
 
 interface ProductTitleProps extends React.HTMLAttributes<HTMLElement> {
@@ -39,7 +40,7 @@ export default function ProductTitle({
       </h1>
 
       <div className="mt-3">
-        <ProductSectionTitle>Product Information</ProductSectionTitle>
+        <ProductSectionTitle>{PRODUCT_SECTION_TEXT.title}</ProductSectionTitle>
         <p className="text-3xl tracking-tight text-gray-900">{price}</p>
       </div>
     </>
