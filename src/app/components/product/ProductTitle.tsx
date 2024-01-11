@@ -39,7 +39,7 @@ export default function ProductTitle({
       </h1>
 
       <div className="mt-3">
-        <ProductSectionTitle>Product information</ProductSectionTitle>
+        <ProductSectionTitle>Product Information</ProductSectionTitle>
         <p className="text-3xl tracking-tight text-gray-900">{price}</p>
       </div>
     </>
