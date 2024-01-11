@@ -51,7 +51,7 @@ export default function Shop() {
   ];
   return (
     <main>
-      <Container className="max-w-3xl lg:max-w-7xl">
+      <Container>
         <ProductsMainMessageSection
           title={PRODUCTS_MAIN_MESSAGE_SECTION_TEXT.title}
           description={PRODUCTS_MAIN_MESSAGE_SECTION_TEXT.description}

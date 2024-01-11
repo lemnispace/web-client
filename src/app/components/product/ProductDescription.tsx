@@ -12,11 +12,12 @@ export default function ProductDescription({
   return (
     <>
       <h3 className="sr-only">Description</h3>
-      <div
+      <p
         className={clsx("space-y-6 text-base text-gray-700", className)}
         {...props}
-        dangerouslySetInnerHTML={{ __html: description }}
-      />
+      >
+        {description}
+      </p>
     </>
   );
 }
