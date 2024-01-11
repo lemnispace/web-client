@@ -1,5 +1,5 @@
 import { Container } from "@/components/container";
-import { classNames } from "@/utils";
+import clsx from "clsx";
 import Link from "next/link";
 import { Logo } from "./Logo";
 import MobileNavigation from "./MobileNavigation";
@@ -17,9 +17,12 @@ export function Header({ navLinks, className, ...props }: HeaderProps) {
     },
   ];
   return (
-    <header className={classNames("py-10", className)} {...props}>
+    <header className={clsx("py-10", className)} {...props}>
       <Container>
-        <nav className="relative z-50 flex justify-between" data-testid="main-header-nav">
+        <nav
+          className="relative z-50 flex justify-between"
+          data-testid="main-header-nav"
+        >
           <div className="flex items-center md:gap-x-12">
             <Link href="/" aria-label="Home">
               <Logo className="h-8 w-auto" />

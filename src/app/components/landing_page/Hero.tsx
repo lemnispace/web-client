@@ -1,7 +1,7 @@
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
-import { classNames } from "@/utils";
 import { BUTTON_TEXT, HERO_TEXT } from "@/utils/text";
+import clsx from "clsx";
 
 interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
   firstLine: string;
@@ -19,10 +19,7 @@ function HighlightedSpan({
 }: HighlightedSpanProps) {
   return (
     <span
-      className={classNames(
-        "relative whitespace-nowrap text-primary-500",
-        className
-      )}
+      className={clsx("relative whitespace-nowrap text-primary-500", className)}
       {...props}
     >
       <svg
@@ -48,7 +45,7 @@ export function Title({
   return (
     <h1
       {...props}
-      className={classNames(
+      className={clsx(
         "mx-auto max-w-4xl font-display text-5xl font-medium tracking-tight text-slate-900 sm:text-7xl",
         className
       )}

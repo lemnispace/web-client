@@ -1,4 +1,3 @@
-import { classNames } from "@/utils";
 import {
   Dialog,
   Disclosure,
@@ -7,6 +6,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { Fragment } from "react";
 
 interface FiltersOption {
@@ -76,7 +76,7 @@ export const MobileFilters = ({
                 <h2 className="text-lg font-medium text-gray-900">Filters</h2>
                 <button
                   type="button"
-                  className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   onClick={() => handleOpen(false)}
                 >
                   <span className="sr-only">Close menu</span>
@@ -101,7 +101,7 @@ export const MobileFilters = ({
                             </span>
                             <span className="ml-6 flex items-center">
                               <ChevronDownIcon
-                                className={classNames(
+                                className={clsx(
                                   open ? "-rotate-180" : "rotate-0",
                                   "h-5 w-5 transform"
                                 )}
@@ -123,7 +123,7 @@ export const MobileFilters = ({
                                   defaultValue={option.value}
                                   type="checkbox"
                                   defaultChecked={option.checked}
-                                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                  className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                 />
                                 <label
                                   htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
@@ -197,7 +197,7 @@ export const ProductFilters = ({
                   {({ focus }) => (
                     <a
                       href={option.href}
-                      className={classNames(
+                      className={clsx(
                         focus ? "bg-gray-100" : "",
                         "block px-4 py-2 text-sm font-medium text-gray-900"
                       )}
@@ -262,7 +262,7 @@ export const ProductFilters = ({
                         defaultValue={option.value}
                         defaultChecked={option.checked}
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                       <label
                         htmlFor={`filter-${section.id}-${optionIdx}`}

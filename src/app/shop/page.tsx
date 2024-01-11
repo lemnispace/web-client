@@ -1,8 +1,8 @@
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
 import mosaicCloseupImage from "@/images/mosaic/mosaic-closeup-1.jpg";
-import { classNames } from "@/utils";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
+import clsx from "clsx";
 
 interface Product {
   id: number;
@@ -26,7 +26,7 @@ function ProductsMainMessageSection({
   ...props
 }: MainMessageSectionProps) {
   return (
-    <div className={classNames("py-24 text-center", className)} {...props}>
+    <div className={clsx("py-24 text-center", className)} {...props}>
       <h1 className="text-4xl font-bold tracking-tight text-gray-900">
         {title}
       </h1>
@@ -42,7 +42,7 @@ export default function Shop() {
     {
       id: 1,
       name: "Focus Paper Refill",
-      href: "/shop/mosaics/1",
+      href: "/shop/mosaics/text-mosaic",
       price: "$13",
       description: "3 sizes available",
       imageSrc: mosaicCloseupImage.src,
