@@ -133,6 +133,7 @@ export default {
     },
   },
   plugins: [
+    require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
     require("@headlessui/tailwindcss"),
     require("@tailwindcss/aspect-ratio"),
