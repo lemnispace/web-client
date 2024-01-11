@@ -14,7 +14,7 @@ export default function MosaicCollection() {
       <SingleCollection
         desc={COLLECTION_TEXT.textMosaic.description}
         title={COLLECTION_TEXT.textMosaic.title}
-        href="/shop/mosaics"
+        href="/shop/mosaics/text-mosaic"
         imgSrc={mosaicImg.src}
         imgAlt="Text mosaic portrait of a loving couple"
         cta={BUTTON_TEXT.collectionCta}
