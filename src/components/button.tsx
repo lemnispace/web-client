@@ -209,7 +209,6 @@ export const Button = React.forwardRef(function Button(
         ? styles.plain
         : clsx(styles.solid, styles.colors[color ?? "dark/zinc"])
   );
-
   return "href" in props ? (
     <Link
       {...props}
@@ -221,7 +220,10 @@ export const Button = React.forwardRef(function Button(
   ) : (
     <HeadlessButton
       {...props}
-      className={clsx(classes, "cursor-default")}
+      className={clsx(
+        classes,
+        !classes.includes("cursor-") && "cursor-default"
+      )}
       ref={ref}
     >
       <TouchTarget>{children}</TouchTarget>

@@ -3,6 +3,7 @@
 import { Button } from "@/components/button";
 import { BUTTON_TEXT } from "@/utils/text";
 import { HeartIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 
 interface ProductSelectionFormProps
@@ -15,6 +16,7 @@ interface ProductSelectionFormProps
 type ColorFormValue = {
   [K in keyof ProductColor as `color[${K}]`]: string;
 };
+type FormState = "READY" | "BUSY" | "LOADING";
 interface ProductFormData extends ColorFormValue {}
 
 export default function ProductSelectionForm({
@@ -23,6 +25,7 @@ export default function ProductSelectionForm({
   onAddToFavorites,
   ...props
 }: ProductSelectionFormProps) {
+  let formState: FormState = "READY";
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // get form data
     const formData = new FormData(event.target as HTMLFormElement);
@@ -38,13 +41,19 @@ export default function ProductSelectionForm({
         <Button
           type="submit"
           color="primary"
-          className="flex max-w-xs flex-1 sm:w-full"
+          className={clsx(
+            "flex max-w-xs flex-1 sm:w-full",
+            formState === "READY" && "cursor-pointer"
+          )}
         >
           {BUTTON_TEXT.addToCart}
         </Button>
         <Button
           type="button"
-          className="ml-4 flex"
+          className={clsx(
+            "ml-4 flex",
+            formState === "READY" && "cursor-pointer"
+          )}
           plain
           onClick={onAddToFavorites}
         >

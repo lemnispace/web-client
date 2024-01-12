@@ -71,4 +71,36 @@ describe("ProductColorPicker", () => {
     await userEvent.click(redRadioButton);
     expect(mockOnColorChange).toHaveBeenCalledTimes(3);
   });
+
+  it("applies correct classes based on focus and checked state", async () => {
+    const { getAllByRole } = render(<ProductColorPicker colors={colors} />);
+    const radioOptions = getAllByRole("radio");
+    expect(radioOptions).toHaveLength(2);
+    // focus on the first radio button (red radio button)
+    await userEvent.tab();
+
+    // RED RADIO BUTTON
+    const redRadioButton = radioOptions[0];
+    expect(redRadioButton).toHaveClass("text-red-500");
+    // should be focused
+    expect(redRadioButton).toHaveFocus();
+    // state is focused and checked
+    expect(redRadioButton).toHaveClass("ring", "ring-offset-1");
+    // state is NOT unfocused and checked
+    expect(redRadioButton).not.toHaveClass("ring-2");
+
+    // BLUE RADIO BUTTON
+    const blueRadioButton = radioOptions[1];
+    expect(blueRadioButton).toHaveClass("text-blue-500");
+    // should NOT be focused
+    expect(blueRadioButton).not.toHaveFocus();
+    // state is NEITHER focused NOR checked
+    expect(blueRadioButton).not.toHaveClass("ring", "ring-offset-1");
+    expect(blueRadioButton).not.toHaveClass("ring-2");
+
+    // Both radio buttons should have these classes
+    radioOptions.forEach((r) =>
+      expect(r).toHaveClass("cursor-pointer", "focus:outline-none")
+    );
+  });
 });

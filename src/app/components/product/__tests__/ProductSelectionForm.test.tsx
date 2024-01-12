@@ -44,11 +44,11 @@ describe("ProductSelectionForm", () => {
 
   it("Gets the form data with selected color selected when the add to bag button is clicked", async () => {
     const mockOnSubmit = jest.fn();
-    const { getByText } = render(
+    const { getByText, getByRole } = render(
       <ProductSelectionForm colors={colors} onSubmit={mockOnSubmit} />
     );
     const blueRadioButton = getByText("Blue");
-    const addToBagButton = getByText("test cart");
+    const addToBagButton = getByRole("button", { name: "test cart" });
     await userEvent.click(blueRadioButton);
     await userEvent.click(addToBagButton);
     expect(mockOnSubmit).toHaveBeenCalledWith({
@@ -60,13 +60,15 @@ describe("ProductSelectionForm", () => {
 
   it("fires 'Add to favorites' action on button click", async () => {
     const mockOnAddToFavorites = jest.fn();
-    const { getByText } = render(
+    const { getByRole } = render(
       <ProductSelectionForm
         colors={colors}
         onAddToFavorites={mockOnAddToFavorites}
       />
     );
-    const addToFavoritesButton = getByText("test favorites");
+    const addToFavoritesButton = getByRole("button", {
+      name: "test favorites",
+    });
     await userEvent.click(addToFavoritesButton);
     expect(mockOnAddToFavorites).toHaveBeenCalledTimes(1);
   });

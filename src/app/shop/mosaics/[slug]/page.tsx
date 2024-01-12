@@ -107,7 +107,6 @@ export default function Mosaic(props: MosaicProps) {
               <ProductSectionTitle id="details-heading">
                 Additional details
               </ProductSectionTitle>
-
               <ProductDetails details={product.details} />
             </section>
           </div>
