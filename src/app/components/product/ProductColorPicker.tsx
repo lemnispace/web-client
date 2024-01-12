@@ -1,3 +1,5 @@
+"use client";
+
 import { PRODUCT_COLOR_PICKER_TEXT } from "@/utils/text";
 import { Label, RadioGroup } from "@headlessui/react";
 import clsx from "clsx";
