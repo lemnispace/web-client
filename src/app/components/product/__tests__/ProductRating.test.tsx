@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, within } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import ProductRating from "../ProductRating";
 
 jest.mock("@/utils/text", () => ({
@@ -12,6 +12,12 @@ jest.mock("@/utils/text", () => ({
 }));
 
 describe("ProductRating", () => {
+  const originalError = console.error;
+
+  afterEach(() => {
+    console.error = originalError;
+  });
+
   it.each([
     [1, 5],
     [2, 5],
@@ -51,6 +57,8 @@ describe("ProductRating", () => {
   });
 
   it("throws an error if the rating is greater than the total or less than 0", () => {
+    // suppress console.error
+    console.error = jest.fn();
     expect(() => render(<ProductRating rating={-1} outOf={5} />)).toThrow();
     expect(() => render(<ProductRating rating={6} outOf={5} />)).toThrow();
     expect(() => render(<ProductRating rating={0} outOf={0} />)).toThrow();

@@ -13,6 +13,8 @@ export const BUTTON_TEXT = {
   cta: "Start Crafting Now",
   heroCta: "Craft Your Personal Masterpiece",
   collectionCta: "Craft Your Own",
+  addToCart: "Add to Cart",
+  addToFavorites: "Add to Favorites",
 } as const;
 
 // *** Navigation Text ***
@@ -102,6 +104,7 @@ export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
 export const PRODUCT_SECTION_TEXT = {
   title: "Product Information",
   shortDescription: "Product information",
+  description: "Product information",
 } as const;
 
 export const PRODUCT_RATING_TEXT = {
@@ -112,4 +115,10 @@ export const PRODUCT_RATING_TEXT = {
   ): `${number} out of ${number} stars` {
     return `${rating} out of ${total} stars`;
   },
+} as const;
+
+export const PRODUCT_COLOR_PICKER_TEXT = {
+  title: "Color",
+  shortDescription: "Choose a color",
+  description: "Choose a color",
 } as const;
