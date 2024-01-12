@@ -101,6 +101,12 @@ export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
     "The best way to buy the products you love is to 0personalize them.",
 } as const;
 
+export const PRODUCT_DETAIL_SECTION_TEXT = {
+  grid: {
+    title: "Products",
+  },
+} as const;
+
 export const PRODUCT_SECTION_TEXT = {
   title: "Product Information",
   shortDescription: "Product information",
