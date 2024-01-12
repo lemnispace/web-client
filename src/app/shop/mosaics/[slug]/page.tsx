@@ -9,8 +9,14 @@ import ProductTitle, {
 import mosaicImg2 from "@/images/mosaic/mosaic-2.jpg";
 import mosaicImgCloseup from "@/images/mosaic/mosaic-closeup-1.jpg";
 
-export default function Mosaic(...props: any) {
-  console.log("Mosaic Props", props);
+interface MosaicProps {
+  params: {
+    slug: string;
+  };
+  searchParams: Record<string, string>;
+}
+
+export default function Mosaic(props: MosaicProps) {
   const product = {
     id: 1,
     name: "Text Mosaic",
@@ -89,7 +95,7 @@ export default function Mosaic(...props: any) {
           {/* Product info */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <ProductTitle name={product.name} price={product.price} />
-            <ProductRating rating={4} className="mt-3" />
+            <ProductRating rating={4} outOf={4} className="mt-3" />
 
             <div className="mt-6">
               <ProductDescription description={product.description} />
