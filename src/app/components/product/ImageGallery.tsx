@@ -33,12 +33,12 @@ export default function ImageGallery({
   return (
     <Tab.Group as="div" className={clsx("flex flex-col-reverse", className)}>
       {/* Image selector */}
-      <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
+      <div className="mx-auto mt-6 w-full max-w-2xl block lg:max-w-none">
         <Tab.List className="grid grid-cols-4 gap-6">
           {product.images.map((image) => (
             <Tab
               key={image.id}
-              className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
+              className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 lemni-focus-4"
             >
               {({ selected }) => (
                 <>
@@ -58,7 +58,7 @@ export default function ImageGallery({
                   <span
                     /**Use clsx instead of classNames to avoid removing ring-transparent*/
                     className={clsx(
-                      selected ? "ring-secondary-500" : "ring-transparent",
+                      selected ? "ring-primary-500" : "ring-transparent",
                       "pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2"
                     )}
                     aria-hidden="true"
@@ -72,7 +72,7 @@ export default function ImageGallery({
 
       <Tab.Panels className="aspect-h-1 aspect-w-1 w-full">
         {product.images.map((image) => (
-          <Tab.Panel key={image.id}>
+          <Tab.Panel key={image.id} className="lemni-focus-4">
             <Image
               src={image.src}
               alt={image.alt}
