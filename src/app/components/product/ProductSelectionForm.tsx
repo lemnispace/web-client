@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/button";
 import { BUTTON_TEXT } from "@/utils/text";
-import { HeartIcon } from "@heroicons/react/24/outline";
+import { HeartIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 
@@ -37,7 +37,7 @@ export default function ProductSelectionForm({
   return (
     <form {...props} onSubmit={handleSubmit}>
       <ProductColorPicker colors={colors} onColorChange={onColorChange} />
-      <div className="mt-10 flex">
+      <div className="mt-10 flex flex-col sm:flex-row sm:w-full">
         <Button
           type="submit"
           color="primary"
@@ -49,9 +49,23 @@ export default function ProductSelectionForm({
           {BUTTON_TEXT.addToCart}
         </Button>
         <Button
+          href="./text-mosaic/create"
+          outline
+          className={clsx(
+            "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full",
+            formState === "READY" && "cursor-pointer"
+          )}
+        >
+          <span className="text-primary-500">{BUTTON_TEXT.goToCustomize}</span>
+          <PencilSquareIcon
+            className="h-6 w-6 flex-shrink-0 stroke-primary-500"
+            aria-hidden="true"
+          />
+        </Button>
+        <Button
           type="button"
           className={clsx(
-            "ml-4 flex",
+            "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs",
             formState === "READY" && "cursor-pointer"
           )}
           plain
