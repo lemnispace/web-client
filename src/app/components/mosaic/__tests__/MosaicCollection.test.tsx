@@ -11,7 +11,7 @@ jest.mock("@/utils/text", () => ({
     },
   },
   BUTTON_TEXT: {
-    collectionCta: "Test Btn",
+    goToProduct: "Test Btn",
   },
 }));
 

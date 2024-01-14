@@ -7,17 +7,19 @@
 export const GLOBAL_APP_TEXT = {
   name: "LemniSpace",
 } as const;
-// *** Button Text ***
+
 export const BUTTON_TEXT = {
   goBackHome: "Go Back Home",
-  cta: "Start Crafting Now",
-  heroCta: "Craft Your Personal Masterpiece",
-  collectionCta: "Craft Your Own",
+  landing: {
+    cta: "Start Crafting Now",
+    heroCta: "Craft Your Personal Masterpiece",
+  },
+  goToProduct: "Craft Your Own",
+  goToCustomize: "Customize",
   addToCart: "Add to Cart",
   addToFavorites: "Add to Favorites",
 } as const;
 
-// *** Navigation Text ***
 export const NAVIGATION_TEXT = {
   home: "Home",
   mosaics: "Mosaics",
@@ -40,7 +42,6 @@ export const ERROR_TEXTS = {
  *********************************
  */
 
-// *** Layout Text ***
 export const LAYOUT_TEXT = {
   root: {
     name: GLOBAL_APP_TEXT.name,
@@ -61,7 +62,6 @@ export const CTA_TEXT = {
   description: `Embark on a path of personal expression with ${GLOBAL_APP_TEXT.name}. Unleash your creativity and transform your vision into bespoke art pieces that tell your unique story.`,
 } as const;
 
-// *** Coming Soon Text ***
 export const COMING_SOON_TEXT = {
   title: "More Great Products Coming Soon",
   shortDescription: "More products coming soon",
@@ -69,7 +69,6 @@ export const COMING_SOON_TEXT = {
     "We are working hard to bring you more great products. Please check back soon.",
 } as const;
 
-// *** Hero Text ***
 export const HERO_TEXT = {
   // break up title into array of strings to allow for styling
   title: ["Crafting", "your visions", "into artistic treasures"],
@@ -93,12 +92,18 @@ export const COLLECTION_TEXT = {
  *********************************
  */
 
-// *** Product main message section ***
 export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
+  title: "Browse Our Collections",
+  shortDescription: "Browse our collections of customizable products",
+  description:
+    "Explore our collections of customizable products. Our unique service allows users to create custom text mosaics with more great products coming soon.",
+} as const;
+
+export const PRODUCTS_CREATE_MESSAGE_SECTION_TEXT = {
   title: "Make It Yours",
   shortDescription: "Customizable products",
   description:
-    "The best way to buy the products you love is to 0personalize them.",
+    "The best way to buy the products you love is to personalize them.",
 } as const;
 
 export const PRODUCT_DETAIL_SECTION_TEXT = {
@@ -127,4 +132,16 @@ export const PRODUCT_COLOR_PICKER_TEXT = {
   title: "Color",
   shortDescription: "Choose a color",
   description: "Choose a color",
+} as const;
+
+/**
+ *********************************
+ **** IMAGE EDITOR CONSTANTS *****
+ *********************************
+ */
+
+export const IMAGE_EDITOR_TEXT = {
+  title: "Customize Your Image",
+  shortDescription: "Customize your image",
+  description: "Customize your image",
 } as const;

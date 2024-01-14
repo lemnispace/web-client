@@ -27,7 +27,7 @@ export function CallToAction() {
             {CTA_TEXT.description}
           </p>
           <Button href="/shop" color="white" className="mt-10">
-            {BUTTON_TEXT.cta}
+            {BUTTON_TEXT.landing.cta}
           </Button>
         </div>
       </Container>

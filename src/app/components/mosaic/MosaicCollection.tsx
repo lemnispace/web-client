@@ -17,7 +17,7 @@ export default function MosaicCollection() {
         href="/shop/mosaics/text-mosaic"
         imgSrc={mosaicImg.src}
         imgAlt="Text mosaic portrait of a loving couple"
-        cta={BUTTON_TEXT.collectionCta}
+        cta={BUTTON_TEXT.goToProduct}
         imgContainerClassName="-mr-10 sm:mr-0 md:-mr-4 md:-mt-8 lg:-mt-24"
       />
     </Section>

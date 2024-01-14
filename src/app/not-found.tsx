@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="mt-20 text-sm font-medium text-gray-700">
         {ERROR_TEXTS.notFound.code}
       </p>
-      <h1 className="mt-3 text-lg font-semibold text-gray-900">
+      <h1 className="mt-3 text-lg font-semibold font-display text-gray-900">
         {ERROR_TEXTS.notFound.title}
       </h1>
       <p className="mt-3 text-sm text-gray-700">

@@ -55,8 +55,8 @@ export default function SingleCollection({
       <div aria-hidden="true" className="relative h-32 w-full md:hidden" />
       <div className="dark absolute inset-x-0 bottom-0 rounded-bl-lg rounded-br-lg bg-black bg-opacity-75 p-6 backdrop-blur backdrop-filter sm:flex sm:items-center sm:justify-between md:inset-x-auto md:inset-y-0 md:w-96 md:flex-col md:items-start md:rounded-br-none md:rounded-tl-lg">
         <div>
-          <h2 className="text-xl font-bold text-white">{title}</h2>
-          <p className="mt-1 text-sm text-gray-300">{desc}</p>
+          <h2 className="text-xl font-display text-white">{title}</h2>
+          <p className="mt-2 text-sm text-gray-300">{desc}</p>
         </div>
         <Button
           href={href}

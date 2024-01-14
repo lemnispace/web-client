@@ -100,7 +100,7 @@ describe("ProductColorPicker", () => {
 
     // Both radio buttons should have these classes
     radioOptions.forEach((r) =>
-      expect(r).toHaveClass("cursor-pointer", "focus:outline-none")
+      expect(r).toHaveClass("cursor-pointer", "lemni-focus")
     );
   });
 });

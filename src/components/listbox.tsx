@@ -46,7 +46,7 @@ export function Listbox<T>({
           "focus:outline-none",
 
           // Focus ring
-          "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent sm:after:data-[focus]:ring-2 sm:after:data-[focus]:ring-blue-500",
+          "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent sm:after:data-[focus]:ring-2 sm:after:data-[focus]:ring-primary-500",
 
           // Disabled state
           "data-[disabled]:opacity-50 before:data-[disabled]:bg-zinc-950/5 before:data-[disabled]:shadow-none",
@@ -185,7 +185,7 @@ export function ListboxOption<T>({
               "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
 
               // Focus
-              "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
+              "outline-none data-[focus]:bg-primary-500 data-[focus]:text-white",
 
               // Forced colors mode
               "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",

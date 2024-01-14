@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .lemni-focus-4 {
+    @apply focus:ring lemni-focus focus:ring-opacity-50 focus:ring-offset-4;
+  }
+  .lemni-focus {
+    @apply data-[focus]:outline-none focus:outline-none focus:ring-primary-500;
+  }
+}

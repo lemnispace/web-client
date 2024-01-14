@@ -1,6 +1,6 @@
+import { Button } from "@/components/button";
 import { Container } from "@/components/container";
 import clsx from "clsx";
-import Link from "next/link";
 import { Logo } from "./Logo";
 import MobileNavigation from "./MobileNavigation";
 import { NavLink, NavLinkProps } from "./NavLink";
@@ -24,9 +24,9 @@ export function Header({ navLinks, className, ...props }: HeaderProps) {
           data-testid="main-header-nav"
         >
           <div className="flex items-center md:gap-x-12">
-            <Link href="/" aria-label="Home">
+            <Button href="/" aria-label="Home" plain>
               <Logo className="h-8 w-auto" />
-            </Link>
+            </Button>
             <div className="hidden md:flex md:gap-x-6">
               {navLinks.map((link) => (
                 <NavLink key={link.href} {...link} />

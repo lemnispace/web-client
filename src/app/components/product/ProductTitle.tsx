@@ -31,7 +31,7 @@ export default function ProductTitle({
     <>
       <h1
         className={clsx(
-          "text-3xl font-bold tracking-tight text-gray-900",
+          "text-3xl font-bold font-display tracking-tight text-gray-900",
           className
         )}
         {...props}

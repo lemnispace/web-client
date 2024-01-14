@@ -5,7 +5,9 @@ import { Hero, Title } from "../Hero";
 // mock GLOBAL_APP_TEXT
 jest.mock("@/utils/text", () => ({
   BUTTON_TEXT: {
-    heroCta: "Hero Button",
+    landing: {
+      heroCta: "Hero Button",
+    },
   },
   HERO_TEXT: {
     title: ["first", "second", "third"],

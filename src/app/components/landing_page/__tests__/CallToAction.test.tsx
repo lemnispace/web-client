@@ -8,7 +8,9 @@ jest.mock("@/utils/text", () => ({
     description: "Sample Description",
   },
   BUTTON_TEXT: {
-    cta: "Call to Action Button",
+    landing: {
+      cta: "Call to Action Button",
+    },
   },
 }));
 

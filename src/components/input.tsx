@@ -35,7 +35,7 @@ export const Input = forwardRef<
         "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white before:shadow",
 
         // Focus ring
-        "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent sm:after:focus-within:ring-2 sm:after:focus-within:ring-blue-500",
+        "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent sm:after:focus-within:ring-2 sm:after:focus-within:ring-primary-500",
 
         // Disabled state
         "has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
@@ -65,7 +65,9 @@ export const Input = forwardRef<
             ],
 
           // Basic layout
-          "relative block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[2.5])-1px)] sm:px-[calc(theme(spacing[3])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+          "relative block w-full appearance-none rounded-lg",
+          props.type !== "file" &&
+            "px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[2.5])-1px)] sm:px-[calc(theme(spacing[3])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
 
           // Typography
           "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6",
@@ -84,6 +86,9 @@ export const Input = forwardRef<
 
           // Disabled state
           "data-[disabled]:border-zinc-950/20",
+          // File input
+          "file:px-[calc(theme(spacing[3.5])-1px)] file:py-[calc(theme(spacing[2.5])-1px)] file:sm:px-[calc(theme(spacing[3])-1px)] file:sm:py-[calc(theme(spacing[1.5])-1px)]",
+          "file:text-white file:bg-zinc-900 file:hover:bg-zinc-600 file:cursor-default",
         ])}
         {...props}
       />
