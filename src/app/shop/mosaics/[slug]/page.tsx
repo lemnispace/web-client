@@ -6,6 +6,7 @@ import ProductSelectionForm from "@/app/components/product/ProductSelectionForm"
 import ProductTitle, {
   ProductSectionTitle,
 } from "@/app/components/product/ProductTitle";
+import { Container } from "@/components/container";
 import mosaicImg2 from "@/images/mosaic/mosaic-2.jpg";
 import mosaicImgCloseup from "@/images/mosaic/mosaic-closeup-1.jpg";
 
@@ -88,21 +89,21 @@ export default function Mosaic(props: MosaicProps) {
     ],
   };
   return (
-    <div className="bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <main className="bg-white">
+      <Container
+        className="py-16 sm:py-24 max-w-2xl lg:max-w-7xl"
+        overrideMaxWidth
+      >
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
           <ImageGallery product={product} />
           {/* Product info */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <ProductTitle name={product.name} price={product.price} />
             <ProductRating rating={4} outOf={4} className="mt-3" />
-
             <div className="mt-6">
               <ProductDescription description={product.description} />
             </div>
-
             <ProductSelectionForm colors={product.colors} className="mt-6" />
-
             <section aria-labelledby="details-heading" className="mt-12">
               <ProductSectionTitle id="details-heading">
                 Additional details
@@ -111,7 +112,7 @@ export default function Mosaic(props: MosaicProps) {
             </section>
           </div>
         </div>
-      </div>
-    </div>
+      </Container>
+    </main>
   );
 }
