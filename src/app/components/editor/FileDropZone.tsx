@@ -8,12 +8,14 @@ import { DragEvent, useState } from "react";
 interface FileDropZoneProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "id"> {
   containerClassName?: string;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export default function FileDropZone({
   className,
   containerClassName,
   onDrop,
+  inputRef,
   ...props
 }: FileDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -73,6 +75,7 @@ export default function FileDropZone({
           PNG, JPEG, PPM, GIF, TIFF, and BMP
         </Text>
         <input
+          ref={inputRef}
           id="dropzone-file"
           type="file"
           className="hidden"
