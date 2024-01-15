@@ -1,8 +1,8 @@
 "use client";
 
 import { IMAGE_EDITOR_TEXT } from "@/utils/text";
-import clsx from "clsx";
-import { ChangeEvent, DragEvent, useState } from "react";
+import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
 import { ImgData, getImgSrcFromFile } from "./utils";
@@ -17,6 +17,7 @@ export default function ImgEditor({
   ...props
 }: ImgUploaderProps) {
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -44,9 +45,26 @@ export default function ImgEditor({
         {IMAGE_EDITOR_TEXT.title}
       </h2>
       {uploadedImg && (
-        <Editor imgSrc={uploadedImg.data} imgName={uploadedImg.fileName} />
+        <Editor
+          imgSrc={uploadedImg.data}
+          imgName={uploadedImg.fileName}
+          customActions={[
+            {
+              label: "Re-upload",
+              icon: <CloudArrowUpIcon className="h-6 w-6 stroke-white" />,
+              onClick: () => {
+                inputRef.current?.click();
+              },
+            },
+          ]}
+        />
       )}
-      <FileDropZone onChange={handleOnChange} onDrop={handleOnDrop} />
+      <FileDropZone
+        onChange={handleOnChange}
+        onDrop={handleOnDrop}
+        inputRef={inputRef}
+        className={uploadedImg ? "hidden" : ""}
+      />
     </div>
   );
 }
