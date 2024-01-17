@@ -44,12 +44,12 @@ export default function EditorMenu(props: EditorMenuProps) {
   return (
     <ul
       className={clsx(
-        "bg-zinc-800 text-white w-auto flex p-2 md:p-4 whitespace-nowrap dark",
+        "bg-zinc-800 text-white w-auto flex py-2 whitespace-nowrap dark overflow-auto",
         props.className
       )}
     >
       {props.actions.map((a) => (
-        <li key={a.label} className="w-full">
+        <li key={a.label} className="w-full py-0 md:py-2">
           <EditorControlItem {...a} disabled={props.disabled || a.disabled} />
         </li>
       ))}
