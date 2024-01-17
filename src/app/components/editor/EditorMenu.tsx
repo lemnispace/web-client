@@ -5,8 +5,10 @@ export interface EditorControlItemProps {
   icon: React.ReactNode;
   label: string;
   disabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
+  href?: string;
+  download?: boolean;
 }
 
 export function EditorControlItem({
@@ -27,7 +29,7 @@ export function EditorControlItem({
       {...props}
     >
       {icon}
-      <span>{label}</span>
+      <span className="text-sm">{label}</span>
     </Button>
   );
 }
@@ -42,7 +44,7 @@ export default function EditorMenu(props: EditorMenuProps) {
   return (
     <ul
       className={clsx(
-        "bg-zinc-800 text-white w-auto flex flex-col p-2 md:p-4 whitespace-nowrap dark",
+        "bg-zinc-800 text-white w-auto flex p-2 md:p-4 whitespace-nowrap dark",
         props.className
       )}
     >
