@@ -5,6 +5,7 @@ import {
   Canvas as FabricCanvas,
   FabricImage,
   FabricObject,
+  ImageProps,
 } from "fabric";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -38,15 +39,35 @@ export const centerImgOnCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
 
 // Scale the image down while maintaining the aspect ratio
 export const scaleImgToCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
+  const padding = 40;
   const scaleFactor = Math.min(
-    canvas.width / fImg.width,
-    canvas.height / fImg.height
+    (canvas.width - padding) / fImg.width,
+    (canvas.height - padding) / fImg.height
   );
   fImg.scale(scaleFactor);
 };
 
-const addImgToFabricCanvas = async (src: string, canvas: FabricCanvas) => {
-  const fImg = await FabricImage.fromURL(src, undefined, {});
+export const resetImgState = (fImg: FabricObject, canvas: FabricCanvas) => {
+  scaleImgToCanvas(fImg, canvas);
+  centerImgOnCanvas(fImg, canvas);
+  fImg.rotate(0);
+  canvas.renderAll();
+};
+
+const addImgToFabricCanvas = async (
+  src: string,
+  canvas: FabricCanvas,
+  options?: Partial<ImageProps>
+) => {
+  const fImg = await FabricImage.fromURL(src, undefined, {
+    snapAngle: 5,
+    lockSkewingX: true,
+    lockSkewingY: true,
+    cornerColor: "#FCC325",
+    borderColor: "#FCC325",
+    ...options,
+  });
+
   scaleImgToCanvas(fImg, canvas);
   centerImgOnCanvas(fImg, canvas);
   canvas?.add(fImg);
@@ -55,7 +76,12 @@ const addImgToFabricCanvas = async (src: string, canvas: FabricCanvas) => {
 
 const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
   if (el) {
-    const c = new FabricCanvas(el, options);
+    const c = new FabricCanvas(el, {
+      uniScaleKey: null,
+      selectionBorderColor: "#FDD66B",
+      selectionColor: "#FDD66B45",
+      ...options,
+    });
     callbackFn(c);
   }
 };
