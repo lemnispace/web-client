@@ -9,7 +9,11 @@ import imglyRemoveBackground from "@imgly/background-removal";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
-import Canvas, { centerImgOnCanvas, findCanvasImgObj } from "./Canvas";
+import Canvas, {
+  centerImgOnCanvas,
+  findCanvasImgObj,
+  resetImgState,
+} from "./Canvas";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
 import { useImgSrc } from "./useImgSrc";
 
@@ -69,6 +73,10 @@ export default function Editor(props: EditorProps) {
   const handleReset = () => {
     setImgSrc(null);
     setStatus("idle");
+    if (fCanvas) {
+      const img = findCanvasImgObj(fCanvas);
+      img && resetImgState(img, fCanvas);
+    }
   };
 
   const handleCenter = () => {
