@@ -23,7 +23,7 @@ export function EditorControlItem({
       plain
       className={clsx(
         "flex flex-col r w-full",
-        props.disabled ? "cursor-wait" : "cursor-pointer",
+        props.disabled ? "cursor-not-allowed" : "cursor-pointer",
         className
       )}
       {...props}
