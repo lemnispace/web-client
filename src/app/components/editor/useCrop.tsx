@@ -114,6 +114,8 @@ const init = ({
   const imgCleanupHandlers = addSyncEventHandlers(img, () => {
     // sync img movements with cropped image
     syncObjects(canvas, img, croppedImg);
+    syncObjects(canvas, img, croppingRect);
+    syncObjects(canvas, img, clipPath);
   });
   const croppedImgCleanupHandlers = addSyncEventHandlers(croppedImg, () => {
     // this function will allow the cropped image to be moved, scaled, rotated, and skewed while maintaining the clipping path
@@ -224,7 +226,7 @@ const createCrop = async (canvas: FabricCanvas, source: Rect) => {
   });
 
   // Create a new FabricImage from the cropped data
-  const newCroppedImg = await getNewFabricImgFromSrc(croppedDataUrl, canvas);
+  const newCroppedImg = await getNewFabricImgFromSrc(croppedDataUrl);
   newCroppedImg.set({
     left: sourceBoundingRect.left,
     top: sourceBoundingRect.top,
@@ -282,7 +284,6 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const croppingRectRef = useRef<Rect | null>(null);
   const clipPathRef = useRef<Rect | null>(null);
   const stopCleanupRef = useRef<(() => void) | null>(null);
-  const newCroppedImgRef = useRef<FabricImage | null>(null);
 
   const destroyResources = useCallback(() => {
     if (!canvas) return;
@@ -328,10 +329,7 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
       }
       const croppedImg = await getCroppedImg(img, croppedImgRef.current);
       const overlay = getOverlay(canvas, overlayRef.current);
-      const croppingRect = getCroppingRect(
-        newCroppedImgRef.current ?? img,
-        croppingRectRef.current
-      );
+      const croppingRect = getCroppingRect(img, croppingRectRef.current);
       const clipPath = getClipPath(croppingRect, clipPathRef.current);
       if (!croppedImg.clipPath) {
         // apply the clipping path to the cropped image (this is essentially what 'crops' the image)
@@ -364,11 +362,11 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   );
 
   const start = useCallback(async () => {
-    stopCleanupRef.current?.();
     if (canvas) {
       try {
         const { croppedImg, overlay, croppingRect, clipPath, img } =
           await initResources(canvas, imgSrc);
+        stopCleanupRef.current?.();
         // ensure the overlay, cropped image, the original image, and cropping rectangle are visible
         [croppedImg, overlay, croppingRect, clipPath, img].forEach(
           showFabricObj
@@ -426,12 +424,10 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
         const newCroppedImg = await prepareCrop(canvas);
         destroyResources();
         canvas.add(newCroppedImg);
-        newCroppedImgRef.current = newCroppedImg;
         canvas.setActiveObject(newCroppedImg);
 
         stopCleanupRef.current = () => {
           canvas.remove(newCroppedImg);
-          newCroppedImgRef.current = null;
         };
       }
       canvas.requestRenderAll();

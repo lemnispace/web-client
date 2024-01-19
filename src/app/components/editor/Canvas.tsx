@@ -64,7 +64,6 @@ export const resetImgState = (fImg: FabricObject, canvas: FabricCanvas) => {
 
 export const getNewFabricImgFromSrc = async (
   src: string,
-  canvas: FabricCanvas,
   options?: Partial<ImageProps>
 ) => {
   return await FabricImage.fromURL(src, undefined, {
@@ -82,7 +81,7 @@ const addImgToFabricCanvas = async (
   canvas: FabricCanvas,
   options?: Partial<ImageProps>
 ) => {
-  const fImg = await getNewFabricImgFromSrc(src, canvas, options);
+  const fImg = await getNewFabricImgFromSrc(src, options);
 
   scaleImgToCanvas(fImg, canvas);
   centerImgOnCanvas(fImg, canvas);
