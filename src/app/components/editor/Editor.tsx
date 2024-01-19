@@ -10,14 +10,11 @@ import imglyRemoveBackground from "@imgly/background-removal";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
-import Canvas, {
-  centerImgOnCanvas,
-  findCanvasImgObj,
-  resetImgState,
-} from "./Canvas";
+import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
 import { useCrop } from "./useCrop";
 import { useImgSrc } from "./useImgSrc";
+import { findCanvasImgObj } from "./utils";
 
 export type ImgSource =
   | ImageData

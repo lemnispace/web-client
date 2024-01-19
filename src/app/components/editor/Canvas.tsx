@@ -8,6 +8,7 @@ import {
   ImageProps,
 } from "fabric";
 import React, { useEffect, useRef, useState } from "react";
+import { getNewFabricImgFromSrc } from "./utils";
 
 interface CanvasProps extends React.HTMLAttributes<HTMLCanvasElement> {
   imgSrc?: string;
@@ -21,31 +22,28 @@ interface InitCanvasOptions {
   options?: Partial<CanvasOptions>;
 }
 
-export const findCanvasImgObj = (
-  canvas: FabricCanvas,
-  fn?: (o: FabricImage) => boolean
-) => {
-  return canvas
-    ?.getObjects()
-    .find((o) => o.type === "image" && (!fn || fn(o as FabricImage)));
-};
-
 // Center the image within the canvas
 export const centerImgOnCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
+  const canvasCenter = canvas.getCenterPoint();
+  const left = canvasCenter.x - (fImg.width * fImg.scaleX) / 2;
+  const top = canvasCenter.y - (fImg.height * fImg.scaleY) / 2;
   fImg
     .set({
-      left: canvas.width / 2,
-      top: canvas.height / 2,
-      originX: "center",
-      originY: "center",
+      left,
+      top,
+      originX: "left",
+      originY: "top",
     })
     .setCoords();
   fImg.fire("moving");
 };
 
 // Scale the image down while maintaining the aspect ratio
-export const scaleImgToCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
-  const padding = 40;
+export const scaleImgToCanvas = (
+  fImg: FabricObject,
+  canvas: FabricCanvas,
+  padding = 40
+) => {
   const scaleFactor = Math.min(
     (canvas.width - padding) / fImg.width,
     (canvas.height - padding) / fImg.height
@@ -60,20 +58,6 @@ export const resetImgState = (fImg: FabricObject, canvas: FabricCanvas) => {
   fImg.rotate(0);
   fImg.fire("rotating");
   canvas.renderAll();
-};
-
-export const getNewFabricImgFromSrc = async (
-  src: string,
-  options?: Partial<ImageProps>
-) => {
-  return await FabricImage.fromURL(src, undefined, {
-    snapAngle: 5,
-    lockSkewingX: true,
-    lockSkewingY: true,
-    cornerColor: "#FCC325",
-    borderColor: "#FCC325",
-    ...options,
-  });
 };
 
 const addImgToFabricCanvas = async (
