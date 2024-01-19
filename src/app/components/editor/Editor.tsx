@@ -86,9 +86,8 @@ export default function Editor(props: EditorProps) {
   const handleCenter = () => {
     if (fCanvas) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
-      console.log(fCanvas, img);
       img && centerImgOnCanvas(img, fCanvas);
-      fCanvas.renderAll();
+      fCanvas.requestRenderAll();
     }
   };
 
@@ -105,7 +104,6 @@ export default function Editor(props: EditorProps) {
       label: "Reset",
       icon: <ArrowPathIcon className="h-6 w-6 stroke-white" />,
       onClick: handleReset,
-      disabled: isCropActive,
     },
     {
       label: "BG Remove",
@@ -117,7 +115,6 @@ export default function Editor(props: EditorProps) {
       label: "Center",
       icon: <ArrowsPointingInIcon className="h-6 w-6 stroke-white" />,
       onClick: handleCenter,
-      disabled: isCropActive,
     },
     {
       label: "Crop",
@@ -127,11 +124,7 @@ export default function Editor(props: EditorProps) {
   ];
 
   if (props.customActions) {
-    const custom = props.customActions.map((a) => ({
-      ...a,
-      disabled: isCropActive || a.disabled,
-    }));
-    actions.push(...custom);
+    actions.push(...props.customActions);
   }
 
   return (

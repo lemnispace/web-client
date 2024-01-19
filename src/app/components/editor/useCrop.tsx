@@ -6,7 +6,7 @@ import {
   FabricObject,
   Rect,
 } from "fabric";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { findCanvasImgObj, getNewFabricImgFromSrc } from "./Canvas";
 
 const getCanvasImg = (
@@ -282,6 +282,7 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const croppingRectRef = useRef<Rect | null>(null);
   const clipPathRef = useRef<Rect | null>(null);
   const stopCleanupRef = useRef<(() => void) | null>(null);
+  const newCroppedImgRef = useRef<FabricImage | null>(null);
 
   const destroyResources = useCallback(() => {
     if (!canvas) return;
@@ -296,6 +297,29 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
     clipPathRef.current = null;
   }, [canvas]);
 
+  const resetAll = useCallback(() => {
+    if (canvas) {
+      if (imgRef.current) {
+        showFabricObj(imgRef.current);
+        canvas.setActiveObject(imgRef.current);
+      }
+      stopCleanupRef.current?.();
+      destroyResources();
+      canvas.requestRenderAll();
+      setCropActive(false);
+    }
+  }, [canvas, destroyResources]);
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.getSrc() !== imgSrc) {
+      // reset if imgSrc changes
+      resetAll();
+      imgRef.current = null;
+      canvas?.discardActiveObject();
+      canvas?.requestRenderAll();
+    }
+  }, [canvas, resetAll, imgSrc]);
+
   const initResources = useCallback(
     async (canvas: FabricCanvas, imgSrc: string) => {
       const img = getImg(canvas, imgSrc, imgRef.current);
@@ -304,7 +328,10 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
       }
       const croppedImg = await getCroppedImg(img, croppedImgRef.current);
       const overlay = getOverlay(canvas, overlayRef.current);
-      const croppingRect = getCroppingRect(img, croppingRectRef.current);
+      const croppingRect = getCroppingRect(
+        newCroppedImgRef.current ?? img,
+        croppingRectRef.current
+      );
       const clipPath = getClipPath(croppingRect, clipPathRef.current);
       if (!croppedImg.clipPath) {
         // apply the clipping path to the cropped image (this is essentially what 'crops' the image)
@@ -399,29 +426,18 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
         const newCroppedImg = await prepareCrop(canvas);
         destroyResources();
         canvas.add(newCroppedImg);
+        newCroppedImgRef.current = newCroppedImg;
         canvas.setActiveObject(newCroppedImg);
 
         stopCleanupRef.current = () => {
           canvas.remove(newCroppedImg);
+          newCroppedImgRef.current = null;
         };
       }
       canvas.requestRenderAll();
       setCropActive(false);
     }
   }, [canvas, destroyResources, prepareCrop]);
-
-  const resetAll = useCallback(() => {
-    if (canvas) {
-      if (imgRef.current) {
-        showFabricObj(imgRef.current);
-        canvas.setActiveObject(imgRef.current);
-      }
-      stopCleanupRef.current?.();
-      destroyResources();
-      canvas.requestRenderAll();
-      setCropActive(false);
-    }
-  }, [canvas, destroyResources]);
 
   return [start, stop, isCropActive, resetAll] as const;
 };
