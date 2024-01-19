@@ -21,8 +21,13 @@ interface InitCanvasOptions {
   options?: Partial<CanvasOptions>;
 }
 
-export const findCanvasImgObj = (canvas: FabricCanvas) => {
-  return canvas?.getObjects().find((o) => o.type === "image");
+export const findCanvasImgObj = (
+  canvas: FabricCanvas,
+  fn?: (o: FabricImage) => boolean
+) => {
+  return canvas
+    ?.getObjects()
+    .find((o) => o.type === "image" && (!fn || fn(o as FabricImage)));
 };
 
 // Center the image within the canvas
@@ -35,6 +40,7 @@ export const centerImgOnCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
       originY: "center",
     })
     .setCoords();
+  fImg.fire("moving");
 };
 
 // Scale the image down while maintaining the aspect ratio
@@ -45,21 +51,23 @@ export const scaleImgToCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
     (canvas.height - padding) / fImg.height
   );
   fImg.scale(scaleFactor);
+  fImg.fire("scaling");
 };
 
 export const resetImgState = (fImg: FabricObject, canvas: FabricCanvas) => {
   scaleImgToCanvas(fImg, canvas);
   centerImgOnCanvas(fImg, canvas);
   fImg.rotate(0);
+  fImg.fire("rotating");
   canvas.renderAll();
 };
 
-const addImgToFabricCanvas = async (
+export const getNewFabricImgFromSrc = async (
   src: string,
   canvas: FabricCanvas,
   options?: Partial<ImageProps>
 ) => {
-  const fImg = await FabricImage.fromURL(src, undefined, {
+  return await FabricImage.fromURL(src, undefined, {
     snapAngle: 5,
     lockSkewingX: true,
     lockSkewingY: true,
@@ -67,6 +75,14 @@ const addImgToFabricCanvas = async (
     borderColor: "#FCC325",
     ...options,
   });
+};
+
+const addImgToFabricCanvas = async (
+  src: string,
+  canvas: FabricCanvas,
+  options?: Partial<ImageProps>
+) => {
+  const fImg = await getNewFabricImgFromSrc(src, canvas, options);
 
   scaleImgToCanvas(fImg, canvas);
   centerImgOnCanvas(fImg, canvas);
@@ -80,6 +96,7 @@ const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
       uniScaleKey: null,
       selectionBorderColor: "#FDD66B",
       selectionColor: "#FDD66B45",
+      preserveObjectStacking: true,
       ...options,
     });
     callbackFn(c);
