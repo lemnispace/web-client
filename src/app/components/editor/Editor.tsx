@@ -1,4 +1,5 @@
 "use client";
+import { CropIcon } from "@/components/icons/crop";
 import { Loader } from "@/components/loader";
 import {
   ArrowPathIcon,
@@ -15,6 +16,7 @@ import Canvas, {
   resetImgState,
 } from "./Canvas";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
+import { useCrop } from "./useCrop";
 import { useImgSrc } from "./useImgSrc";
 
 export type ImgSource =
@@ -51,6 +53,7 @@ export default function Editor(props: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [src, setImgSrc] = useImgSrc(props.imgSrc);
+  const [startCrop, endCrop, isCropActive, resetCrop] = useCrop(fCanvas, src);
 
   const handleRemoveBackground = () => {
     if (!src) {
@@ -74,16 +77,26 @@ export default function Editor(props: EditorProps) {
     setImgSrc(null);
     setStatus("idle");
     if (fCanvas) {
-      const img = findCanvasImgObj(fCanvas);
+      resetCrop();
+      const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && resetImgState(img, fCanvas);
     }
   };
 
   const handleCenter = () => {
     if (fCanvas) {
-      const img = findCanvasImgObj(fCanvas);
+      const img = findCanvasImgObj(fCanvas, (o) => o.visible);
+      console.log(fCanvas, img);
       img && centerImgOnCanvas(img, fCanvas);
       fCanvas.renderAll();
+    }
+  };
+
+  const handleCrop = () => {
+    if (!isCropActive) {
+      startCrop();
+    } else {
+      endCrop();
     }
   };
 
@@ -92,21 +105,33 @@ export default function Editor(props: EditorProps) {
       label: "Reset",
       icon: <ArrowPathIcon className="h-6 w-6 stroke-white" />,
       onClick: handleReset,
+      disabled: isCropActive,
     },
     {
       label: "BG Remove",
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
+      disabled: isCropActive,
     },
     {
       label: "Center",
       icon: <ArrowsPointingInIcon className="h-6 w-6 stroke-white" />,
       onClick: handleCenter,
+      disabled: isCropActive,
+    },
+    {
+      label: "Crop",
+      icon: <CropIcon className="h-6 w-6 stroke-white" />,
+      onClick: handleCrop,
     },
   ];
 
   if (props.customActions) {
-    actions.push(...props.customActions);
+    const custom = props.customActions.map((a) => ({
+      ...a,
+      disabled: isCropActive || a.disabled,
+    }));
+    actions.push(...custom);
   }
 
   return (
@@ -122,7 +147,7 @@ export default function Editor(props: EditorProps) {
       )}
       <EditorMenu
         actions={actions}
-        disabled={status === "loading"}
+        disabled={status === "loading" || !fCanvas}
         className="flex-row md:flex-col"
       />
       <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto">
