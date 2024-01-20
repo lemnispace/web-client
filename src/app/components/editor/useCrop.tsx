@@ -436,12 +436,39 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
         hideFabricObj(img);
         const newCroppedImg = await prepareCrop(canvas);
         destroyResources();
+        // setup the new cropped image
         newCroppedImg.setCoords();
         canvas.add(newCroppedImg);
         newCroppedImgRef.current = newCroppedImg;
         canvas.setActiveObject(newCroppedImg);
+        // calculate the difference between the original image and the cropped image. This will be used to sync the cropped image with the original image.
+        const CroppedImgSyncProps = {
+          deltaX: newCroppedImg.left - img.left,
+          deltaY: newCroppedImg.top - img.top,
+        };
+
+        // sync img movements with cropped image
+        const croppingRectCleanupHandlers = addSyncEventHandlers(
+          newCroppedImg,
+          () => {
+            imgRef.current &&
+              syncObjects(
+                canvas,
+                newCroppedImg,
+                imgRef.current,
+                (croppedImg, originalImg) => {
+                  return {
+                    top: croppedImg.top - CroppedImgSyncProps.deltaY,
+                    left: croppedImg.left - CroppedImgSyncProps.deltaX,
+                    angle: originalImg.angle,
+                  };
+                }
+              );
+          }
+        );
 
         stopCleanupRef.current = () => {
+          croppingRectCleanupHandlers();
           canvas.remove(newCroppedImg);
           newCroppedImgRef.current = null;
         };
