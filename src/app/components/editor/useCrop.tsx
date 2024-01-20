@@ -213,7 +213,11 @@ export const getOverlay = (canvas: FabricCanvas, current?: Rect | null) => {
   return current;
 };
 
-export const createCrop = async (canvas: FabricCanvas, source: Rect) => {
+export const createCrop = async (
+  canvas: FabricCanvas,
+  source: Rect,
+  getNewImgFromSrc = getNewFabricImgFromSrc
+) => {
   const sourceBoundingRect = source.getBoundingRect();
   // Use toDataURL to create a cropped version of the image
   const croppedDataUrl = canvas.toDataURL({
@@ -225,7 +229,7 @@ export const createCrop = async (canvas: FabricCanvas, source: Rect) => {
   });
 
   // Create a new FabricImage from the cropped data
-  const newCroppedImg = await getNewFabricImgFromSrc(croppedDataUrl);
+  const newCroppedImg = await getNewImgFromSrc(croppedDataUrl);
   newCroppedImg
     .set({
       left: sourceBoundingRect.left,
@@ -414,26 +418,6 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
     croppingRectRef.current && hideFabricObj(croppingRectRef.current);
     canvas.discardActiveObject();
     const newCroppedImg = await createCrop(canvas, clipPathRef.current);
-    // addSyncEventHandlers(newCroppedImg, () => {
-    //   // sync img movements with cropped image
-    //   imgRef.current &&
-    //     syncObjects(canvas, newCroppedImg, imgRef.current, (source, target) => {
-    //       const sourceCenter = source.getCenterPoint();
-    //       const targetCenter = target.getCenterPoint();
-    //       console.log(source, target);
-    //       const heightDelta = Math.abs(targetCenter.y - sourceCenter.y);
-    //       const widthDelta = Math.abs(targetCenter.x - sourceCenter.x);
-    //       return {
-    //         top: target.top,
-    //         left: target.left,
-    //         angle: target.angle,
-    //         scaleX: target.scaleX,
-    //         scaleY: target.scaleY,
-    //         originX: target.originX,
-    //         originY: target.originY,
-    //       };
-    //     });
-    // });
     return newCroppedImg;
   }, []);
 

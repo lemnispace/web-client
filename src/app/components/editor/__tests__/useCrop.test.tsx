@@ -1,7 +1,9 @@
 import "@testing-library/jest-dom";
+import { render } from "@testing-library/react";
 import { Canvas, FabricImage, FabricObject, Rect } from "fabric";
 import {
   addSyncEventHandlers,
+  createCrop,
   freezeFabricObj,
   getClipPath,
   getCroppedImg,
@@ -13,14 +15,63 @@ import {
   showFabricObj,
   syncObjects,
   unfreezeFabricObj,
+  useCrop,
 } from "../useCrop";
+
+type MockTestRef = { current: any };
+const MOCK_IMG_SRC = "http://localhost/test-src";
+const mockImgEl = document.createElement("img");
+mockImgEl.src = MOCK_IMG_SRC;
+const mockFabricImg = new FabricImage(mockImgEl);
 
 const mockCanvas = {
   add: jest.fn(),
+  remove: jest.fn(),
   setActiveObject: jest.fn(),
   getActiveObject: jest.fn(),
   requestRenderAll: jest.fn(),
+  getObjects: jest.fn(),
 };
+
+const MockComponent = (props: {
+  imgSrc: string;
+  startRef: MockTestRef;
+  stopRef: MockTestRef;
+  canvas: any;
+}) => {
+  const [start, stop, isCropActive] = useCrop(props.canvas, props.imgSrc);
+  props.startRef.current = start;
+  props.stopRef.current = stop;
+
+  return <div>{isCropActive ? "active" : "inactive"}</div>;
+};
+
+describe("useCrop", () => {
+  it("should be inactive by default and should not call any functions", () => {
+    const startRef: MockTestRef = { current: null };
+    const stopRef: MockTestRef = { current: null };
+    const localMockCanvas = {
+      ...mockCanvas,
+      getObjects: jest.fn(() => [mockFabricImg]),
+    };
+    const { getByText, queryByText } = render(
+      <MockComponent
+        canvas={localMockCanvas}
+        startRef={startRef}
+        stopRef={stopRef}
+        imgSrc={MOCK_IMG_SRC}
+      />
+    );
+    // crop is inactive by default
+    expect(getByText("inactive")).toBeInTheDocument();
+    expect(queryByText("active")).toBeNull();
+    // no functions have been called yet
+    expect(mockCanvas.add).not.toHaveBeenCalled();
+    expect(mockCanvas.setActiveObject).not.toHaveBeenCalled();
+    expect(mockCanvas.getActiveObject).not.toHaveBeenCalled();
+    expect(mockCanvas.requestRenderAll).not.toHaveBeenCalled();
+  });
+});
 
 describe("useCrop utils", () => {
   it("should freeze the fabric object and not allow it to be selectable", async () => {
@@ -550,5 +601,52 @@ describe("useCrop utils", () => {
     expect(croppingRect2.scaleX).toBe(1);
     expect(croppingRect2.scaleY).toBe(1);
     expect(croppingRect2.angle).toBe(0);
+  });
+  test("should create a cropped image with correct properties", async () => {
+    // Mock canvas
+    const canvas = {
+      toDataURL: jest.fn().mockReturnValue("croppedDataUrl"),
+    } as unknown as Canvas;
+    // Mock source rectangle
+    const sourceBoundingRect = {
+      left: 10,
+      top: 20,
+      width: 100,
+      height: 200,
+    };
+    const source = {
+      getBoundingRect: jest.fn().mockReturnValue(sourceBoundingRect),
+    } as unknown as Rect;
+    // Mock getNewFabricImgFromSrc
+    const getNewFabricImgFromSrc = jest
+      .fn()
+      .mockResolvedValue(new Rect({}) as unknown as FabricImage);
+
+    const newCroppedImg = await createCrop(
+      canvas,
+      source,
+      getNewFabricImgFromSrc
+    );
+
+    expect(source.getBoundingRect).toHaveBeenCalled();
+    expect(canvas.toDataURL).toHaveBeenCalledWith({
+      multiplier: 1,
+      left: sourceBoundingRect.left,
+      top: sourceBoundingRect.top,
+      width: sourceBoundingRect.width,
+      height: sourceBoundingRect.height,
+    });
+    expect(getNewFabricImgFromSrc).toHaveBeenCalledWith("croppedDataUrl");
+    expect(newCroppedImg.left).toBe(sourceBoundingRect.left);
+    expect(newCroppedImg.top).toBe(sourceBoundingRect.top);
+    expect(newCroppedImg.width).toBe(sourceBoundingRect.width);
+    expect(newCroppedImg.height).toBe(sourceBoundingRect.height);
+    expect(newCroppedImg.scaleX).toBe(1);
+    expect(newCroppedImg.scaleY).toBe(1);
+    expect(newCroppedImg.angle).toBe(0);
+    expect(newCroppedImg.originX).toBe("left");
+    expect(newCroppedImg.originY).toBe("top");
+    expect(newCroppedImg.selectable).toBe(true);
+    expect(newCroppedImg.evented).toBe(true);
   });
 });
