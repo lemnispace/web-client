@@ -15,7 +15,7 @@ const styles = {
     "px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[2.5])-1px)] sm:px-[calc(theme(spacing.3)-1px)] sm:py-[calc(theme(spacing[1.5])-1px)] sm:text-sm/6",
 
     // Focus
-    "focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500",
+    "focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-primary-500",
 
     // Disabled
     "data-[disabled]:opacity-50",
@@ -124,6 +124,14 @@ const styles = {
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.orange.500)] [--btn-border:theme(colors.orange.600/90%)]",
       "[--btn-icon:theme(colors.orange.300)] data-[active]:[--btn-icon:theme(colors.orange.200)] data-[hover]:[--btn-icon:theme(colors.orange.200)]",
     ],
+    primary: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.primary.500)] [--btn-border:theme(colors.primary.600/90%)]",
+      "[--btn-icon:theme(colors.primary.300)] data-[active]:[--btn-icon:theme(colors.primary.200)] data-[hover]:[--btn-icon:theme(colors.primary.200)]",
+    ],
+    secondary: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.secondary.600)] [--btn-border:theme(colors.secondary.700/90%)]",
+      "[--btn-icon:theme(colors.secondary.400)] data-[active]:[--btn-icon:theme(colors.secondary.300)] data-[hover]:[--btn-icon:theme(colors.secondary.300)]",
+    ],
     amber: [
       "text-amber-950 [--btn-hover-overlay:theme(colors.white/25%)] [--btn-bg:theme(colors.amber.400)] [--btn-border:theme(colors.amber.500/80%)]",
       "[--btn-icon:theme(colors.amber.600)]",
@@ -201,7 +209,6 @@ export const Button = React.forwardRef(function Button(
         ? styles.plain
         : clsx(styles.solid, styles.colors[color ?? "dark/zinc"])
   );
-
   return "href" in props ? (
     <Link
       {...props}
@@ -213,7 +220,10 @@ export const Button = React.forwardRef(function Button(
   ) : (
     <HeadlessButton
       {...props}
-      className={clsx(classes, "cursor-default")}
+      className={clsx(
+        classes,
+        !classes.includes("cursor-") && "cursor-default"
+      )}
       ref={ref}
     >
       <TouchTarget>{children}</TouchTarget>

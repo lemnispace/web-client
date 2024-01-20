@@ -69,7 +69,7 @@ export function Hero() {
         {HERO_TEXT.description}
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
-        <Button href="/register">{BUTTON_TEXT.heroCta}</Button>
+        <Button href="/shop">{BUTTON_TEXT.landing.heroCta}</Button>
       </div>
     </Container>
   );

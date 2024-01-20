@@ -1,14 +1,15 @@
 import { Container } from "@/components/container";
 import { GLOBAL_APP_TEXT } from "@/utils/text";
+import clsx from "clsx";
 import { Logo } from "./Logo";
 import { NavLink, NavLinkProps } from "./NavLink";
 
-interface FooterProps {
+interface FooterProps extends React.HTMLAttributes<HTMLElement> {
   navLinks: NavLinkProps[];
 }
-export function Footer({ navLinks }: FooterProps) {
+export function Footer({ navLinks, className, ...props }: FooterProps) {
   return (
-    <footer className="bg-slate-50">
+    <footer className={clsx("bg-slate-50", className)} {...props}>
       <Container>
         <div className="py-16">
           <Logo className="mx-auto h-10 w-auto" aria-label="Logo" />

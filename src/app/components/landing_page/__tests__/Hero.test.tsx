@@ -5,7 +5,9 @@ import { Hero, Title } from "../Hero";
 // mock GLOBAL_APP_TEXT
 jest.mock("@/utils/text", () => ({
   BUTTON_TEXT: {
-    heroCta: "Hero Button",
+    landing: {
+      heroCta: "Hero Button",
+    },
   },
   HERO_TEXT: {
     title: ["first", "second", "third"],
@@ -47,5 +49,6 @@ describe("Hero", () => {
     const buttonElement = getByText("Hero Button");
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toBeEnabled();
+    expect(buttonElement).toHaveAttribute("href", "/shop");
   });
 });

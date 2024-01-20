@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProductDescription renders the description correctly 1`] = `
+<DocumentFragment>
+  <h3
+    class="sr-only"
+  >
+    Description
+  </h3>
+  <p
+    class="space-y-6 text-base text-gray-700"
+  >
+    Product description
+  </p>
+</DocumentFragment>
+`;
