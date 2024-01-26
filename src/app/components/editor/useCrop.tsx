@@ -4,6 +4,7 @@ import {
   Canvas as FabricCanvas,
   FabricImage,
   FabricObject,
+  Group,
   Rect,
 } from "fabric";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -292,9 +293,11 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const clipPathRef = useRef<Rect | null>(null);
   const stopCleanupRef = useRef<(() => void) | null>(null);
   const newCroppedImgRef = useRef<FabricImage | null>(null);
+  const newCroppedImgGroupRef = useRef<Group | null>(null);
 
-  const destroyResources = useCallback(() => {
+  const removeCroppingResources = useCallback(() => {
     if (!canvas) return;
+    canvas.discardActiveObject();
     croppedImgRef.current && canvas.remove(croppedImgRef.current);
     overlayRef.current && canvas.remove(overlayRef.current);
     croppingRectRef.current && canvas.remove(croppingRectRef.current);
@@ -311,14 +314,13 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
     if (canvas) {
       if (imgRef.current) {
         showFabricObj(imgRef.current);
-        canvas.setActiveObject(imgRef.current);
       }
       stopCleanupRef.current?.();
-      destroyResources();
+      removeCroppingResources();
       canvas.requestRenderAll();
       setCropActive(false);
     }
-  }, [canvas, destroyResources]);
+  }, [canvas, removeCroppingResources]);
 
   useEffect(() => {
     if (imgRef.current && imgRef.current.getSrc() !== imgSrc) {
@@ -376,9 +378,9 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const start = useCallback(async () => {
     if (canvas) {
       try {
+        stopCleanupRef.current?.();
         const { croppedImg, overlay, croppingRect, clipPath, img } =
           await initResources(canvas, imgSrc);
-        stopCleanupRef.current?.();
         // ensure the overlay, cropped image, the original image, and cropping rectangle are visible
         [croppedImg, overlay, croppingRect, clipPath, img].forEach(
           showFabricObj
@@ -423,60 +425,44 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
 
   const stop = useCallback(async () => {
     if (canvas && imgRef.current) {
-      const img = imgRef.current;
       if (
         !croppedImgRef.current ||
         !clipPathRef.current ||
         !croppingRectRef.current
       ) {
         // no cropped image or clip path means the image was not cropped
-        unfreezeFabricObj(img);
-        canvas.setActiveObject(img);
+        unfreezeFabricObj(imgRef.current);
+        canvas.setActiveObject(imgRef.current);
       } else {
-        hideFabricObj(img);
+        hideFabricObj(imgRef.current);
         const newCroppedImg = await prepareCrop(canvas);
-        destroyResources();
+        removeCroppingResources();
         // setup the new cropped image
-        newCroppedImg.setCoords();
+        // newCroppedImg.setCoords();
+        const croppedImgGroup = new Group([newCroppedImg, imgRef.current], {
+          top: imgRef.current.top,
+          left: imgRef.current.left,
+        });
+        newCroppedImgGroupRef.current = croppedImgGroup;
         canvas.add(newCroppedImg);
+        canvas.add(croppedImgGroup);
         newCroppedImgRef.current = newCroppedImg;
-        canvas.setActiveObject(newCroppedImg);
-        // calculate the difference between the original image and the cropped image. This will be used to sync the cropped image with the original image.
-        const CroppedImgSyncProps = {
-          deltaX: newCroppedImg.left - img.left,
-          deltaY: newCroppedImg.top - img.top,
-        };
-
-        // sync img movements with cropped image
-        const croppingRectCleanupHandlers = addSyncEventHandlers(
-          newCroppedImg,
-          () => {
-            imgRef.current &&
-              syncObjects(
-                canvas,
-                newCroppedImg,
-                imgRef.current,
-                (croppedImg, originalImg) => {
-                  return {
-                    top: croppedImg.top - CroppedImgSyncProps.deltaY,
-                    left: croppedImg.left - CroppedImgSyncProps.deltaX,
-                    angle: originalImg.angle,
-                  };
-                }
-              );
-          }
-        );
+        canvas.setActiveObject(newCroppedImgGroupRef.current);
 
         stopCleanupRef.current = () => {
-          croppingRectCleanupHandlers();
+          croppedImgGroup.removeAll();
           canvas.remove(newCroppedImg);
+          // add the original image back to the canvas after group is removed
+          imgRef.current && canvas.add(imgRef.current);
+          canvas.remove(croppedImgGroup);
+          newCroppedImgGroupRef.current = null;
           newCroppedImgRef.current = null;
         };
       }
       canvas.requestRenderAll();
       setCropActive(false);
     }
-  }, [canvas, destroyResources, prepareCrop]);
+  }, [canvas, removeCroppingResources, prepareCrop]);
 
   return [start, stop, isCropActive, resetAll] as const;
 };
