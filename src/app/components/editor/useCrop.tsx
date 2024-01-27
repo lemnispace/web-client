@@ -244,6 +244,7 @@ export const createCrop = async (
       originY: "top",
       selectable: true,
       evented: true,
+      id: "newCroppedImg",
     })
     .setCoords();
   return newCroppedImg;
@@ -284,6 +285,19 @@ export const getCroppingRect = (obj: FabricObject, current?: Rect | null) => {
   return croppingRect;
 };
 
+export const addImgGroup = (
+  canvas: FabricCanvas,
+  img: FabricImage,
+  croppedImg: FabricImage
+) => {
+  const croppedImgGroup = new Group([croppedImg, img], {
+    top: img.top,
+    left: img.left,
+  });
+  canvas.add(croppedImgGroup);
+  return croppedImgGroup;
+};
+
 export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const [isCropActive, setCropActive] = useState(false);
   const imgRef = useRef<FabricImage | null>(null);
@@ -291,36 +305,44 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const overlayRef = useRef<Rect | null>(null);
   const croppingRectRef = useRef<Rect | null>(null);
   const clipPathRef = useRef<Rect | null>(null);
-  const stopCleanupRef = useRef<(() => void) | null>(null);
   const newCroppedImgRef = useRef<FabricImage | null>(null);
   const newCroppedImgGroupRef = useRef<Group | null>(null);
 
-  const removeCroppingResources = useCallback(() => {
+  const destroyCroppingResources = useCallback(() => {
     if (!canvas) return;
     canvas.discardActiveObject();
     croppedImgRef.current && canvas.remove(croppedImgRef.current);
     overlayRef.current && canvas.remove(overlayRef.current);
     croppingRectRef.current && canvas.remove(croppingRectRef.current);
     clipPathRef.current && canvas.remove(clipPathRef.current);
-    // doesn't destroy the new cropped image or the cleanup function or the imgRef because they are needed to stop the crop
+    newCroppedImgRef.current && canvas.remove(newCroppedImgRef.current);
+    if (newCroppedImgGroupRef.current) {
+      newCroppedImgGroupRef.current.removeAll();
+      canvas.remove(newCroppedImgGroupRef.current);
+    }
+    // doesn't destroy the imgRef because it is used to reset the canvas
 
     croppedImgRef.current = null;
     overlayRef.current = null;
     croppingRectRef.current = null;
     clipPathRef.current = null;
+    newCroppedImgGroupRef.current = null;
+    newCroppedImgRef.current = null;
   }, [canvas]);
 
   const resetAll = useCallback(() => {
     if (canvas) {
+      destroyCroppingResources();
       if (imgRef.current) {
         showFabricObj(imgRef.current);
+        // reset the image to its original state
+        canvas.remove(imgRef.current);
+        canvas.add(imgRef.current);
       }
-      stopCleanupRef.current?.();
-      removeCroppingResources();
       canvas.requestRenderAll();
       setCropActive(false);
     }
-  }, [canvas, removeCroppingResources]);
+  }, [canvas, destroyCroppingResources]);
 
   useEffect(() => {
     if (imgRef.current && imgRef.current.getSrc() !== imgSrc) {
@@ -378,7 +400,7 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   const start = useCallback(async () => {
     if (canvas) {
       try {
-        stopCleanupRef.current?.();
+        destroyCroppingResources();
         const { croppedImg, overlay, croppingRect, clipPath, img } =
           await initResources(canvas, imgSrc);
         // ensure the overlay, cropped image, the original image, and cropping rectangle are visible
@@ -405,7 +427,7 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
         console.error("failed to start cropping. ", e);
       }
     }
-  }, [canvas, imgSrc, initResources]);
+  }, [canvas, imgSrc, initResources, destroyCroppingResources]);
 
   const prepareCrop = useCallback(async (canvas: FabricCanvas) => {
     if (
@@ -436,33 +458,21 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
       } else {
         hideFabricObj(imgRef.current);
         const newCroppedImg = await prepareCrop(canvas);
-        removeCroppingResources();
         // setup the new cropped image
-        // newCroppedImg.setCoords();
-        const croppedImgGroup = new Group([newCroppedImg, imgRef.current], {
-          top: imgRef.current.top,
-          left: imgRef.current.left,
-        });
+        const croppedImgGroup = addImgGroup(
+          canvas,
+          imgRef.current,
+          newCroppedImg
+        );
+        destroyCroppingResources();
         newCroppedImgGroupRef.current = croppedImgGroup;
-        canvas.add(newCroppedImg);
-        canvas.add(croppedImgGroup);
         newCroppedImgRef.current = newCroppedImg;
         canvas.setActiveObject(newCroppedImgGroupRef.current);
-
-        stopCleanupRef.current = () => {
-          croppedImgGroup.removeAll();
-          canvas.remove(newCroppedImg);
-          // add the original image back to the canvas after group is removed
-          imgRef.current && canvas.add(imgRef.current);
-          canvas.remove(croppedImgGroup);
-          newCroppedImgGroupRef.current = null;
-          newCroppedImgRef.current = null;
-        };
       }
       canvas.requestRenderAll();
       setCropActive(false);
     }
-  }, [canvas, removeCroppingResources, prepareCrop]);
+  }, [canvas, destroyCroppingResources, prepareCrop]);
 
   return [start, stop, isCropActive, resetAll] as const;
 };
