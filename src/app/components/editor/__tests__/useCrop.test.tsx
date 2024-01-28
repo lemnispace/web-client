@@ -1,3 +1,4 @@
+import { getMockFabricImage } from "@/utils/test_utils";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import { Canvas, FabricImage, FabricObject, Rect } from "fabric";
@@ -20,9 +21,7 @@ import {
 
 type MockTestRef = { current: any };
 const MOCK_IMG_SRC = "http://localhost/test-src";
-const mockImgEl = document.createElement("img");
-mockImgEl.src = MOCK_IMG_SRC;
-const mockFabricImg = new FabricImage(mockImgEl);
+const mockFabricImg = getMockFabricImage(MOCK_IMG_SRC);
 
 const mockCanvas = {
   add: jest.fn(),
