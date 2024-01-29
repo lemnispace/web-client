@@ -10,6 +10,18 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { getNewFabricImgFromSrc } from "./utils";
 
+export const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
+  if (el) {
+    const c = new FabricCanvas(el, {
+      uniScaleKey: null,
+      selectionBorderColor: "#FDD66B",
+      selectionColor: "#FDD66B45",
+      preserveObjectStacking: true,
+      ...options,
+    });
+    callbackFn(c);
+  }
+};
 interface CanvasProps extends React.HTMLAttributes<HTMLCanvasElement> {
   imgSrc?: string;
   canvas: FabricCanvas | null;
@@ -44,6 +56,9 @@ export const scaleImgToCanvas = (
   canvas: FabricCanvas,
   padding = 40
 ) => {
+  if (padding > canvas.width || padding > canvas.height) {
+    throw new Error("Padding cannot be larger than the canvas width or height");
+  }
   const scaleFactor = Math.min(
     (canvas.width - padding) / fImg.width,
     (canvas.height - padding) / fImg.height
@@ -60,7 +75,27 @@ export const resetImgState = (fImg: FabricObject, canvas: FabricCanvas) => {
   canvas.renderAll();
 };
 
-const addImgToFabricCanvas = async (
+export const resizeCanvas = (
+  canvas: FabricCanvas | null,
+  wrapper: HTMLDivElement | null,
+  img: FabricImage | null
+) => {
+  if (canvas) {
+    const bounds = wrapper?.getBoundingClientRect();
+    if (bounds) {
+      canvas.setDimensions({
+        width: bounds.width,
+        height: bounds.height,
+      });
+      if (img) {
+        // resize image to fit the canvas but keep it in the same relative position
+        scaleImgToCanvas(img, canvas);
+      }
+    }
+  }
+};
+
+export const addImgToFabricCanvas = async (
   src: string,
   canvas: FabricCanvas,
   options?: Partial<ImageProps>
@@ -73,18 +108,7 @@ const addImgToFabricCanvas = async (
   return fImg;
 };
 
-const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
-  if (el) {
-    const c = new FabricCanvas(el, {
-      uniScaleKey: null,
-      selectionBorderColor: "#FDD66B",
-      selectionColor: "#FDD66B45",
-      preserveObjectStacking: true,
-      ...options,
-    });
-    callbackFn(c);
-  }
-};
+
 
 const destroyCanvas = (canvas: FabricCanvas | null) => {
   return canvas?.dispose();
@@ -108,7 +132,7 @@ export default function Canvas({
     }
     return () => {
       destroyCanvas(canvas)
-        ?.then((r) => r && loadCanvas(null))
+        ?.then((success) => success && loadCanvas(null))
         .catch(console.error);
     };
   }, [canvasEl, canvas, loadCanvas]);
@@ -128,19 +152,7 @@ export default function Canvas({
     let resizeObserver: ResizeObserver | null = null;
     if (wrapperRef.current) {
       resizeObserver = new ResizeObserver(() => {
-        if (canvas) {
-          const bounds = wrapperRef.current?.getBoundingClientRect();
-          if (bounds) {
-            canvas.setDimensions({
-              width: bounds.width,
-              height: bounds.height,
-            });
-            if (fImgRef.current) {
-              // resize image to fit the canvas but keep it in the same relative position
-              scaleImgToCanvas(fImgRef.current, canvas);
-            }
-          }
-        }
+        resizeCanvas(canvas, wrapperRef.current, fImgRef.current);
       });
       resizeObserver.observe(wrapperRef.current);
     }
