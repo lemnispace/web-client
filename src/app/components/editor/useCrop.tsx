@@ -378,12 +378,13 @@ export const useCrop = (canvas: FabricCanvas | null, imgSrc: string) => {
   useEffect(() => {
     if (imgRef.current && imgRef.current.getSrc() !== imgSrc) {
       // reset if imgSrc changes
-      resetAll();
+      destroyCroppingResources(); // use this instead of resetAll to ensure old img is completely removed and replaced by the new imgSrc (bugfix)
+      imgRef.current && canvas?.remove(imgRef.current);
       imgRef.current = null;
       canvas?.discardActiveObject();
       canvas?.requestRenderAll();
     }
-  }, [canvas, resetAll, imgSrc]);
+  }, [canvas, destroyCroppingResources, imgSrc]);
 
   const initResources = useCallback(
     async (canvas: FabricCanvas, imgSrc: string) => {
