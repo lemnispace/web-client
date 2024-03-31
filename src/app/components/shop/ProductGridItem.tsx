@@ -4,6 +4,7 @@ import { formatPrice } from "@/utils/formatters";
 import { ProductItem, ProductItemImg } from "@/utils/types";
 import clsx from "clsx";
 import Image from "next/image";
+import { ProductDescriptionHtml } from "../product/ProductDescription";
 
 interface ProductGridItemProps extends ProductItem {
   className?: string;
@@ -17,12 +18,6 @@ interface ProductGridItemTitleProps {
   priceRange: ProductPriceRange;
   id: string;
   name: string;
-  className?: string;
-}
-
-interface ProductGridItemDescProps {
-  description?: string;
-  descriptionHtml?: string;
   className?: string;
 }
 
@@ -42,7 +37,7 @@ export const ProductGridItemImg = ({
     >
       <Image
         src={src}
-        alt={alt}
+        alt={alt ?? ""}
         style={{
           maxWidth: "100%",
         }}
@@ -76,23 +71,6 @@ const ProductGridItemTitle = ({
   );
 };
 
-const ProductGridItemDesc = ({
-  className,
-  ...props
-}: ProductGridItemDescProps) => {
-  const classes = clsx("mt-1 text-sm italic text-gray-500 w-full", className);
-  if (props.descriptionHtml) {
-    return (
-      <div
-        className={classes}
-        dangerouslySetInnerHTML={{ __html: props.descriptionHtml }}
-      />
-    );
-  }
-
-  return <p className={classes}>{props.description}</p>;
-};
-
 export const ProductGridItem = ({
   className,
   ...product
@@ -110,9 +88,10 @@ export const ProductGridItem = ({
         id={product.id}
         priceRange={product.priceRange}
       />
-      <ProductGridItemDesc
+      <ProductDescriptionHtml
         description={product.description}
         descriptionHtml={product.descriptionHtml}
+        className="mt-1 text-sm italic text-gray-500 w-full"
       />
     </Button>
   );

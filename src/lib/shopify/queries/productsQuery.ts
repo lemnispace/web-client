@@ -1,9 +1,36 @@
-import { ProductEdge } from "@/lib/types/shopify";
+import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
 
 const moneyFragment = /* GraphQL */ `
   {
     amount
     currencyCode
+  }
+`;
+
+const imageFragment = /* GraphQL */ `
+  {
+    id
+    url
+    altText
+    width
+    height
+  }
+`;
+
+const variantsFragment = /* GraphQL */ `
+  {
+    edges {
+      cursor
+      node {
+        id
+        title
+        quantityAvailable
+        price {
+          amount
+          currencyCode
+        }
+      }
+    }
   }
 `;
 
@@ -24,45 +51,46 @@ export const productsAndVariantsQuery = /* GraphQL */ `
             minVariantPrice ${moneyFragment}
           }
           productType
-          media(first: 1){
+          images(first: 1){
             edges{
               cursor
-              node {
-                id
-                alt
-                mediaContentType
-                previewImage {
-                  id
-                  url
-                  altText
-                  width
-                  height
-                }
-              }
+              node ${imageFragment}
             }
           }
-          variants(first: $firstNVariants) {
-            edges {
-              cursor
-              node {
-                id
-                title
-                quantityAvailable
-                price {
-                  amount
-                  currencyCode
-                }
-              }
-            }
-          }
+          variants(first: $firstNVariants) ${variantsFragment}
         }
       }
     }
   }
 `;
 
+export const productQuery = /* GraphQL */ `
+query getProductByHandle($handle: String!, $firstNImages: Int!) {
+  product(handle: $handle) {
+    id
+    title
+    description
+    descriptionHtml
+    handle
+    priceRange {
+      maxVariantPrice ${moneyFragment}
+      minVariantPrice ${moneyFragment}
+    }
+    images(first: $firstNImages) {
+      edges {
+        cursor
+        node ${imageFragment}
+      }
+    }
+    variants(first: 99) ${variantsFragment}
+  }
+}
+`;
+
 export interface ProductsAndVariantsResponse {
-  products: {
-    edges: ProductEdge[];
-  };
+  products: Edges<ProductEdge>;
+}
+
+export interface ProductResponse {
+  product: ProductNode;
 }
