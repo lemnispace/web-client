@@ -1,9 +1,6 @@
-import { Button } from "@/components/button";
-import { formatPrice } from "@/utils/formatters";
 import { PRODUCT_DETAIL_SECTION_TEXT } from "@/utils/text";
 import { ProductItem } from "@/utils/types";
 import clsx from "clsx";
-import Image from "next/image";
 import { ProductGridItem } from "./ProductGridItem";
 
 interface ProductGridProps extends React.HTMLAttributes<HTMLElement> {
