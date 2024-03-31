@@ -8,6 +8,12 @@ const nextConfig = {
         port: "",
         pathname: "/img/*/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+        port: "",
+        pathname: "/s/*/**",
+      },
     ],
   },
 };
