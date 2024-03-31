@@ -32,7 +32,11 @@ export default function ProductGrid({
       {...props}
     >
       {products.map((product) => (
-        <ProductGridItem key={product.id} {...product} />
+        <ProductGridItem
+          key={product.id}
+          {...product}
+          className="justify-between"
+        />
       ))}
     </div>
   );
