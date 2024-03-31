@@ -5,6 +5,7 @@ import { ProductItem, ProductItemImg } from "@/utils/types";
 import clsx from "clsx";
 import Image from "next/image";
 import { ProductDescriptionHtml } from "../product/ProductDescription";
+import "./productGridStyles.css";
 
 interface ProductGridItemProps extends ProductItem {
   className?: string;
@@ -91,7 +92,8 @@ export const ProductGridItem = ({
       <ProductDescriptionHtml
         description={product.description}
         descriptionHtml={product.descriptionHtml}
-        className="mt-1 text-sm italic text-gray-500 w-full"
+        short
+        className="mt-1 text-sm italic text-gray-500 w-full product-grid-item__description"
       />
     </Button>
   );

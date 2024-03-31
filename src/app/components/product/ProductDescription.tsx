@@ -5,14 +5,32 @@ interface ProductDescriptionProps extends React.HTMLAttributes<HTMLElement> {
   description?: string;
 }
 
+interface ProductDescriptionHtmlProps extends ProductDescriptionProps {
+  /** if true, a shortened description will be shown for the html version (only the first paragraph) */
+  short?: boolean;
+}
+
+const shortenHtmlDescription = (html: string) => {
+  const match = html.match(/<p>.*?<\/p>/);
+  return match ? match[0] : html;
+};
+
 export function ProductDescriptionHtml({
   description,
   descriptionHtml,
+  short,
   ...props
-}: ProductDescriptionProps) {
+}: ProductDescriptionHtmlProps) {
   if (descriptionHtml) {
     return (
-      <div {...props} dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+      <div
+        {...props}
+        dangerouslySetInnerHTML={{
+          __html: short
+            ? shortenHtmlDescription(descriptionHtml)
+            : descriptionHtml,
+        }}
+      />
     );
   }
   return <p {...props}>{description}</p>;

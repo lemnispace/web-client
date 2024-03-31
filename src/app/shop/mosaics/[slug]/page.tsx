@@ -34,7 +34,7 @@ function getProduct(handle: string, firstNImages: number) {
 }
 
 function mapProduct(product: ProductNode): Product {
-  let images: ProductItemImg[] =
+  const images: ProductItemImg[] =
     product.images?.edges?.map((e) => ({
       src: e.node.url,
       alt: e.node.altText,
@@ -42,7 +42,6 @@ function mapProduct(product: ProductNode): Product {
       height: e.node.height,
     })) ?? [];
   const img = images[0];
-  images = images.slice(1);
   return {
     id: product.id,
     name: product.title,
