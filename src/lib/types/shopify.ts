@@ -1,8 +1,8 @@
-type Edge<T> = {
+export type Edge<T> = {
   cursor: string;
   node: T;
 };
-type Edges<T> = {
+export type Edges<T> = {
   edges: T[];
 };
 
@@ -53,6 +53,8 @@ export interface MediaNode {
 
 export type MediaEdge = Edge<MediaNode>;
 
+export type ImageEdge = Edge<Image>;
+
 export interface ProductNode {
   id: string;
   title: string;
@@ -61,7 +63,7 @@ export interface ProductNode {
   handle: string;
   priceRange: ProductPriceRange;
   productType: string;
-  media: Edges<MediaEdge>;
+  images: Edges<ImageEdge>;
   tags: string[];
   variants: Edges<ProductVariantEdge>;
 }

@@ -28,7 +28,7 @@ function mapProducts(productList?: ProductsAndVariantsResponse): ProductItem[] {
     return [];
   }
   return productList.products.edges.map((e) => {
-    const img = e.node.media.edges[0]?.node.previewImage as Image | undefined;
+    const img = e.node.images.edges[0]?.node as Image | undefined;
     return {
       id: e.node.id,
       name: e.node.title,

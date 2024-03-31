@@ -2,7 +2,7 @@ import { ProductPriceRange, ProductVariantNode } from "@/lib/types/shopify";
 
 export interface ProductItemImg {
   src: string;
-  alt: string;
+  alt?: string;
   width: number;
   height: number;
 }
@@ -18,4 +18,8 @@ export interface ProductItem {
   variants: ProductVariantNode[];
   href: string;
   img?: ProductItemImg;
+}
+
+export interface Product extends ProductItem {
+  images?: ProductItemImg[];
 }
