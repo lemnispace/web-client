@@ -7,8 +7,15 @@ import ProductTitle, {
   ProductSectionTitle,
 } from "@/app/components/product/ProductTitle";
 import { Container } from "@/components/container";
-import mosaicImg2 from "@/images/mosaic/mosaic-2.jpg";
-import mosaicImgCloseup from "@/images/mosaic/mosaic-closeup-1.jpg";
+import { productClient } from "@/lib/shopify/client";
+import {
+  ProductResponse,
+  productQuery,
+} from "@/lib/shopify/queries/productsQuery";
+import { ProductNode } from "@/lib/types/shopify";
+import sanitizeHtml, { formatPrice } from "@/utils/formatters";
+import { Product, ProductItemImg } from "@/utils/types";
+import { redirect } from "next/navigation";
 
 interface MosaicProps {
   params: {
@@ -17,77 +24,52 @@ interface MosaicProps {
   searchParams: Record<string, string>;
 }
 
-export default function Mosaic(props: MosaicProps) {
-  const product = {
-    id: 1,
-    name: "Text Mosaic",
-    href: "/shop/mosaics/text-mosaic",
-    price: "$13",
-    description:
-      "Gift your loved ones a custom text mosaic with their favorite quote or poem. Share your favorite memories with your friends and family. The possibilities are endless",
-    colors: [
-      {
-        name: "Black",
-        bgColor: "bg-gray-900",
-        selectedColor: "ring-gray-900",
-      },
-      {
-        name: "White",
-        bgColor: "bg-gray-100",
-        selectedColor: "ring-gray-400",
-      },
-    ],
-    images: [
-      {
-        id: 1,
-        name: "Beautiful Text Mosaic Closeup",
-        src: mosaicImgCloseup.src,
-        alt: "closeup of a text mosaic",
-      },
-      {
-        id: 2,
-        name: "Stylish Wall Mounted Text Mosaic",
-        src: mosaicImg2.src,
-        alt: "wall mounted text mosaic",
-      },
-    ],
-    details: [
-      {
-        name: "Features",
-        items: [
-          "Multiple strap configurations",
-          "Spacious interior with top zip closure",
-          "Interior dividers to keep you organized",
-          "Interior padded sleeve fits up to a 13” laptop",
-          "Exterior zip pocket",
-          "Full grain leather zipper pulls",
-          "Water-resistant, leather-reinforced bottom",
-        ],
-      },
-      {
-        name: "Materials",
-        items: [
-          "1000d CORDURA® nylon outer with coated pack cloth liner",
-          "Natural leather lash tabs",
-          "Natural leather zip pulls",
-        ],
-      },
-      {
-        name: "Care",
-        items: [
-          "Spot clean",
-          "Do not machine wash",
-          "Do not dry clean",
-          "Do not tumble dry",
-          "Do not bleach",
-        ],
-      },
-      {
-        name: "Origin",
-        items: ["Made in Vietnam"],
-      },
-    ],
+function getProduct(handle: string, firstNImages: number) {
+  return productClient.request<ProductResponse>(productQuery, {
+    variables: {
+      handle,
+      firstNImages,
+    },
+  });
+}
+
+function mapProduct(product: ProductNode): Product {
+  let images: ProductItemImg[] =
+    product.images?.edges?.map((e) => ({
+      src: e.node.url,
+      alt: e.node.altText,
+      width: e.node.width,
+      height: e.node.height,
+    })) ?? [];
+  const img = images[0];
+  images = images.slice(1);
+  return {
+    id: product.id,
+    name: product.title,
+    description: product.description,
+    descriptionHtml: sanitizeHtml(product.descriptionHtml),
+    tags: product.tags,
+    priceRange: product.priceRange,
+    type: product.productType,
+    href: `/shop/mosaics/${product.handle}`,
+    img,
+    images,
+    variants: product.variants.edges.map((variant) => variant.node),
   };
+}
+
+export default async function Mosaic(props: MosaicProps) {
+  const productResponse = await getProduct(props.params.slug, 10);
+  if (productResponse.errors) {
+    console.error("Error getting product: ", productResponse.errors);
+  }
+  const product = productResponse.data
+    ? mapProduct(productResponse.data.product)
+    : undefined;
+  if (!product) {
+    console.error("Error, product not found");
+    redirect("/not-found");
+  }
   return (
     <main className="bg-white">
       <Container
@@ -98,17 +80,26 @@ export default function Mosaic(props: MosaicProps) {
           <ImageGallery product={product} />
           {/* Product info */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-            <ProductTitle name={product.name} price={product.price} />
+            <ProductTitle
+              name={product.name}
+              price={formatPrice(
+                product.priceRange.minVariantPrice.amount,
+                product.priceRange.minVariantPrice.currencyCode
+              )}
+            />
             <ProductRating rating={4} outOf={4} className="mt-3" />
             <div className="mt-6">
-              <ProductDescription description={product.description} />
+              <ProductDescription
+                description={product.description}
+                descriptionHtml={product.descriptionHtml}
+              />
             </div>
-            <ProductSelectionForm colors={product.colors} className="mt-6" />
+            {/* <ProductSelectionForm colors={product.colors} className="mt-6" /> */}
             <section aria-labelledby="details-heading" className="mt-12">
               <ProductSectionTitle id="details-heading">
                 Additional details
               </ProductSectionTitle>
-              <ProductDetails details={product.details} />
+              {/* <ProductDetails details={product.details} /> */}
             </section>
           </div>
         </div>
