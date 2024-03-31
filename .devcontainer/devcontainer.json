@@ -35,7 +35,9 @@
         "eamodio.gitlens",
         "DavidAnson.vscode-markdownlint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "GraphQL.vscode-graphql",
+        "GraphQL.vscode-graphql-syntax"
       ]
     }
   }
