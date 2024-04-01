@@ -29,13 +29,17 @@ const variantsFragment = /* GraphQL */ `
           amount
           currencyCode
         }
+        selectedOptions {
+          name
+          value
+        }
       }
     }
   }
 `;
 
-export const productsAndVariantsQuery = /* GraphQL */ `
-  query getProductsAndVariants($firstNProducts: Int!, $firstNVariants: Int!) {
+export const productsQuery = /* GraphQL */ `
+  query getProducts($firstNProducts: Int!) {
     products(first: $firstNProducts) {
       edges {
         cursor
@@ -57,7 +61,6 @@ export const productsAndVariantsQuery = /* GraphQL */ `
               node ${imageFragment}
             }
           }
-          variants(first: $firstNVariants) ${variantsFragment}
         }
       }
     }
@@ -87,7 +90,7 @@ query getProductByHandle($handle: String!, $firstNImages: Int!) {
 }
 `;
 
-export interface ProductsAndVariantsResponse {
+export interface ProductsResponse {
   products: Edges<ProductEdge>;
 }
 

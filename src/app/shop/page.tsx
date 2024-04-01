@@ -3,27 +3,23 @@ import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
 import { productClient } from "@/lib/shopify/client";
 import {
-  productsAndVariantsQuery,
-  ProductsAndVariantsResponse,
+  ProductsResponse,
+  productsQuery,
 } from "@/lib/shopify/queries/productsQuery";
 import { Image } from "@/lib/types/shopify";
-import sanitizeHtml from "@/utils/formatters";
+import { sanitizeHtml } from "@/utils/formatters";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { ProductItem } from "@/utils/types";
 
-function getProductList(firstNProducts: number, firstNVariants: number) {
-  return productClient.request<ProductsAndVariantsResponse>(
-    productsAndVariantsQuery,
-    {
-      variables: {
-        firstNProducts,
-        firstNVariants,
-      },
-    }
-  );
+function getProductList(firstNProducts: number) {
+  return productClient.request<ProductsResponse>(productsQuery, {
+    variables: {
+      firstNProducts,
+    },
+  });
 }
 
-function mapProducts(productList?: ProductsAndVariantsResponse): ProductItem[] {
+function mapProducts(productList?: ProductsResponse): ProductItem[] {
   if (!productList) {
     return [];
   }
@@ -46,13 +42,13 @@ function mapProducts(productList?: ProductsAndVariantsResponse): ProductItem[] {
             height: img.height,
           }
         : undefined,
-      variants: e.node.variants.edges.map((variant) => variant.node),
+      variants: e.node.variants?.edges.map((variant) => variant.node),
     };
   });
 }
 
 export default async function Shop() {
-  const productList = await getProductList(20, 3);
+  const productList = await getProductList(20);
   if (productList.errors) {
     console.error("Error getting product list: ", productList.errors);
   }
