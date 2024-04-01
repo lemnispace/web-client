@@ -25,12 +25,14 @@ export interface Price {
   currencyCode: string;
 }
 
+export type ProductVariantOptionType = "Color" | "Size" | "Material" | "Style";
+
 export interface ProductVariantNode {
   id: string;
   title: string;
   quantityAvailable?: number;
   price: Price;
-  selectedOptions: Array<{ name: string; value: string }>;
+  selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
 }
 
 export type ProductVariantEdge = Edge<ProductVariantNode>;

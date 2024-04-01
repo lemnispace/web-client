@@ -6,8 +6,12 @@ import {
   productQuery,
 } from "@/lib/shopify/queries/productsQuery";
 import { ProductNode } from "@/lib/types/shopify";
-import {sanitizeHtml} from "@/utils/formatters";
-import { Product, ProductItemImg } from "@/utils/types";
+import {
+  formatVariantTitleForGrouping,
+  sanitizeHtml,
+} from "@/utils/formatters";
+import { mapProductVariantNodeToProductVariantOption } from "@/utils/mappers";
+import { GroupedProductImages, Product, ProductItemImg } from "@/utils/types";
 import { redirect } from "next/navigation";
 
 interface MosaicProps {
@@ -26,15 +30,37 @@ function getProduct(handle: string, firstNImages: number) {
   });
 }
 
+function getImagesByVariant(product: ProductNode): GroupedProductImages {
+  const images: { [VariantTitle: string]: ProductItemImg[] } = {};
+  product.variants?.edges.forEach((variantEdge) => {
+    const variant = variantEdge.node;
+    const variantTitle = formatVariantTitleForGrouping(variant.title);
+    /**
+     * image title example: enhanced-matte-paper-framed-poster-_in_-black-18x24-lifestyle-1-65bc4a53b648c
+     * variant title example: Black / 18"x24"
+     * image url contains the title. Ex:  https://cdn.shopify.com/s/files/1/0001/0001/0001/products/enhanced-matte-paper-framed-poster-_in_-black-18x24-lifestyle-1-65bc4a53b648c.jpg
+     */
+    product.images?.edges?.forEach((imageEdge) => {
+      const image = imageEdge.node;
+      if (image.url.includes(variantTitle)) {
+        if (!images[variant.title]) {
+          images[variant.title] = [];
+        }
+        images[variant.title].push({
+          src: image.url,
+          alt: image.altText,
+          width: image.width,
+          height: image.height,
+          id: image.id,
+        });
+      }
+    });
+  });
+  return images;
+}
+
 function mapProduct(product: ProductNode): Product {
-  const images: ProductItemImg[] =
-    product.images?.edges?.map((e) => ({
-      src: e.node.url,
-      alt: e.node.altText,
-      width: e.node.width,
-      height: e.node.height,
-    })) ?? [];
-  const img = images[0];
+  const images = getImagesByVariant(product);
   return {
     id: product.id,
     name: product.title,
@@ -44,14 +70,15 @@ function mapProduct(product: ProductNode): Product {
     priceRange: product.priceRange,
     type: product.productType,
     href: `/shop/mosaics/${product.handle}`,
-    img,
     images,
-    variants: product.variants?.edges.map((variant) => variant.node),
+    variants:
+      product.variants &&
+      mapProductVariantNodeToProductVariantOption(product.variants),
   };
 }
 
 export default async function Mosaic(props: MosaicProps) {
-  const productResponse = await getProduct(props.params.slug, 10);
+  const productResponse = await getProduct(props.params.slug, 99);
   if (productResponse.errors) {
     console.error("Error getting product: ", productResponse.errors);
   }

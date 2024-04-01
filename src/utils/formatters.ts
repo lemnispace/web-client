@@ -43,3 +43,25 @@ export const formatPrice = (price: string | number, currencyCode: string) => {
 export const sanitizeHtml = (html: string) => {
   return DOMPurify.sanitize(html);
 };
+
+/**
+ * Formats the variant title for grouping.
+ * @param variantTitle - The variant title to format.
+ * @returns The formatted variant title.
+ */
+export const formatVariantTitleForGrouping = (variantTitle: string): string => {
+  // convert this: Black / 18"x24" and turn it into this: black-18x24
+  const res = variantTitle
+    .split(" / ")
+    .join("-")
+    .replaceAll(/"|″/g, "")
+    .replaceAll("×", "x")
+    .replaceAll(" ", "-")
+    .toLowerCase()
+    .trim();
+  return res;
+};
+
+export const getVariantTitleFromOptions = (...options: string[]): string => {
+  return options.join(" / ");
+};
