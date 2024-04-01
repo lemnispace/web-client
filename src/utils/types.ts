@@ -13,9 +13,9 @@ export interface ProductItem {
   priceRange: ProductPriceRange;
   description: string;
   descriptionHtml: string;
-  type: string;
+  type?: string;
   tags: string[];
-  variants: ProductVariantNode[];
+  variants?: ProductVariantNode[];
   href: string;
   img?: ProductItemImg;
 }

@@ -13,23 +13,73 @@ export interface ProductColor {
 
 export interface ProductColorPickerProps
   extends React.HTMLAttributes<HTMLElement> {
-  colors: ProductColor[];
-  defaultColor?: ProductColor;
-  onColorChange?: (color: ProductColor) => void;
+  colors: string[];
+  defaultColor?: string;
+  onColorChange?: (color: string) => void;
 }
 
+/**
+ * Takes in a string for a color and returns the color in tailwind format.
+ * @param color - The color string.
+ * @returns The color object in tailwind format.
+ */
+export const formatColor = (color: string) => {
+  color = color.toLowerCase();
+  const colorMap: Record<string, ProductColor> = {
+    white: {
+      name: "white",
+      bgColor: "bg-gray-100",
+      selectedColor: "ring-gray-400",
+    },
+    "red oak": {
+      name: "red oak",
+      bgColor: "bg-amber-600",
+      selectedColor: "ring-amber-600",
+    },
+    oak: {
+      name: "oak",
+      bgColor: "bg-yellow-500",
+      selectedColor: "ring-yellow-500",
+    },
+    black: {
+      name: "black",
+      bgColor: "bg-gray-900",
+      selectedColor: "ring-gray-900",
+    },
+  };
+  if (color in colorMap) {
+    return colorMap[color];
+  }
+  return {
+    name: color,
+    bgColor: `bg-${color}-500`,
+    selectedColor: `ring-${color}-500`,
+  };
+};
+
+const mapColors = (colors: string[]) => colors.map(formatColor);
+const findColor = (color: string, colors: ProductColor[]) =>
+  colors.find((c) => c.name === color);
+const getDefaultColor = (color: string | undefined, colors: ProductColor[]) => {
+  if (color) {
+    return findColor(color, colors) ?? colors[0];
+  }
+  return colors[0];
+};
+
 export default function ProductColorPicker({
-  colors,
+  colors: colorStrings,
   onColorChange,
-  defaultColor,
+  defaultColor: defaultColorString,
   ...props
 }: ProductColorPickerProps) {
-  defaultColor = defaultColor ?? colors[0];
+  const colors = mapColors(colorStrings);
+  const defaultColor = getDefaultColor(defaultColorString, colors);
   const [selectedColor, setSelectedColor] = useState(defaultColor);
 
   const handleColorChange = (color: ProductColor) => {
     setSelectedColor(color);
-    onColorChange?.(color);
+    onColorChange?.(color.name);
   };
 
   return (
