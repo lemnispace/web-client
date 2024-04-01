@@ -6,7 +6,7 @@ import clsx from "clsx";
 import Image from "next/image";
 
 interface ImageGalleryProps {
-  product: Product;
+  product: Pick<Product, "images" | "name">;
   className?: string;
 }
 

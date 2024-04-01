@@ -30,6 +30,7 @@ export interface ProductVariantNode {
   title: string;
   quantityAvailable?: number;
   price: Price;
+  selectedOptions: Array<{ name: string; value: string }>;
 }
 
 export type ProductVariantEdge = Edge<ProductVariantNode>;
@@ -46,7 +47,7 @@ export interface ProductPriceRange {
 
 export interface MediaNode {
   id: string;
-  alt: string;
+  alt?: string;
   mediaContentType: MediaContentType;
   previewImage: Image;
 }
@@ -62,10 +63,10 @@ export interface ProductNode {
   descriptionHtml: string;
   handle: string;
   priceRange: ProductPriceRange;
-  productType: string;
+  productType?: string;
   images: Edges<ImageEdge>;
   tags: string[];
-  variants: Edges<ProductVariantEdge>;
+  variants?: Edges<ProductVariantEdge>;
 }
 
 export type ProductEdge = Edge<ProductNode>;
