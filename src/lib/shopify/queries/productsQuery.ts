@@ -91,9 +91,9 @@ query getProductByHandle($handle: String!, $firstNImages: Int!) {
 `;
 
 export interface ProductsResponse {
-  products: Edges<ProductEdge>;
+  products?: Edges<ProductEdge>;
 }
 
 export interface ProductResponse {
-  product: ProductNode;
+  product?: ProductNode;
 }

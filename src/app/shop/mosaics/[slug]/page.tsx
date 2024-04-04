@@ -82,7 +82,7 @@ export default async function Mosaic(props: MosaicProps) {
   if (productResponse.errors) {
     console.error("Error getting product: ", productResponse.errors);
   }
-  const product = productResponse.data
+  const product = productResponse.data?.product
     ? mapProduct(productResponse.data.product)
     : undefined;
   if (!product) {
