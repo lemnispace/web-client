@@ -21,7 +21,7 @@ function getProductList(firstNProducts: number) {
 }
 
 function mapProducts(productList?: ProductsResponse): ProductItem[] {
-  if (!productList) {
+  if (!productList?.products?.edges) {
     return [];
   }
   return productList.products.edges.map((e) => {
