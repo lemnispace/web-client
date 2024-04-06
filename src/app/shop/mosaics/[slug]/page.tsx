@@ -6,12 +6,9 @@ import {
   productQuery,
 } from "@/lib/shopify/queries/productsQuery";
 import { ProductNode } from "@/lib/types/shopify";
-import {
-  formatVariantTitleForGrouping,
-  sanitizeHtml,
-} from "@/utils/formatters";
-import { mapProductVariantNodeToProductVariantOption } from "@/utils/mappers";
-import { GroupedProductImages, Product, ProductItemImg } from "@/utils/types";
+import { sanitizeHtml } from "@/utils/formatters";
+import { mapProductVariantNodeToProductVariant } from "@/utils/mappers";
+import { Product } from "@/utils/types";
 import { redirect } from "next/navigation";
 
 interface MosaicProps {
@@ -30,37 +27,14 @@ function getProduct(handle: string, firstNImages: number) {
   });
 }
 
-function getImagesByVariant(product: ProductNode): GroupedProductImages {
-  const images: { [VariantTitle: string]: ProductItemImg[] } = {};
-  product.variants?.edges.forEach((variantEdge) => {
-    const variant = variantEdge.node;
-    const variantTitle = formatVariantTitleForGrouping(variant.title);
-    /**
-     * image title example: enhanced-matte-paper-framed-poster-_in_-black-18x24-lifestyle-1-65bc4a53b648c
-     * variant title example: Black / 18"x24"
-     * image url contains the title. Ex:  https://cdn.shopify.com/s/files/1/0001/0001/0001/products/enhanced-matte-paper-framed-poster-_in_-black-18x24-lifestyle-1-65bc4a53b648c.jpg
-     */
-    product.images?.edges?.forEach((imageEdge) => {
-      const image = imageEdge.node;
-      if (image.url.includes(variantTitle)) {
-        if (!images[variant.title]) {
-          images[variant.title] = [];
-        }
-        images[variant.title].push({
-          src: image.url,
-          alt: image.altText,
-          width: image.width,
-          height: image.height,
-          id: image.id,
-        });
-      }
-    });
-  });
-  return images;
-}
-
 function mapProduct(product: ProductNode): Product {
-  const images = getImagesByVariant(product);
+  const images = product.images.edges.map(({ node }) => ({
+    src: node.url,
+    alt: node.altText,
+    width: node.width,
+    height: node.height,
+    id: node.id,
+  }));
   return {
     id: product.id,
     name: product.title,
@@ -73,7 +47,7 @@ function mapProduct(product: ProductNode): Product {
     images,
     variants:
       product.variants &&
-      mapProductVariantNodeToProductVariantOption(product.variants),
+      mapProductVariantNodeToProductVariant(product.variants),
   };
 }
 

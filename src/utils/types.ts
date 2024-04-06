@@ -1,9 +1,10 @@
 import {
   ProductPriceRange,
+  ProductVariantNode,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
 
-export interface ProductItemImg {
+export interface ProductImg {
   src: string;
   alt?: string;
   width: number;
@@ -11,9 +12,14 @@ export interface ProductItemImg {
   id: string;
 }
 
-export interface ProductVariantOption {
-  name: ProductVariantOptionType;
-  values: string[];
+export type ProductVariantOption = {
+  [K in ProductVariantOptionType]?: string;
+};
+
+export interface ProductVariant
+  extends ProductVariantOption,
+    Omit<ProductVariantNode, "selectedOptions" | "image"> {
+  image?: ProductImg;
 }
 
 export interface ProductItem {
@@ -24,15 +30,11 @@ export interface ProductItem {
   descriptionHtml: string;
   type?: string;
   tags: string[];
-  variants?: ProductVariantOption[];
+  variants?: ProductVariant[];
   href: string;
-  img?: ProductItemImg;
-}
-
-export interface GroupedProductImages {
-  [variantTitle: string]: ProductItemImg[];
+  img?: ProductImg;
 }
 
 export interface Product extends ProductItem {
-  images?: GroupedProductImages;
+  images?: ProductImg[];
 }

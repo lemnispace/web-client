@@ -8,7 +8,7 @@ import {
 } from "@/lib/shopify/queries/productsQuery";
 import { Image } from "@/lib/types/shopify";
 import { sanitizeHtml } from "@/utils/formatters";
-import { mapProductVariantNodeToProductVariantOption } from "@/utils/mappers";
+import { mapProductVariantNodeToProductVariant } from "@/utils/mappers";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { ProductItem } from "@/utils/types";
 
@@ -46,7 +46,7 @@ function mapProducts(productList?: ProductsResponse): ProductItem[] {
         : undefined,
       variants:
         e.node.variants &&
-        mapProductVariantNodeToProductVariantOption(e.node.variants),
+        mapProductVariantNodeToProductVariant(e.node.variants),
     };
   });
 }

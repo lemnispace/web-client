@@ -33,6 +33,7 @@ export interface ProductVariantNode {
   quantityAvailable?: number;
   price: Price;
   selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
+  image?: Image;
 }
 
 export type ProductVariantEdge = Edge<ProductVariantNode>;

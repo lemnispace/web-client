@@ -1,8 +1,9 @@
 "use client";
 
 import { ProductVariantOptionType } from "@/lib/types/shopify";
-import { formatPrice, getVariantTitleFromOptions } from "@/utils/formatters";
+import { formatPrice } from "@/utils/formatters";
 import { Product } from "@/utils/types";
+import { isDefined } from "@/utils/validators";
 import { useState } from "react";
 import ImageGallery from "./ImageGallery";
 import ProductDescription from "./ProductDescription";
@@ -17,18 +18,23 @@ const getVariantValues = (
   product: Product,
   variantName: ProductVariantOptionType
 ) => {
-  return product.variants?.find((v) => v.name === variantName)?.values ?? [];
+  if (!product.variants) {
+    return [];
+  }
+  const variantValues = product.variants
+    .map((variant) => variant[variantName])
+    .filter(isDefined);
+  return Array.from(new Set(variantValues));
 };
 
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
   const colors = getVariantValues(product, "Color");
   const sizes = getVariantValues(product, "Size");
-  const [variantKey, setVariantKey] = useState<string>(
-    getVariantTitleFromOptions(colors[0], sizes[0])
-  );
+  const [selectedColor, setSelectedColor] = useState(colors[0]);
+
   return (
     <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-      <ImageGallery product={product} imageVariantKey={variantKey} />
+      <ImageGallery product={product} variant={{ Color: selectedColor }} />
       {/* Product info */}
       <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
         <ProductTitle
@@ -48,7 +54,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
         <ProductSelectionForm
           colors={colors}
           onColorChange={(newColor) => {
-            setVariantKey(getVariantTitleFromOptions(newColor, sizes[0]));
+            setSelectedColor(newColor);
           }}
           className="mt-6"
         />

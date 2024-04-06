@@ -33,6 +33,7 @@ const variantsFragment = /* GraphQL */ `
           name
           value
         }
+        image ${imageFragment}
       }
     }
   }

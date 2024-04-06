@@ -1,47 +1,41 @@
 "use client";
 
-import { Product, ProductItemImg } from "@/utils/types";
+import { ProductVariantOptionType } from "@/lib/types/shopify";
+import { Product, ProductImg, ProductVariantOption } from "@/utils/types";
+import { isDefined } from "@/utils/validators";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/image";
-import { useMemo } from "react";
 
 interface ImageGalleryProps {
   product: Product;
   className?: string;
-  imageVariantKey: string;
+  variant: ProductVariantOption;
 }
 
-const getColorFromVariantTitle = (title: string) => {
-  return title.split("/")[0].trim().toLowerCase();
-};
-
-const groupImagesByColorVariant = (product: Product) => {
-  const imageMap = new Map<string, ProductItemImg[]>();
-  Object.entries(product.images ?? {}).forEach(([variantTitle, images]) => {
-    const color = getColorFromVariantTitle(variantTitle).toLowerCase();
-    const imgs = imageMap.get(color) ?? [];
-    imgs.push(...images);
-    imageMap.set(color, imgs);
-  });
-  return imageMap;
+const getImagesByVariant = (
+  product: Product,
+  variantType: ProductVariantOptionType,
+  value: string
+): ProductImg[] => {
+  if (!product.variants) {
+    return [];
+  }
+  return product.variants
+    .filter((variant) => variant[variantType] === value)
+    .map((variant) => variant.image)
+    .filter(isDefined);
 };
 
 export default function ImageGallery({
   product,
   className,
-  imageVariantKey,
+  variant,
   ...props
 }: ImageGalleryProps) {
-  const imagesByVariant = useMemo(
-    () => product && groupImagesByColorVariant(product),
-    [product]
-  );
-  const colorKey = useMemo(
-    () => getColorFromVariantTitle(imageVariantKey),
-    [imageVariantKey]
-  );
-  const images = imagesByVariant.get(colorKey) ?? [];
+  const images = variant.Color
+    ? getImagesByVariant(product, "Color", variant.Color)
+    : [];
   return (
     <Tab.Group as="div" className={clsx("flex flex-col-reverse", className)}>
       {/* Image selector */}
