@@ -9,7 +9,6 @@ import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
   colors: string[];
-  onColorChange?: (color: string) => void;
   onAddToFavorites?: () => void;
   onSubmit?: (data: ProductFormData) => void;
 }
@@ -21,7 +20,6 @@ interface ProductFormData extends ColorFormValue {}
 
 export default function ProductSelectionForm({
   colors,
-  onColorChange,
   onAddToFavorites,
   ...props
 }: ProductSelectionFormProps) {
@@ -36,11 +34,7 @@ export default function ProductSelectionForm({
   };
   return (
     <form {...props} onSubmit={handleSubmit}>
-      <ProductColorPicker
-        colors={colors}
-        onColorChange={onColorChange}
-        defaultColor={colors[0]}
-      />
+      {Boolean(colors?.length) && <ProductColorPicker colors={colors} />}
       <div className="mt-10 flex flex-col sm:flex-row sm:w-full">
         <Button
           type="submit"

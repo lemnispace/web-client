@@ -1,43 +1,79 @@
 "use client";
 
 import { ProductVariantOptionType } from "@/lib/types/shopify";
-import { Product, ProductImg, ProductVariantOption } from "@/utils/types";
+import { getVariantById } from "@/utils/getters";
+import { Product, ProductImg } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/image";
+import { useContext } from "react";
+import { ProductVariantContext } from "./ProductView";
 
 interface ImageGalleryProps {
   product: Product;
   className?: string;
-  variant: ProductVariantOption;
+}
+
+interface ImageVariant extends ProductImg {
+  variantId: string;
 }
 
 const getImagesByVariant = (
   product: Product,
   variantType: ProductVariantOptionType,
   value: string
-): ProductImg[] => {
+): ImageVariant[] => {
   if (!product.variants) {
     return [];
   }
   return product.variants
     .filter((variant) => variant[variantType] === value)
-    .map((variant) => variant.image)
+    .map(
+      (variant) => variant.image && { variantId: variant.id, ...variant.image }
+    )
     .filter(isDefined);
 };
 
 export default function ImageGallery({
   product,
   className,
-  variant,
   ...props
 }: ImageGalleryProps) {
-  const images = variant.Color
-    ? getImagesByVariant(product, "Color", variant.Color)
+  const { selectedVariant, setSelectedVariant } = useContext(
+    ProductVariantContext
+  );
+  if (!selectedVariant || !setSelectedVariant) {
+    throw new Error("ProductVariantContext not found");
+  }
+  const images = selectedVariant?.Color
+    ? getImagesByVariant(product, "Color", selectedVariant.Color)
     : [];
+
+  const handleVariantImageSelect = (index: number) => {
+    const variant = getVariantById(product, images?.[index].variantId);
+    if (variant) {
+      setSelectedVariant((prev) => {
+        // If the variant is the same, return the previous value to avoid unnecessary re-renders
+        if (
+          prev.Color === variant.Color &&
+          prev.Size === variant.Size &&
+          prev.Material === variant.Material &&
+          prev.Style === variant.Style
+        ) {
+          return prev;
+        }
+        const { Color, Size, Material, Style } = variant;
+        return { ...prev, Color, Size, Material, Style };
+      });
+    }
+  };
   return (
-    <Tab.Group as="div" className={clsx("flex flex-col-reverse", className)}>
+    <Tab.Group
+      as="div"
+      className={clsx("flex flex-col-reverse", className)}
+      onChange={handleVariantImageSelect}
+    >
       {/* Image selector */}
       <div className="mx-auto mt-6 w-full max-w-2xl block lg:max-w-none">
         <Tab.List className="grid grid-cols-4 gap-6">
