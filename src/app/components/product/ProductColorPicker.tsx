@@ -3,7 +3,8 @@
 import { PRODUCT_COLOR_PICKER_TEXT } from "@/utils/text";
 import { Label, RadioGroup } from "@headlessui/react";
 import clsx from "clsx";
-import { useState } from "react";
+import React, { useContext } from "react";
+import { ProductVariantContext } from "./ProductView";
 
 export interface ProductColor {
   name: string;
@@ -57,28 +58,23 @@ export const formatColor = (color: string) => {
 };
 
 const mapColors = (colors: string[]) => colors.map(formatColor);
-const findColor = (color: string, colors: ProductColor[]) =>
-  colors.find((c) => c.name === color);
-const getDefaultColor = (color: string | undefined, colors: ProductColor[]) => {
-  if (color) {
-    return findColor(color, colors) ?? colors[0];
-  }
-  return colors[0];
-};
 
 export default function ProductColorPicker({
   colors: colorStrings,
   onColorChange,
-  defaultColor: defaultColorString,
   ...props
 }: ProductColorPickerProps) {
   const colors = mapColors(colorStrings);
-  const defaultColor = getDefaultColor(defaultColorString, colors);
-  const [selectedColor, setSelectedColor] = useState(defaultColor);
 
-  const handleColorChange = (color: ProductColor) => {
-    setSelectedColor(color);
-    onColorChange?.(color.name);
+  const { selectedVariant, setSelectedVariant } = useContext(
+    ProductVariantContext
+  );
+  if (!selectedVariant || !setSelectedVariant) {
+    throw new Error("ProductVariantContext not found");
+  }
+
+  const handleColorChange = (colorName: string) => {
+    setSelectedVariant((prev) => ({ ...prev, Color: colorName }));
   };
 
   return (
@@ -87,9 +83,8 @@ export default function ProductColorPicker({
         {PRODUCT_COLOR_PICKER_TEXT.title}
       </h3>
       <RadioGroup
-        value={selectedColor}
+        value={selectedVariant.Color}
         onChange={handleColorChange}
-        by="name"
         className="mt-2"
         name="color"
       >
@@ -100,7 +95,7 @@ export default function ProductColorPicker({
           {colors.map((color) => (
             <RadioGroup.Option
               key={color.name}
-              value={color}
+              value={color.name}
               className={({ focus, checked }) =>
                 clsx(
                   color.selectedColor,
