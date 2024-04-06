@@ -3,60 +3,89 @@ import {
   ProductVariantEdge,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
-import { ProductVariantOption } from "./types";
-
+import { ProductVariant } from "./types";
 /**
- * Maps the product variant nodes to an array of product variant options.
+ * Maps product variant nodes to product variants.
+ *
+ * @param {Edges<ProductVariantEdge>} variants - The product variant edges.
+ * @returns {ProductVariant[]} - The mapped product variants.
+ *
  * @example
- * const variants = {
- * edges: [
+ * const variants: Edges<ProductVariantEdge> = {
+ *   edges: [
  *     {
- *       node: {...},
+ *       node: {
+ *         id: '1',
+ *         title: 'Variant 1',
+ *         quantityAvailable: 10,
+ *         price: 9.99,
+ *         image: 'variant1.jpg',
  *         selectedOptions: [
- *           {
- *             name: "Color",
- *             value: "Black",
- *           },
- *           {
- *             name: "Size",
- *             value: '18"x24"',
- *           },
+ *           { name: 'color', value: 'red' },
+ *           { name: 'size', value: 'small' },
+ *         ],
+ *       },
+ *     },
+ *     {
+ *       node: {
+ *         id: '2',
+ *         title: 'Variant 2',
+ *         quantityAvailable: 5,
+ *         price: 14.99,
+ *         image: 'variant2.jpg',
+ *         selectedOptions: [
+ *           { name: 'color', value: 'blue' },
+ *           { name: 'size', value: 'medium' },
  *         ],
  *       },
  *     },
  *   ],
  * };
- * let result = mapProductVariantNodeToProductVariantOption(variants);
- * result = [
- *   {
- *     name: "Color",
- *     values: ["Black"],
- *   },
- *   {
- *     name: "Size",
- *     values: ['18"x24"'],
- *   },
- * ]
  *
- * @param variants - The edges of product variant nodes.
- * @returns An array of product variant options.
+ * const productVariants = mapProductVariantNodeToProductVariant(variants);
+ * console.log(productVariants);
+ * // Output:
+ * // [
+ * //   {
+ * //     id: '1',
+ * //     title: 'Variant 1',
+ * //     quantityAvailable: 10,
+ * //     price: 9.99,
+ * //     image: 'variant1.jpg',
+ * //     color: 'red',
+ * //     size: 'small',
+ * //   },
+ * //   {
+ * //     id: '2',
+ * //     title: 'Variant 2',
+ * //     quantityAvailable: 5,
+ * //     price: 14.99,
+ * //     image: 'variant2.jpg',
+ * //     color: 'blue',
+ * //     size: 'medium',
+ * //   },
+ * // ]
  */
-export const mapProductVariantNodeToProductVariantOption = (
+export const mapProductVariantNodeToProductVariant = (
   variants: Edges<ProductVariantEdge>
-): ProductVariantOption[] => {
-  const variantOptionsMap = new Map<ProductVariantOptionType, Set<string>>();
-  variants.edges.forEach((edge) => {
-    const variant = edge.node;
-    variant.selectedOptions.forEach((option) => {
-      const values = variantOptionsMap.get(option.name) || new Set<string>();
-      values.add(option.value);
-      variantOptionsMap.set(option.name, values);
-    });
-  });
-  return Array.from(variantOptionsMap).map(([name, values]) => {
-    return {
-      name,
-      values: Array.from(values),
+): ProductVariant[] => {
+  return variants.edges.map(({ node }) => {
+    const variant: ProductVariant = {
+      id: node.id,
+      title: node.title,
+      quantityAvailable: node.quantityAvailable,
+      price: node.price,
+      image: node.image && {
+        src: node.image.url,
+        alt: node.image.altText,
+        width: node.image.width,
+        height: node.image.height,
+        id: node.image.id,
+      },
     };
+    node.selectedOptions.forEach((option) => {
+      variant[option.name as ProductVariantOptionType] = option.value;
+    });
+    return variant;
   });
 };

@@ -24,25 +24,24 @@ export interface ProductColorPickerProps
  * @returns The color object in tailwind format.
  */
 export const formatColor = (color: string) => {
-  color = color.toLowerCase();
   const colorMap: Record<string, ProductColor> = {
-    white: {
-      name: "white",
+    White: {
+      name: "White",
       bgColor: "bg-gray-100",
       selectedColor: "ring-gray-400",
     },
-    "red oak": {
-      name: "red oak",
+    "Red Oak": {
+      name: "Red Oak",
       bgColor: "bg-amber-600",
       selectedColor: "ring-amber-600",
     },
-    oak: {
-      name: "oak",
+    Oak: {
+      name: "Oak",
       bgColor: "bg-yellow-500",
       selectedColor: "ring-yellow-500",
     },
-    black: {
-      name: "black",
+    Black: {
+      name: "Black",
       bgColor: "bg-gray-900",
       selectedColor: "ring-gray-900",
     },

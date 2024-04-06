@@ -1,7 +1,7 @@
 import { Button } from "@/components/button";
 import { ProductPriceRange } from "@/lib/types/shopify";
 import { formatPrice } from "@/utils/formatters";
-import { ProductItem, ProductItemImg } from "@/utils/types";
+import { ProductImg, ProductItem } from "@/utils/types";
 import clsx from "clsx";
 import Image from "next/image";
 import { ProductDescriptionHtml } from "../product/ProductDescription";
@@ -11,7 +11,7 @@ interface ProductGridItemProps extends ProductItem {
   className?: string;
 }
 
-interface ProductGridItemImgProps extends ProductItemImg {
+interface ProductGridItemImgProps extends ProductImg {
   className?: string;
 }
 
