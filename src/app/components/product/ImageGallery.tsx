@@ -43,7 +43,7 @@ export default function ImageGallery({
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
   );
-  if (!selectedVariant || !setSelectedVariant) {
+  if (!setSelectedVariant || selectedVariant === null) {
     throw new Error("ProductVariantContext not found");
   }
   const images = selectedVariant?.Color
@@ -54,6 +54,9 @@ export default function ImageGallery({
     const variant = getVariantById(product, images?.[index].variantId);
     if (variant) {
       setSelectedVariant((prev) => {
+        if (!prev) {
+          return variant;
+        }
         // If the variant is the same, return the previous value to avoid unnecessary re-renders
         if (
           prev.Color === variant.Color &&
@@ -63,8 +66,7 @@ export default function ImageGallery({
         ) {
           return prev;
         }
-        const { Color, Size, Material, Style } = variant;
-        return { ...prev, Color, Size, Material, Style };
+        return { ...prev, ...variant };
       });
     }
   };

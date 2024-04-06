@@ -2,7 +2,7 @@
 
 import { ProductVariantOptionType } from "@/lib/types/shopify";
 import { formatPrice } from "@/utils/formatters";
-import { Product, ProductVariantOption } from "@/utils/types";
+import { Product, ProductVariant } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
 import React, {
   Dispatch,
@@ -33,8 +33,10 @@ const getVariantValues = (
 };
 
 interface ProductVariantContextProps {
-  selectedVariant: ProductVariantOption | null;
-  setSelectedVariant: Dispatch<SetStateAction<ProductVariantOption>> | null;
+  selectedVariant: ProductVariant | null | undefined;
+  setSelectedVariant: Dispatch<
+    SetStateAction<ProductVariant | undefined>
+  > | null;
 }
 
 export const ProductVariantContext = createContext<ProductVariantContextProps>({
@@ -45,12 +47,7 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
   const colors = getVariantValues(product, "Color");
   const sizes = getVariantValues(product, "Size");
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariantOption>({
-    Color: colors[0],
-    Size: sizes[0],
-    Material: undefined,
-    Style: undefined,
-  });
+  const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0]);
 
   return (
     <ProductVariantContext.Provider
@@ -68,19 +65,25 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
             )}
           />
           {/* <ProductRating rating={4} outOf={4} className="mt-3" /> */}
-          <div className="mt-6">
-            <ProductDescription
-              description={product.description}
-              descriptionHtml={product.descriptionHtml}
+          <div className="flex flex-col-reverse">
+            <div className="mt-6">
+              <ProductDescription
+                description={product.description}
+                descriptionHtml={product.descriptionHtml}
+              />
+            </div>
+            <ProductSelectionForm
+              colors={colors}
+              sizes={sizes}
+              className="mt-6 mb-6"
             />
-          </div>
-          <ProductSelectionForm colors={colors} className="mt-6" />
-          {/* <section aria-labelledby="details-heading" className="mt-12">
+            {/* <section aria-labelledby="details-heading" className="mt-12">
             <ProductSectionTitle id="details-heading">
               Additional details
             </ProductSectionTitle>
             <ProductDetails details={product.details} />
           </section> */}
+          </div>
         </div>
       </div>
     </ProductVariantContext.Provider>
