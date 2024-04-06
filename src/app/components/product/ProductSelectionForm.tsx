@@ -5,10 +5,12 @@ import { BUTTON_TEXT } from "@/utils/text";
 import { HeartIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
+import ProductSizePicker from "./ProductSizePicker";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
-  colors: string[];
+  colors?: string[];
+  sizes?: string[];
   onAddToFavorites?: () => void;
   onSubmit?: (data: ProductFormData) => void;
 }
@@ -20,6 +22,7 @@ interface ProductFormData extends ColorFormValue {}
 
 export default function ProductSelectionForm({
   colors,
+  sizes,
   onAddToFavorites,
   ...props
 }: ProductSelectionFormProps) {
@@ -34,7 +37,10 @@ export default function ProductSelectionForm({
   };
   return (
     <form {...props} onSubmit={handleSubmit}>
-      {Boolean(colors?.length) && <ProductColorPicker colors={colors} />}
+      {Boolean(colors?.length) && <ProductColorPicker colors={colors!} />}
+      {Boolean(sizes?.length) && (
+        <ProductSizePicker sizes={sizes!} className="mt-8" />
+      )}
       <div className="mt-10 flex flex-col sm:flex-row sm:w-full">
         <Button
           type="submit"

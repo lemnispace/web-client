@@ -15,8 +15,6 @@ export interface ProductColor {
 export interface ProductColorPickerProps
   extends React.HTMLAttributes<HTMLElement> {
   colors: string[];
-  defaultColor?: string;
-  onColorChange?: (color: string) => void;
 }
 
 /**
@@ -61,7 +59,6 @@ const mapColors = (colors: string[]) => colors.map(formatColor);
 
 export default function ProductColorPicker({
   colors: colorStrings,
-  onColorChange,
   ...props
 }: ProductColorPickerProps) {
   const colors = mapColors(colorStrings);
@@ -69,12 +66,16 @@ export default function ProductColorPicker({
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
   );
-  if (!selectedVariant || !setSelectedVariant) {
+  if (!setSelectedVariant || selectedVariant === null) {
     throw new Error("ProductVariantContext not found");
+  }
+  if (!selectedVariant) {
+    // in case the product has no variants
+    return null;
   }
 
   const handleColorChange = (colorName: string) => {
-    setSelectedVariant((prev) => ({ ...prev, Color: colorName }));
+    setSelectedVariant((prev) => prev && { ...prev, Color: colorName });
   };
 
   return (
