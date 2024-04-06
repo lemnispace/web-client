@@ -7,7 +7,7 @@ import { isDefined } from "@/utils/validators";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/image";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { ProductVariantContext } from "./ProductView";
 
 interface ImageGalleryProps {
@@ -43,12 +43,23 @@ export default function ImageGallery({
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
   );
+  const images = useMemo(
+    () =>
+      selectedVariant?.Color
+        ? getImagesByVariant(product, "Color", selectedVariant.Color)
+        : [],
+    [selectedVariant, product]
+  );
+  const selectedIndex = useMemo(() => {
+    if (!selectedVariant) {
+      return -1;
+    }
+    return images.findIndex((image) => image.variantId === selectedVariant.id);
+  }, [images, selectedVariant]);
+
   if (!setSelectedVariant || selectedVariant === null) {
     throw new Error("ProductVariantContext not found");
   }
-  const images = selectedVariant?.Color
-    ? getImagesByVariant(product, "Color", selectedVariant.Color)
-    : [];
 
   const handleVariantImageSelect = (index: number) => {
     const variant = getVariantById(product, images?.[index].variantId);
@@ -70,11 +81,13 @@ export default function ImageGallery({
       });
     }
   };
+
   return (
     <Tab.Group
       as="div"
       className={clsx("flex flex-col-reverse", className)}
       onChange={handleVariantImageSelect}
+      selectedIndex={selectedIndex}
     >
       {/* Image selector */}
       <div className="mx-auto mt-6 w-full max-w-2xl block lg:max-w-none">

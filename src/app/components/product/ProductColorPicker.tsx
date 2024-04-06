@@ -1,6 +1,10 @@
 "use client";
 
+import { getVariantByValues } from "@/utils/getters";
+import { getAllProductVariantOptions } from "@/utils/mappers";
 import { PRODUCT_COLOR_PICKER_TEXT } from "@/utils/text";
+import { Product, ProductVariant } from "@/utils/types";
+import { hasVariant } from "@/utils/validators";
 import { Label, RadioGroup } from "@headlessui/react";
 import clsx from "clsx";
 import React, { useContext } from "react";
@@ -14,7 +18,7 @@ export interface ProductColor {
 
 export interface ProductColorPickerProps
   extends React.HTMLAttributes<HTMLElement> {
-  colors: string[];
+  product: Product;
 }
 
 /**
@@ -55,27 +59,43 @@ export const formatColor = (color: string) => {
   };
 };
 
-const mapColors = (colors: string[]) => colors.map(formatColor);
+const mapColors = (variants: ProductVariant[]): ProductColor[] => {
+  return getAllProductVariantOptions(variants, "Color").map(formatColor);
+};
 
 export default function ProductColorPicker({
-  colors: colorStrings,
+  product,
   ...props
 }: ProductColorPickerProps) {
-  const colors = mapColors(colorStrings);
-
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
   );
   if (!setSelectedVariant || selectedVariant === null) {
     throw new Error("ProductVariantContext not found");
   }
-  if (!selectedVariant) {
+  if (!selectedVariant || !hasVariant(product, "Color")) {
     // in case the product has no variants
     return null;
   }
 
-  const handleColorChange = (colorName: string) => {
-    setSelectedVariant((prev) => prev && { ...prev, Color: colorName });
+  const colors = mapColors(product.variants);
+
+  const handleColorChange = (color: string) => {
+    setSelectedVariant((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      const variant = getVariantByValues(product, {
+        Color: color,
+        Size: prev.Size,
+        Material: prev.Material,
+        Style: prev.Style,
+      });
+      return {
+        ...prev,
+        ...variant,
+      };
+    });
   };
 
   return (

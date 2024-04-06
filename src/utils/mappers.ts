@@ -4,6 +4,8 @@ import {
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
 import { ProductVariant } from "./types";
+import { isDefined } from "./validators";
+
 /**
  * Maps product variant nodes to product variants.
  *
@@ -88,4 +90,20 @@ export const mapProductVariantNodeToProductVariant = (
     });
     return variant;
   });
+};
+
+/**
+ * Gets all unique values of a specific product variant option type from an array of product variants.
+ *
+ * @param {ProductVariant[]} variants - The array of product variants.
+ * @param {ProductVariantOptionType} type - The product variant option type.
+ * @returns {Array<ProductVariant[ProductVariantOptionType]>} - The array of unique values for the specified option type.
+ */
+export const getAllProductVariantOptions = (
+  variants: ProductVariant[],
+  type: ProductVariantOptionType
+) => {
+  return Array.from(new Set(variants.map((variant) => variant[type]))).filter(
+    isDefined
+  );
 };

@@ -1,6 +1,10 @@
 "use client";
 
+import { getVariantByValues } from "@/utils/getters";
+import { getAllProductVariantOptions } from "@/utils/mappers";
 import { PRODUCT_SIZE_PICKER_TEXT } from "@/utils/text";
+import { Product } from "@/utils/types";
+import { hasVariant } from "@/utils/validators";
 import { Label, RadioGroup } from "@headlessui/react";
 import clsx from "clsx";
 import React, { useContext } from "react";
@@ -8,11 +12,11 @@ import { ProductVariantContext } from "./ProductView";
 
 export interface ProductSizePickerProps
   extends React.HTMLAttributes<HTMLElement> {
-  sizes: string[];
+  product: Product;
 }
 
 export default function ProductSizePicker({
-  sizes,
+  product,
   ...props
 }: ProductSizePickerProps) {
   const { selectedVariant, setSelectedVariant } = useContext(
@@ -21,14 +25,30 @@ export default function ProductSizePicker({
   if (!setSelectedVariant || selectedVariant === null) {
     throw new Error("ProductVariantContext not found");
   }
-  if (!selectedVariant) {
+  if (!selectedVariant || !hasVariant(product, "Size")) {
     // in case the product has no variants
     return null;
   }
 
   const handleSizeChange = (size: string) => {
-    setSelectedVariant((prev) => prev && { ...prev, Size: size });
+    setSelectedVariant((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      const variant = getVariantByValues(product, {
+        Color: prev.Color,
+        Size: size,
+        Material: prev.Material,
+        Style: prev.Style,
+      });
+      return {
+        ...prev,
+        ...variant,
+      };
+    });
   };
+
+  const sizes = getAllProductVariantOptions(product.variants, "Size");
 
   return (
     <div {...props}>
@@ -45,7 +65,7 @@ export default function ProductSizePicker({
           {PRODUCT_SIZE_PICKER_TEXT.shortDescription}
         </Label>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {sizes.map((size) => (
+          {sizes?.map((size) => (
             <RadioGroup.Option
               key={size}
               value={size}

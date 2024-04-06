@@ -134,6 +134,12 @@ export const PRODUCT_COLOR_PICKER_TEXT = {
   description: "Choose a color",
 } as const;
 
+export const PRODUCT_SIZE_PICKER_TEXT = {
+  title: "Size",
+  shortDescription: "Choose a size",
+  description: "Choose a size",
+} as const;
+
 /**
  *********************************
  **** IMAGE EDITOR CONSTANTS *****
