@@ -2,27 +2,46 @@
 
 import { Button } from "@/components/button";
 import { BUTTON_TEXT } from "@/utils/text";
+import { Product, ProductVariant } from "@/utils/types";
 import { HeartIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
+import { ProductVariantContext } from "./ProductView";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
-  colors?: string[];
-  sizes?: string[];
   onAddToFavorites?: () => void;
   onSubmit?: (data: ProductFormData) => void;
+  product: Product;
 }
 type ColorFormValue = {
   [K in keyof ProductColor as `color[${K}]`]: string;
 };
+
 type FormState = "READY" | "BUSY" | "LOADING";
-interface ProductFormData extends ColorFormValue {}
+type ProductFormData = ColorFormValue & {
+  size?: string;
+};
+
+const variantToQueryParams = (variant: ProductVariant) => {
+  const params = new URLSearchParams();
+  variant.Color && params.set("color", variant.Color);
+  variant.Size && params.set("size", variant.Size);
+  variant.Material && params.set("material", variant.Material);
+  variant.Style && params.set("style", variant.Style);
+  return params.toString();
+};
+
+const getVariantCreateUrl = (variant: ProductVariant | undefined | null) => {
+  const baseUrl = "/text-mosaic/create";
+  const params = variant && variantToQueryParams(variant);
+  return params ? `${baseUrl}?${params}` : baseUrl;
+};
 
 export default function ProductSelectionForm({
-  colors,
-  sizes,
+  product,
   onAddToFavorites,
   ...props
 }: ProductSelectionFormProps) {
@@ -35,16 +54,16 @@ export default function ProductSelectionForm({
     const data = Object.fromEntries(formData.entries()) as ProductFormData;
     props.onSubmit?.(data);
   };
+  const { selectedVariant } = useContext(ProductVariantContext);
   return (
     <form {...props} onSubmit={handleSubmit}>
-      {Boolean(colors?.length) && <ProductColorPicker colors={colors!} />}
-      {Boolean(sizes?.length) && (
-        <ProductSizePicker sizes={sizes!} className="mt-8" />
-      )}
+      <ProductColorPicker product={product} />
+      <ProductSizePicker product={product} className="mt-8" />
       <div className="mt-10 flex flex-col sm:flex-row sm:w-full">
         <Button
           type="submit"
           color="primary"
+          disabled
           className={clsx(
             "flex max-w-xs flex-1 sm:w-full",
             formState === "READY" && "cursor-pointer"
@@ -53,6 +72,23 @@ export default function ProductSelectionForm({
           {BUTTON_TEXT.addToCart}
         </Button>
         <Button
+          href={getVariantCreateUrl(selectedVariant)}
+          disabled={!selectedVariant}
+          outline
+          className={clsx(
+            "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full border-secondary-500",
+            formState === "READY" && "cursor-pointer"
+          )}
+        >
+          <span className="text-secondary-500">
+            {BUTTON_TEXT.goToCustomize}
+          </span>
+          <PencilSquareIcon
+            className="h-6 w-6 flex-shrink-0 stroke-secondary-500"
+            aria-hidden="true"
+          />
+        </Button>
+        {/* <Button
           href="./text-mosaic/create"
           outline
           className={clsx(
@@ -65,8 +101,8 @@ export default function ProductSelectionForm({
             className="h-6 w-6 flex-shrink-0 stroke-primary-500"
             aria-hidden="true"
           />
-        </Button>
-        <Button
+        </Button> */}
+        {/* <Button
           type="button"
           className={clsx(
             "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs",
@@ -77,7 +113,7 @@ export default function ProductSelectionForm({
         >
           <HeartIcon className="h-6 w-6 flex-shrink-0" aria-hidden="true" />
           <span className="sr-only">{BUTTON_TEXT.addToFavorites}</span>
-        </Button>
+        </Button> */}
       </div>
     </form>
   );
