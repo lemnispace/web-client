@@ -1,4 +1,8 @@
 import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
+import { productClient } from "../client";
+
+const VARIANT_METADATA_PREVIEW_IMAGE_KEY = "preview_image";
+const VARIANT_METADATA_NAMESPACE = "custom";
 
 const moneyFragment = /* GraphQL */ `
   {
@@ -14,6 +18,19 @@ const imageFragment = /* GraphQL */ `
     altText
     width
     height
+  }
+`;
+
+const metafieldFragment = /* GraphQL */ `
+  {
+    key
+    value
+    reference {
+      ... on MediaImage {
+        id
+        image ${imageFragment}
+      }
+    }
   }
 `;
 
@@ -34,10 +51,17 @@ const variantsFragment = /* GraphQL */ `
           value
         }
         image ${imageFragment}
+        metafield(namespace: $namespace, key: $key) ${metafieldFragment}
       }
     }
   }
 `;
+
+const getVariantsFragment = (namespace: string, key: string) => {
+  return variantsFragment
+    .replace(/\$namespace/g, `"${namespace}"`)
+    .replace(/\$key/g, `"${key}"`);
+};
 
 export const productsQuery = /* GraphQL */ `
   query getProducts($firstNProducts: Int!) {
@@ -69,7 +93,7 @@ export const productsQuery = /* GraphQL */ `
 `;
 
 export const productQuery = /* GraphQL */ `
-query getProductByHandle($handle: String!, $firstNImages: Int!) {
+query getProductByHandle($handle: String!) {
   product(handle: $handle) {
     id
     title
@@ -80,13 +104,10 @@ query getProductByHandle($handle: String!, $firstNImages: Int!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
-    images(first: $firstNImages) {
-      edges {
-        cursor
-        node ${imageFragment}
-      }
-    }
-    variants(first: 99) ${variantsFragment}
+    variants(first: 99) ${getVariantsFragment(
+      VARIANT_METADATA_NAMESPACE,
+      VARIANT_METADATA_PREVIEW_IMAGE_KEY
+    )}
   }
 }
 `;
@@ -95,6 +116,22 @@ export interface ProductsResponse {
   products?: Edges<ProductEdge>;
 }
 
+export function fetchProductList(firstNProducts: number) {
+  return productClient.request<ProductsResponse>(productsQuery, {
+    variables: {
+      firstNProducts,
+    },
+  });
+}
+
 export interface ProductResponse {
   product?: ProductNode;
+}
+
+export function fetchProduct(handle: string) {
+  return productClient.request<ProductResponse>(productQuery, {
+    variables: {
+      handle,
+    },
+  });
 }

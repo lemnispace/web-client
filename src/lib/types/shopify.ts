@@ -27,6 +27,15 @@ export interface Price {
 
 export type ProductVariantOptionType = "Color" | "Size" | "Material" | "Style";
 
+export interface ProductVariantMetafield {
+  key: string;
+  value: string;
+  reference?: {
+    id: string;
+    image: Image;
+  };
+}
+
 export interface ProductVariantNode {
   id: string;
   title: string;
@@ -34,6 +43,7 @@ export interface ProductVariantNode {
   price: Price;
   selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
   image?: Image;
+  metafield?: ProductVariantMetafield;
 }
 
 export type ProductVariantEdge = Edge<ProductVariantNode>;
@@ -67,7 +77,7 @@ export interface ProductNode {
   handle: string;
   priceRange: ProductPriceRange;
   productType?: string;
-  images: Edges<ImageEdge>;
+  images?: Edges<ImageEdge>;
   tags: string[];
   variants?: Edges<ProductVariantEdge>;
 }
