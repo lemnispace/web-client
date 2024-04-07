@@ -126,6 +126,7 @@ export default function Canvas({
   className,
   canvas,
   loadCanvas,
+  style,
   ...props
 }: CanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -169,8 +170,16 @@ export default function Canvas({
   }, [canvas]);
 
   return (
-    <div className={className} ref={wrapperRef}>
-      <canvas {...props} ref={setCanvasEl} />
+    <div className={className} style={style}>
+      {/**
+       * The canvas is wrapped in another div to allow for resizing the canvas while keeping aspect ratio
+       */}
+      <div
+        className="w-full absolute top-0 left-0 right-0 bottom-0"
+        ref={wrapperRef}
+      >
+        <canvas {...props} ref={setCanvasEl} />
+      </div>
     </div>
   );
 }
