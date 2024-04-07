@@ -131,7 +131,7 @@ export default function Editor({
   }
 
   return (
-    <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden min-h-64 h-screen">
+    <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden min-h-96 h-screen">
       {status === "loading" && (
         <div className="h-full w-full bg-gray-900/50 flex items-center justify-center absolute cursor-wait z-50">
           <Loader
@@ -148,7 +148,14 @@ export default function Editor({
       />
       <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto">
         <Canvas
-          className={clsx("h-full w-full bg-neutral-600 rounded-lg")}
+          className={clsx(
+            "h-0 w-full bg-neutral-600 rounded-lg max-h-full relative"
+          )}
+          style={
+            dimensions && {
+              paddingBottom: `calc((${dimensions.height}/${dimensions.width})*100%)`,
+            }
+          }
           imgSrc={src}
           canvas={fCanvas}
           loadCanvas={setFcanvas}
