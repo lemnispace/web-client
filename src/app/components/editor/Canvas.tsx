@@ -1,5 +1,6 @@
 "use client";
 
+import { toFloat } from "@/utils/validators";
 import {
   CanvasOptions,
   Canvas as FabricCanvas,
@@ -81,11 +82,19 @@ export const resizeCanvas = (
   img: FabricImage | null
 ) => {
   if (canvas) {
-    const bounds = wrapper?.getBoundingClientRect();
-    if (bounds) {
+    if (wrapper) {
+      const bounds = wrapper.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(wrapper);
+      const paddingTop = toFloat(computedStyle.paddingTop) || 0;
+      const paddingBottom = toFloat(computedStyle.paddingBottom) || 0;
+      const paddingLeft = toFloat(computedStyle.paddingLeft) || 0;
+      const paddingRight = toFloat(computedStyle.paddingRight) || 0;
+
+      const canvasWidth = bounds.width - paddingLeft - paddingRight;
+      const canvasHeight = bounds.height - paddingTop - paddingBottom;
       canvas.setDimensions({
-        width: bounds.width,
-        height: bounds.height,
+        width: canvasWidth,
+        height: canvasHeight,
       });
       if (img) {
         // resize image to fit the canvas but keep it in the same relative position
@@ -107,8 +116,6 @@ export const addImgToFabricCanvas = async (
   canvas?.add(fImg);
   return fImg;
 };
-
-
 
 const destroyCanvas = (canvas: FabricCanvas | null) => {
   return canvas?.dispose();
