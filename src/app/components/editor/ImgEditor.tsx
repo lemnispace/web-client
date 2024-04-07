@@ -1,6 +1,8 @@
 "use client";
 
+import { getDimensionsFromVariant } from "@/utils/getters";
 import { IMAGE_EDITOR_TEXT } from "@/utils/text";
+import { ProductVariant } from "@/utils/types";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
@@ -9,15 +11,19 @@ import { ImgData, getImgSrcFromFile } from "./utils";
 
 interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   onUploadComplete?: () => void;
+  productVariant: ProductVariant;
 }
 
 export default function ImgEditor({
   onUploadComplete,
   className,
+  productVariant,
   ...props
 }: ImgUploaderProps) {
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewImgUrl = productVariant.metafield?.reference?.image.url;
+  const dimensions = getDimensionsFromVariant(productVariant);
 
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -48,6 +54,8 @@ export default function ImgEditor({
         <Editor
           imgSrc={uploadedImg.data}
           imgName={uploadedImg.fileName}
+          backgroundImgUrl={previewImgUrl}
+          dimensions={dimensions}
           customActions={[
             {
               label: "Re-upload",
