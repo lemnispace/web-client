@@ -1,4 +1,5 @@
-import { Product, ProductVariantOption } from "./types";
+import { Product, ProductVariant, ProductVariantOption } from "./types";
+import { isDefined, toInt } from "./validators";
 
 /**
  * Retrieves a variant from a product by its ID.
@@ -25,4 +26,37 @@ export const getVariantByValues = (
       ([key, value]) => variant[key as keyof ProductVariantOption] === value
     )
   );
+};
+
+/**
+ * Retrieves the dimensions (width and height) from a variant.
+ * @param variant - The variant object.
+ * @returns An object containing the width and height of the variant, or undefined if the dimensions cannot be extracted.
+ */
+export const getDimensionsFromVariant = (variant: ProductVariant) => {
+  const size = variant.Size; // size like 18"x24" or "24x36" or 12x18 or etc...
+
+  if (!size) {
+    return undefined;
+  }
+
+  // Match digits in the size string
+  const matches = size.match(/\d+/g);
+
+  // Check if exactly two matches are found (width and height)
+  if (!matches || matches.length !== 2) {
+    return undefined;
+  }
+
+  // Extract width and height from the matches
+  const width = toInt(matches[0]);
+  const height = toInt(matches[1]);
+
+  // Check if both width and height are valid numbers
+  if (!isDefined(width) || !isDefined(height)) {
+    return undefined;
+  }
+
+  // Return an object with the extracted width and height
+  return { width, height };
 };

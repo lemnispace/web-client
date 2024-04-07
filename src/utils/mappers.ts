@@ -1,10 +1,12 @@
 import {
   Edges,
+  ProductNode,
   ProductVariantEdge,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
-import { ProductVariant } from "./types";
+import { Product, ProductVariant } from "./types";
 import { isDefined } from "./validators";
+import { sanitizeHtml } from "./formatters";
 
 /**
  * Maps product variant nodes to product variants.
@@ -84,6 +86,7 @@ export const mapProductVariantNodeToProductVariant = (
         height: node.image.height,
         id: node.image.id,
       },
+      metafield: node.metafield,
     };
     node.selectedOptions.forEach((option) => {
       variant[option.name as ProductVariantOptionType] = option.value;
@@ -91,6 +94,31 @@ export const mapProductVariantNodeToProductVariant = (
     return variant;
   });
 };
+
+export function mapProduct(product: ProductNode): Product {
+  const images = product.images?.edges.map(({ node }) => ({
+    src: node.url,
+    alt: node.altText,
+    width: node.width,
+    height: node.height,
+    id: node.id,
+  }));
+  return {
+    id: product.id,
+    name: product.title,
+    description: product.description,
+    descriptionHtml: sanitizeHtml(product.descriptionHtml),
+    tags: product.tags,
+    priceRange: product.priceRange,
+    type: product.productType,
+    href: `/shop/mosaics/${product.handle}`,
+    images,
+    variants:
+      product.variants &&
+      mapProductVariantNodeToProductVariant(product.variants),
+  };
+}
+
 
 /**
  * Gets all unique values of a specific product variant option type from an array of product variants.
