@@ -28,6 +28,8 @@ interface EditorProps {
   imgSrc: ImgSource;
   imgName?: string;
   customActions?: EditorControlItemProps[];
+  dimensions?: { width: number; height: number };
+  backgroundImgUrl?: string;
 }
 
 const removeBackground = async (
@@ -46,7 +48,11 @@ const removeBackground = async (
   return blob;
 };
 
-export default function Editor(props: EditorProps) {
+export default function Editor({
+  dimensions,
+  backgroundImgUrl,
+  ...props
+}: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [src, setImgSrc] = useImgSrc(props.imgSrc);
