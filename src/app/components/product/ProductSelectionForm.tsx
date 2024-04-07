@@ -27,17 +27,18 @@ type ProductFormData = ColorFormValue & {
 
 const variantToQueryParams = (variant: ProductVariant) => {
   const params = new URLSearchParams();
-  variant.Color && params.set("color", variant.Color);
-  variant.Size && params.set("size", variant.Size);
-  variant.Material && params.set("material", variant.Material);
-  variant.Style && params.set("style", variant.Style);
+  // we need to add the variant id to the query params in the create page
+  params.set("variant", variant.id);
   return params.toString();
 };
 
-const getVariantCreateUrl = (variant: ProductVariant | undefined | null) => {
-  const baseUrl = "/text-mosaic/create";
+const getVariantCreateUrl = (
+  baseUrl: string,
+  variant: ProductVariant | undefined | null
+) => {
+  const url = `${baseUrl}/create`;
   const params = variant && variantToQueryParams(variant);
-  return params ? `${baseUrl}?${params}` : baseUrl;
+  return params ? `${url}?${params}` : baseUrl;
 };
 
 export default function ProductSelectionForm({
@@ -72,7 +73,7 @@ export default function ProductSelectionForm({
           {BUTTON_TEXT.addToCart}
         </Button>
         <Button
-          href={getVariantCreateUrl(selectedVariant)}
+          href={getVariantCreateUrl(product.href, selectedVariant)}
           disabled={!selectedVariant}
           outline
           className={clsx(
