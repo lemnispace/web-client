@@ -4,9 +4,9 @@ import {
   ProductVariantEdge,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
+import { sanitizeHtml } from "./formatters";
 import { Product, ProductVariant } from "./types";
 import { isDefined } from "./validators";
-import { sanitizeHtml } from "./formatters";
 
 /**
  * Maps product variant nodes to product variants.
@@ -119,7 +119,6 @@ export function mapProduct(product: ProductNode): Product {
   };
 }
 
-
 /**
  * Gets all unique values of a specific product variant option type from an array of product variants.
  *
@@ -134,4 +133,18 @@ export const getAllProductVariantOptions = (
   return Array.from(new Set(variants.map((variant) => variant[type]))).filter(
     isDefined
   );
+};
+
+/**
+ * Filters an object by removing properties with falsy values.
+ *
+ * @param obj - The object to filter.
+ * @returns A new object with only the properties that have truthy values.
+ */
+export const filterObject = <T extends Record<string, any>>(
+  obj: T
+): Partial<T> => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => Boolean(value))
+  ) as Partial<T>;
 };
