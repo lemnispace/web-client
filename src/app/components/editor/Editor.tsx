@@ -1,6 +1,7 @@
 "use client";
 import { CropIcon } from "@/components/icons/crop";
 import { Loader } from "@/components/loader";
+import { filterObject } from "@/utils/mappers";
 import {
   ArrowPathIcon,
   ArrowsPointingInIcon,
@@ -146,16 +147,15 @@ export default function Editor({
         disabled={status === "loading" || !fCanvas}
         className="flex-row md:flex-col"
       />
-      <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto">
+      <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto items-center">
         <Canvas
-          className={clsx(
-            "h-0 w-full bg-neutral-600 rounded-lg max-h-full relative"
-          )}
-          style={
-            dimensions && {
-              paddingBottom: `calc((${dimensions.height}/${dimensions.width})*100%)`,
-            }
-          }
+          className="h-0 w-full bg-neutral-600 rounded-lg max-h-full relative bg-cover bg-center bg-no-repeat"
+          style={filterObject({
+            paddingBottom:
+              dimensions &&
+              `calc((${dimensions.height}/${dimensions.width})*100%)`,
+            backgroundImage: `url('${backgroundImgUrl}')`,
+          })}
           imgSrc={src}
           canvas={fCanvas}
           loadCanvas={setFcanvas}
