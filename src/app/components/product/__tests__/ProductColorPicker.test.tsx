@@ -1,8 +1,7 @@
 import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
-import { render, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { mock } from "node:test";
 import ProductColorPicker from "../ProductColorPicker";
 import { ProductVariantContext } from "../ProductView";
 
