@@ -1,14 +1,16 @@
+import { getMockProduct } from "@/utils/test_utils";
 import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import ProductSelectionForm from "../ProductSelectionForm";
+import { ProductVariantContext } from "../ProductView";
 
 // mock text
 jest.mock("@/utils/text", () => ({
   BUTTON_TEXT: {
     addToCart: "test cart",
     addToFavorites: "test favorites",
+    goToCustomize: "test customize",
   },
   PRODUCT_COLOR_PICKER_TEXT: {
     title: "color picker test",
@@ -16,75 +18,48 @@ jest.mock("@/utils/text", () => ({
   },
 }));
 
-const mockProduct: Product = {
-  id: "1",
-  name: "Test Product",
-  description: "Test Description",
-  priceRange: {
-    minVariantPrice: {
-      amount: 10.0,
-      currencyCode: "USD",
-    },
-    maxVariantPrice: {
-      amount: 20.0,
-      currencyCode: "USD",
-    },
-  },
-  tags: ["test"],
-  img: {
-    src: "test.png",
-    alt: "test",
-    width: 100,
-    height: 100,
-    id: "1",
-  },
+const mockProduct = {
+  ...getMockProduct(),
   href: "/product/test-product",
-  descriptionHtml: "Test Description HTML",
-};
+  variants: [
+    {
+      id: "1",
+      Color: "Red",
+      title: "Red",
+      price: {
+        amount: "10.0",
+        currencyCode: "USD",
+      },
+    },
+    {
+      id: "2",
+      Color: "Blue",
+      title: "Blue",
+      price: {
+        amount: "20.0",
+        currencyCode: "USD",
+      },
+    },
+  ],
+} satisfies Product;
 
 describe("ProductSelectionForm", () => {
-  it("Gets the form data with default color selected when the add to bag button is clicked", async () => {
+  it("adds the selected variant when redirecting to customize page", async () => {
     const mockOnSubmit = jest.fn();
-    const { getByText } = render(
-      <ProductSelectionForm onSubmit={mockOnSubmit} product={mockProduct} />
-    );
-    const addToBagButton = getByText("test cart");
-    await userEvent.click(addToBagButton);
-    expect(mockOnSubmit).toHaveBeenCalledWith({
-      "color[name]": "Red",
-      "color[bgColor]": "bg-red-500",
-      "color[selectedColor]": "text-red-500",
-    });
-  });
-
-  it("Gets the form data with selected color selected when the add to bag button is clicked", async () => {
-    const mockOnSubmit = jest.fn();
-    const { getByText, getByRole } = render(
-      <ProductSelectionForm product={mockProduct} onSubmit={mockOnSubmit} />
-    );
-    const blueRadioButton = getByText("Blue");
-    const addToBagButton = getByRole("button", { name: "test cart" });
-    await userEvent.click(blueRadioButton);
-    await userEvent.click(addToBagButton);
-    expect(mockOnSubmit).toHaveBeenCalledWith({
-      "color[name]": "Blue",
-      "color[bgColor]": "bg-blue-500",
-      "color[selectedColor]": "text-blue-500",
-    });
-  });
-
-  it("fires 'Add to favorites' action on button click", async () => {
-    const mockOnAddToFavorites = jest.fn();
     const { getByRole } = render(
-      <ProductSelectionForm
-        product={mockProduct}
-        onAddToFavorites={mockOnAddToFavorites}
-      />
+      <ProductVariantContext.Provider
+        value={{
+          setSelectedVariant: jest.fn(),
+          selectedVariant: mockProduct.variants[1],
+        }}
+      >
+        <ProductSelectionForm onSubmit={mockOnSubmit} product={mockProduct} />
+      </ProductVariantContext.Provider>
     );
-    const addToFavoritesButton = getByRole("button", {
-      name: "test favorites",
-    });
-    await userEvent.click(addToFavoritesButton);
-    expect(mockOnAddToFavorites).toHaveBeenCalledTimes(1);
+    const customizeLink = getByRole("link", { name: "test customize" });
+    expect(customizeLink).toHaveAttribute(
+      "href",
+      "/product/test-product/create?variant=2"
+    );
   });
 });

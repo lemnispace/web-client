@@ -3,7 +3,7 @@
 import { Button } from "@/components/button";
 import { BUTTON_TEXT } from "@/utils/text";
 import { Product, ProductVariant } from "@/utils/types";
-import { HeartIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
@@ -89,20 +89,6 @@ export default function ProductSelectionForm({
             aria-hidden="true"
           />
         </Button>
-        {/* <Button
-          href="./text-mosaic/create"
-          outline
-          className={clsx(
-            "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full",
-            formState === "READY" && "cursor-pointer"
-          )}
-        >
-          <span className="text-primary-500">{BUTTON_TEXT.goToCustomize}</span>
-          <PencilSquareIcon
-            className="h-6 w-6 flex-shrink-0 stroke-primary-500"
-            aria-hidden="true"
-          />
-        </Button> */}
         {/* <Button
           type="button"
           className={clsx(

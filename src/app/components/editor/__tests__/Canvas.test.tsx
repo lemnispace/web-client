@@ -7,6 +7,18 @@ import Canvas, {
 } from "../Canvas";
 
 const originalResizeObserver = global.ResizeObserver;
+// Mock the getComputedStyle function
+const mockGetComputedStyle = jest.fn(() => ({
+  paddingTop: "0px",
+  paddingBottom: "0px",
+  paddingLeft: "0px",
+  paddingRight: "0px",
+}));
+
+Object.defineProperty(window, "getComputedStyle", {
+  value: mockGetComputedStyle,
+});
+
 const mockCanvas = {
   add: jest.fn(),
   remove: jest.fn(),

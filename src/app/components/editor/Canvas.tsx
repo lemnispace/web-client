@@ -84,7 +84,7 @@ export const resizeCanvas = (
   if (canvas) {
     if (wrapper) {
       const bounds = wrapper.getBoundingClientRect();
-      const computedStyle = window.getComputedStyle(wrapper);
+      const computedStyle = getComputedStyle(wrapper);
       const paddingTop = toFloat(computedStyle.paddingTop) || 0;
       const paddingBottom = toFloat(computedStyle.paddingBottom) || 0;
       const paddingLeft = toFloat(computedStyle.paddingLeft) || 0;
