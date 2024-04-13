@@ -26,6 +26,7 @@ export const ProductGridItemImg = ({
   src,
   alt,
   className,
+  id,
   ...props
 }: ProductGridItemImgProps) => {
   return (

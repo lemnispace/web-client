@@ -35,7 +35,7 @@ describe("ProductGridSection", () => {
         tags: ["test"],
         href: "/test-product",
         img: {
-          src: "test.png",
+          src: "/test.png",
           alt: "test",
           width: 100,
           height: 100,
@@ -60,7 +60,7 @@ describe("ProductGridSection", () => {
         tags: ["test"],
         href: "/test-product-2",
         img: {
-          src: "test-2.jpg",
+          src: "/test-2.jpg",
           alt: "test 2",
           width: 100,
           height: 100,
