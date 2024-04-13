@@ -1,7 +1,8 @@
 import { getImgWithinElement } from "@/utils/test_utils";
+import { ProductItem } from "@/utils/types";
 import "@testing-library/jest-dom";
 import { render, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+
 import { ProductGridSection } from "../ProductGrid";
 
 // mock text
@@ -17,24 +18,56 @@ describe("ProductGridSection", () => {
   it("Displays all products", async () => {
     const mockProducts = [
       {
-        id: 123,
+        id: "1",
         name: "test product",
+        priceRange: {
+          minVariantPrice: {
+            amount: 10.0,
+            currencyCode: "USD",
+          },
+          maxVariantPrice: {
+            amount: 20.0,
+            currencyCode: "USD",
+          },
+        },
+        description: "test description",
+        descriptionHtml: "<p>test description</p>",
+        tags: ["test"],
         href: "/test-product",
-        price: "1234",
-        description: "this is a test product",
-        imageSrc: "/test.png",
-        imageAlt: "test",
+        img: {
+          src: "test.png",
+          alt: "test",
+          width: 100,
+          height: 100,
+          id: "1",
+        },
       },
       {
-        id: 456,
+        id: "2",
         name: "test product 2",
+        priceRange: {
+          minVariantPrice: {
+            amount: 20.0,
+            currencyCode: "USD",
+          },
+          maxVariantPrice: {
+            amount: 30.0,
+            currencyCode: "USD",
+          },
+        },
+        description: "test description 2",
+        descriptionHtml: "<p>test description 2</p>",
+        tags: ["test"],
         href: "/test-product-2",
-        price: "4567",
-        description: "this is another test product",
-        imageSrc: "/test-2.jpg",
-        imageAlt: "test-2",
+        img: {
+          src: "test-2.jpg",
+          alt: "test 2",
+          width: 100,
+          height: 100,
+          id: "2",
+        },
       },
-    ];
+    ] satisfies ProductItem[];
     const { getByLabelText, findByRole } = render(
       <ProductGridSection products={mockProducts} />
     );

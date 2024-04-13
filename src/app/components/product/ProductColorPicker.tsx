@@ -54,8 +54,8 @@ export const formatColor = (color: string) => {
   }
   return {
     name: color,
-    bgColor: `bg-${color}-500`,
-    selectedColor: `ring-${color}-500`,
+    bgColor: `bg-${color.toLowerCase()}-500`,
+    selectedColor: `ring-${color.toLowerCase()}-500`,
   };
 };
 

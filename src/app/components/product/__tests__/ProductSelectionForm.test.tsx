@@ -1,3 +1,4 @@
+import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -15,23 +16,37 @@ jest.mock("@/utils/text", () => ({
   },
 }));
 
-const colors = [
-  {
-    name: "Red",
-    bgColor: "bg-red-500",
-    selectedColor: "text-red-500",
+const mockProduct: Product = {
+  id: "1",
+  name: "Test Product",
+  description: "Test Description",
+  priceRange: {
+    minVariantPrice: {
+      amount: 10.0,
+      currencyCode: "USD",
+    },
+    maxVariantPrice: {
+      amount: 20.0,
+      currencyCode: "USD",
+    },
   },
-  {
-    name: "Blue",
-    bgColor: "bg-blue-500",
-    selectedColor: "text-blue-500",
+  tags: ["test"],
+  img: {
+    src: "test.png",
+    alt: "test",
+    width: 100,
+    height: 100,
+    id: "1",
   },
-];
+  href: "/product/test-product",
+  descriptionHtml: "Test Description HTML",
+};
+
 describe("ProductSelectionForm", () => {
   it("Gets the form data with default color selected when the add to bag button is clicked", async () => {
     const mockOnSubmit = jest.fn();
     const { getByText } = render(
-      <ProductSelectionForm colors={colors} onSubmit={mockOnSubmit} />
+      <ProductSelectionForm onSubmit={mockOnSubmit} product={mockProduct} />
     );
     const addToBagButton = getByText("test cart");
     await userEvent.click(addToBagButton);
@@ -45,7 +60,7 @@ describe("ProductSelectionForm", () => {
   it("Gets the form data with selected color selected when the add to bag button is clicked", async () => {
     const mockOnSubmit = jest.fn();
     const { getByText, getByRole } = render(
-      <ProductSelectionForm colors={colors} onSubmit={mockOnSubmit} />
+      <ProductSelectionForm product={mockProduct} onSubmit={mockOnSubmit} />
     );
     const blueRadioButton = getByText("Blue");
     const addToBagButton = getByRole("button", { name: "test cart" });
@@ -62,7 +77,7 @@ describe("ProductSelectionForm", () => {
     const mockOnAddToFavorites = jest.fn();
     const { getByRole } = render(
       <ProductSelectionForm
-        colors={colors}
+        product={mockProduct}
         onAddToFavorites={mockOnAddToFavorites}
       />
     );
