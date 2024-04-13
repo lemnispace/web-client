@@ -30,7 +30,7 @@ export const hasVariant = <T extends ProductVariantOptionType>(
   product: Product,
   type: T
 ): product is Product & ProductWithVariant<T> =>
-  product.variants?.some((variant) => variant[type]) ?? false;
+  product.variants?.some((variant) => type in variant) ?? false;
 
 /**
  * Checks if a value is a number.
@@ -39,7 +39,9 @@ export const hasVariant = <T extends ProductVariantOptionType>(
  * @returns `true` if the value is a number, `false` otherwise.
  */
 export const isNumber = (value: unknown): value is number =>
-  typeof value === "number" && !isNaN(value) && isFinite(value);
+  (typeof value === "number" || typeof value === "bigint") &&
+  !isNaN(Number(value)) &&
+  isFinite(Number(value));
 
 /**
  * Converts a string value to an integer.
@@ -48,7 +50,7 @@ export const isNumber = (value: unknown): value is number =>
  * @returns The converted integer value, or `undefined` if the input is not a valid number.
  */
 export const toInt = (value: string | undefined): number | undefined => {
-  if (!value) {
+  if (!value && typeof value !== "number") {
     return undefined;
   }
   const int = parseInt(value, 10);
@@ -62,7 +64,7 @@ export const toInt = (value: string | undefined): number | undefined => {
  * @returns The converted float value, or `undefined` if the input is not a valid number.
  */
 export const toFloat = (value: string | undefined): number | undefined => {
-  if (!value) {
+  if (!value && typeof value !== "number") {
     return undefined;
   }
   const float = parseFloat(value);

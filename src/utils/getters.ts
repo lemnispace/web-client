@@ -1,5 +1,5 @@
 import { Product, ProductVariant, ProductVariantOption } from "./types";
-import { isDefined, toInt } from "./validators";
+import { isDefined, toFloat } from "./validators";
 
 /**
  * Retrieves a variant from a product by its ID.
@@ -41,7 +41,7 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
   }
 
   // Match digits in the size string
-  const matches = size.match(/\d+/g);
+  const matches = size.match(/\d+(\.\d+)?/g);
 
   // Check if exactly two matches are found (width and height)
   if (!matches || matches.length !== 2) {
@@ -49,8 +49,8 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
   }
 
   // Extract width and height from the matches
-  const width = toInt(matches[0]);
-  const height = toInt(matches[1]);
+  const width = toFloat(matches[0]);
+  const height = toFloat(matches[1]);
 
   // Check if both width and height are valid numbers
   if (!isDefined(width) || !isDefined(height)) {
