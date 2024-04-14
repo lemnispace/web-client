@@ -33,7 +33,7 @@ export default async function CreateMosaic(props: MosaicProps) {
     redirect("/not-found");
   }
   return (
-    <main className="bg-white">
+    <main className="bg-white flex-1">
       <Container>
         <ProductsMainMessageSection
           title={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title}

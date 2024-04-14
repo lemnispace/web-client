@@ -48,11 +48,7 @@ const removeBackground = async (
   return blob;
 };
 
-export default function Editor({
-  dimensions,
-  backgroundImgUrl,
-  ...props
-}: EditorProps) {
+export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [src, setImgSrc] = useImgSrc(props.imgSrc);
@@ -131,7 +127,7 @@ export default function Editor({
   }
 
   return (
-    <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden min-h-96 h-screen">
+    <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
       {status === "loading" && (
         <div className="h-full w-full bg-gray-900/50 flex items-center justify-center absolute cursor-wait z-50">
           <Loader
@@ -146,11 +142,10 @@ export default function Editor({
         disabled={status === "loading" || !fCanvas}
         className="flex-row md:flex-col"
       />
-      <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto items-center">
+      <div className="flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center">
         <Canvas
-          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat max-h-full"
+          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat"
           style={filterObject({
-            backgroundImage: backgroundImgUrl && `url('${backgroundImgUrl}')`,
             aspectRatio:
               dimensions && `${dimensions.width}/${dimensions.height}`,
           })}

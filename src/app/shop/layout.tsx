@@ -8,5 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function ShopLayout(props: { children: React.ReactNode }) {
-  return <div className="bg-gray-50">{props.children}</div>;
+  return (
+    <div className="bg-gray-50 flex-1 flex flex-col">{props.children}</div>
+  );
 }
