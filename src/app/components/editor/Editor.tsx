@@ -8,7 +8,6 @@ import {
   PhotoIcon,
 } from "@heroicons/react/24/outline";
 import imglyRemoveBackground from "@imgly/background-removal";
-import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
@@ -149,12 +148,11 @@ export default function Editor({
       />
       <div className="flex flex-1 px-4 py-4 md:px-8 overflow-auto items-center">
         <Canvas
-          className="h-0 w-full bg-neutral-600 rounded-lg max-h-full relative bg-cover bg-center bg-no-repeat"
+          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat max-h-full"
           style={filterObject({
-            paddingBottom:
-              dimensions &&
-              `calc((${dimensions.height}/${dimensions.width})*100%)`,
-            backgroundImage: `url('${backgroundImgUrl}')`,
+            backgroundImage: backgroundImgUrl && `url('${backgroundImgUrl}')`,
+            aspectRatio:
+              dimensions && `${dimensions.width}/${dimensions.height}`,
           })}
           imgSrc={src}
           canvas={fCanvas}

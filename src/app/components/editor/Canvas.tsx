@@ -172,12 +172,9 @@ export default function Canvas({
   return (
     <div className={className} style={style}>
       {/**
-       * The canvas is wrapped in another div to allow for resizing the canvas while keeping aspect ratio
+       * The canvas is wrapped in an additional div to allow for resizing the canvas without ruining the aspect ratio
        */}
-      <div
-        className="w-full absolute top-0 left-0 right-0 bottom-0"
-        ref={wrapperRef}
-      >
+      <div ref={wrapperRef} className="h-full w-full">
         <canvas {...props} ref={setCanvasEl} />
       </div>
     </div>
