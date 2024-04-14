@@ -24,7 +24,7 @@ export default async function Mosaic(props: MosaicProps) {
     redirect("/not-found");
   }
   return (
-    <main className="bg-white">
+    <main className="bg-white flex-1">
       <Container
         className="py-16 sm:py-24 max-w-2xl lg:max-w-7xl"
         overrideMaxWidth
