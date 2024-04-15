@@ -37,6 +37,7 @@ export const getNewFabricImgFromSrc = async (
     lockSkewingY: true,
     cornerColor: "#FCC325",
     borderColor: "#FCC325",
+    lockScalingFlip: true,
     ...options,
   });
 };
