@@ -51,7 +51,7 @@ export const scaleImgToCanvas = (
   padding = 40
 ) => {
   if (padding > canvas.width || padding > canvas.height) {
-    throw new Error("Padding cannot be larger than the canvas width or height");
+    console.warn("Padding cannot be larger than the canvas width or height");
   }
   const scaleFactor = Math.min(
     (canvas.width - padding) / fImg.width,

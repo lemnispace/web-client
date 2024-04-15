@@ -8,11 +8,12 @@ import {
   PhotoIcon,
 } from "@heroicons/react/24/outline";
 import imglyRemoveBackground from "@imgly/background-removal";
+import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
+import Crop from "./Crop";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
-import { useCrop } from "./useCrop";
 import { useImgSrc } from "./useImgSrc";
 import { findCanvasImgObj } from "./utils";
 
@@ -52,7 +53,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [src, setImgSrc] = useImgSrc(props.imgSrc);
-  const [startCrop, endCrop, isCropActive, resetCrop] = useCrop(fCanvas, src);
+  const [isCropActive, setIsCropActive] = useState(false);
 
   const handleRemoveBackground = () => {
     if (!src) {
@@ -76,7 +77,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     setImgSrc(null);
     setStatus("idle");
     if (fCanvas) {
-      resetCrop();
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && resetImgState(img, fCanvas);
     }
@@ -91,11 +91,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   };
 
   const handleCrop = () => {
-    if (!isCropActive) {
-      startCrop();
-    } else {
-      endCrop();
-    }
+    setIsCropActive((prev) => !prev);
   };
 
   const actions: EditorControlItemProps[] = [
@@ -142,9 +138,21 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         disabled={status === "loading" || !fCanvas}
         className="flex-row md:flex-col"
       />
-      <div className="flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center">
+      <div className="flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative">
+        {isCropActive && (
+          <Crop
+            imgSrc={src}
+            aspectRatio={dimensions && dimensions.width / dimensions.height}
+            className="bg-neutral-600 rounded-lg px-2 py-2"
+            onCropComplete={() => {}}
+            canvas={fCanvas}
+          />
+        )}
         <Canvas
-          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat border-dashed border-2 border-white"
+          className={clsx(
+            "w-full bg-neutral-600 rounded-lg border-dashed border-2 border-white",
+            isCropActive && "hidden"
+          )}
           style={filterObject({
             aspectRatio:
               dimensions && `${dimensions.width}/${dimensions.height}`,
