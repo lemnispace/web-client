@@ -9,6 +9,7 @@ import {
   ImageProps,
 } from "fabric";
 import React, { useEffect, useRef, useState } from "react";
+import useClearSelection from "./useClearSelection";
 import { getNewFabricImgFromSrc } from "./utils";
 
 export const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
@@ -18,6 +19,8 @@ export const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
       selectionBorderColor: "#FDD66B",
       selectionColor: "#FDD66B45",
       preserveObjectStacking: true,
+      centeredRotation: true,
+      centeredScaling: true,
       ...options,
     });
     callbackFn(c);
@@ -37,17 +40,7 @@ interface InitCanvasOptions {
 
 // Center the image within the canvas
 export const centerImgOnCanvas = (fImg: FabricObject, canvas: FabricCanvas) => {
-  const canvasCenter = canvas.getCenterPoint();
-  const left = canvasCenter.x - (fImg.width * fImg.scaleX) / 2;
-  const top = canvasCenter.y - (fImg.height * fImg.scaleY) / 2;
-  fImg
-    .set({
-      left,
-      top,
-      originX: "left",
-      originY: "top",
-    })
-    .setCoords();
+  canvas.centerObject(fImg);
   fImg.fire("moving");
 };
 
@@ -132,6 +125,7 @@ export default function Canvas({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const fImgRef = useRef<FabricImage | null>(null);
+  useClearSelection(canvas, canvasEl);
 
   useEffect(() => {
     // initialize the canvas
