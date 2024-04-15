@@ -39,7 +39,11 @@ const Crop = (props: CropProps) => {
         min={1}
         max={3}
         step={0.1}
-        onChange={(e) => setZoom(parseFloat(e.target.value))}
+        onChange={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setZoom(parseFloat(e.target.value));
+        }}
         className="mt-2"
       />
     </div>
