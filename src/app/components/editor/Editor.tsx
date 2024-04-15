@@ -144,7 +144,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       />
       <div className="flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center">
         <Canvas
-          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat"
+          className="w-full bg-neutral-600 rounded-lg bg-cover bg-center bg-no-repeat border-dashed border-2 border-white"
           style={filterObject({
             aspectRatio:
               dimensions && `${dimensions.width}/${dimensions.height}`,
