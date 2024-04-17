@@ -138,12 +138,17 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         disabled={status === "loading" || !fCanvas}
         className="flex-row md:flex-col"
       />
-      <div className="flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative">
+      <div
+        className={clsx(
+          "flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative",
+          isCropActive && "bg-neutral-900"
+        )}
+      >
         {isCropActive && (
           <Crop
             imgSrc={src}
             aspectRatio={dimensions && dimensions.width / dimensions.height}
-            className="bg-neutral-600 rounded-lg px-2 py-2"
+            className="bg-transparent rounded-lg p-2 md:p-4"
             onCropComplete={() => {}}
             canvas={fCanvas}
           />

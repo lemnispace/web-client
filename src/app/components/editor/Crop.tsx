@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/button";
 import clsx from "clsx";
 import {
   Canvas as FabricCanvas,
@@ -7,45 +8,59 @@ import {
   FabricObject,
   Rect,
 } from "fabric";
-import { useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import Cropper, { Area, CropperProps } from "react-easy-crop";
 
-interface CropProps {
+interface CropProps extends HTMLAttributes<HTMLDivElement> {
   canvas: FabricCanvas | null;
   imgSrc: string;
   aspectRatio?: number;
   className?: string;
   onCropComplete: (croppedArea: Area, croppedAreaPixels: Area) => void;
 }
-const Crop = (props: CropProps) => {
+const Crop = ({
+  className,
+  imgSrc,
+  onCropComplete,
+  aspectRatio,
+  ...props
+}: CropProps) => {
   const [crop, setCrop] = useState<CropperProps["crop"]>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1.5);
   return (
-    <div className={clsx(props.className, "flex flex-col w-full h-full")}>
+    <div
+      className={clsx(className, "flex flex-col w-full min-h-96 h-[80vh]")}
+      {...props}
+    >
       <div className="relative w-full h-full">
         <Cropper
-          image={props.imgSrc}
+          image={imgSrc}
           crop={crop}
           zoom={zoom}
-          aspect={props.aspectRatio}
+          aspect={aspectRatio}
           onCropChange={setCrop}
-          onCropComplete={props.onCropComplete}
+          onCropComplete={onCropComplete}
           onZoomChange={setZoom}
         />
       </div>
-      <input
-        type="range"
-        value={zoom}
-        min={1}
-        max={3}
-        step={0.1}
-        onChange={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setZoom(parseFloat(e.target.value));
-        }}
-        className="mt-2"
-      />
+      <div className="flex flex-row flex-wrap w-full mt-2 gap-2 md:mt-4">
+        <input
+          type="range"
+          className="flex-1 accent-secondary-500"
+          value={zoom}
+          min={1}
+          max={3}
+          step={0.1}
+          onChange={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setZoom(parseFloat(e.target.value));
+          }}
+        />
+        <Button color="secondary" className="rounded-lg text-sm">
+          Crop
+        </Button>
+      </div>
     </div>
   );
 };
