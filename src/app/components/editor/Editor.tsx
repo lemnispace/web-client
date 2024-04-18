@@ -34,18 +34,33 @@ interface EditorProps {
   backgroundImgUrl?: string;
 }
 
+interface ProgressHandler {
+  (message: string, progress: number): void;
+}
+
 const removeBackground = async (
   image_src: ImgSource,
-  handleProgress?: (
-    args_0: string,
-    args_1: number,
-    args_2: number,
-    ...args_3: unknown[]
-  ) => void
+  handleProgress?: ProgressHandler
 ): Promise<Blob> => {
-  // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
   const blob = await imglyRemoveBackground(image_src, {
-    progress: handleProgress,
+    progress: (...args) => {
+      if (handleProgress) {
+        const [stage, current, total] = args;
+        let statusMessage = "";
+        if (stage.startsWith("fetch:/models/")) {
+          statusMessage = "Preparing your masterpiece. Hang tight!";
+        } else if (stage.startsWith("fetch:/onnxruntime-web/")) {
+          statusMessage = "AI is powering up. Good things are coming!";
+        } else if (stage.startsWith("compute:inference")) {
+          statusMessage =
+            "Eliminating background distractions. Your image is almost ready!";
+        }
+        const progress = total > 0 ? Math.round((current / total) * 100) : 0;
+
+        handleProgress(statusMessage, progress);
+      }
+    },
+    model: "medium",
   });
   return blob;
 };
@@ -53,30 +68,40 @@ const removeBackground = async (
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const [src, setImgSrc] = useImgSrc(props.imgSrc);
   const [isCropActive, setIsCropActive] = useState(false);
 
   const handleRemoveBackground = () => {
     if (!src) {
-      console.error("No image source");
+      console.error("No image to process");
+      setStatusMessage("No image to process");
       setStatus("error");
       return;
     }
+    // Reset the status message
+    setStatusMessage("");
     setStatus("loading");
-    removeBackground(src)
+    removeBackground(src, (message, progress) => {
+      setStatusMessage(!!progress ? `${message}\n${progress}%` : message);
+      console.log(message, progress);
+    })
       .then((blob) => {
         setImgSrc(blob);
         setStatus("idle");
+        setStatusMessage("");
       })
       .catch((e) => {
         console.error(e);
         setStatus("error");
+        setStatusMessage("Error removing background");
       });
   };
 
   const handleReset = () => {
     setImgSrc(null);
     setStatus("idle");
+    setStatusMessage("");
     if (fCanvas) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && resetImgState(img, fCanvas);
@@ -133,15 +158,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   return (
     <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
-      {status === "loading" && (
-        <div className="h-full w-full bg-gray-900/50 flex items-center justify-center absolute cursor-wait z-50">
-          <Loader
-            status={status}
-            className="fill-primary-500"
-            pathColor="rgb(17 24 39 / 0.5)"
-          />
-        </div>
-      )}
       <EditorMenu
         actions={actions}
         disabled={status === "loading" || !fCanvas || isCropActive}
@@ -153,6 +169,20 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           isCropActive && "bg-neutral-900"
         )}
       >
+        {status === "loading" && (
+          <div className="-ml-4 md:-ml-8 h-full w-full bg-gray-900/75 flex flex-col items-center justify-center absolute cursor-wait z-50">
+            <Loader
+              status={status}
+              className="fill-secondary-500 w-10 h-10"
+              pathColor="#E5E5E5"
+            />
+            {!!statusMessage && (
+              <p className="text-neutral-200 font-semibold py-2">
+                {statusMessage}
+              </p>
+            )}
+          </div>
+        )}
         {isCropActive && (
           <Crop
             imgSrc={getImgUrl(props.imgSrc)}
