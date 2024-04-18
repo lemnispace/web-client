@@ -11,11 +11,12 @@ import imglyRemoveBackground from "@imgly/background-removal";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
+import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
-import { useImgSrc } from "./useImgSrc";
-import { findCanvasImgObj } from "./utils";
+import { getImgUrl, useImgSrc } from "./useImgSrc";
+import { findCanvasImgObj, getCroppedImg } from "./utils";
 
 export type ImgSource =
   | ImageData
@@ -90,8 +91,16 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     }
   };
 
-  const handleCrop = () => {
-    setIsCropActive((prev) => !prev);
+  const handleCropComplete = (
+    originalImgSrc: string,
+    croppedAreaPixels: Area
+  ) => {
+    getCroppedImg(originalImgSrc, croppedAreaPixels)
+      .then((croppedImgUrl) => {
+        croppedImgUrl && setImgSrc(croppedImgUrl);
+        setIsCropActive(false);
+      })
+      .catch(console.error);
   };
 
   const actions: EditorControlItemProps[] = [
@@ -114,7 +123,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     {
       label: "Crop",
       icon: <CropIcon className="h-6 w-6 stroke-white" />,
-      onClick: handleCrop,
+      onClick: () => setIsCropActive((prev) => !prev),
     },
   ];
 
@@ -135,7 +144,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       )}
       <EditorMenu
         actions={actions}
-        disabled={status === "loading" || !fCanvas}
+        disabled={status === "loading" || !fCanvas || isCropActive}
         className="flex-row md:flex-col"
       />
       <div
@@ -146,10 +155,10 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       >
         {isCropActive && (
           <Crop
-            imgSrc={src}
+            imgSrc={getImgUrl(props.imgSrc)}
             aspectRatio={dimensions && dimensions.width / dimensions.height}
             className="bg-transparent rounded-lg p-2 md:p-4"
-            onCropComplete={() => {}}
+            onCropComplete={handleCropComplete}
             canvas={fCanvas}
           />
         )}
