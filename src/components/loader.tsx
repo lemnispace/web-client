@@ -16,7 +16,7 @@ export const Loader = ({
       <svg
         aria-hidden="true"
         className={clsx(
-          "inline w-8 h-8 text-current animate-spin fill-current",
+          "inline text-current animate-spin fill-current",
           className
         )}
         viewBox="0 0 100 101"
