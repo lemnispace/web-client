@@ -2,12 +2,7 @@
 
 import { Button } from "@/components/button";
 import clsx from "clsx";
-import {
-  Canvas as FabricCanvas,
-  FabricImage,
-  FabricObject,
-  Rect,
-} from "fabric";
+import { Canvas as FabricCanvas } from "fabric";
 import { HTMLAttributes, useState } from "react";
 import Cropper, { Area, CropperProps } from "react-easy-crop";
 
@@ -16,8 +11,9 @@ interface CropProps extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;
   aspectRatio?: number;
   className?: string;
-  onCropComplete: (croppedArea: Area, croppedAreaPixels: Area) => void;
+  onCropComplete: (originalImgSrc: string, croppedAreaPixels: Area) => void;
 }
+
 const Crop = ({
   className,
   imgSrc,
@@ -27,6 +23,10 @@ const Crop = ({
 }: CropProps) => {
   const [crop, setCrop] = useState<CropperProps["crop"]>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1.5);
+  const [cropResult, setCroppedAreaPixels] = useState<{
+    croppedArea: Area;
+    croppedAreaPixels: Area;
+  } | null>(null);
   return (
     <div
       className={clsx(className, "flex flex-col w-full min-h-96 h-[80vh]")}
@@ -39,7 +39,9 @@ const Crop = ({
           zoom={zoom}
           aspect={aspectRatio}
           onCropChange={setCrop}
-          onCropComplete={onCropComplete}
+          onCropComplete={(croppedArea, croppedAreaPixels) =>
+            setCroppedAreaPixels({ croppedArea, croppedAreaPixels })
+          }
           onZoomChange={setZoom}
         />
       </div>
@@ -57,7 +59,13 @@ const Crop = ({
             setZoom(parseFloat(e.target.value));
           }}
         />
-        <Button color="secondary" className="rounded-lg text-sm">
+        <Button
+          color="secondary"
+          className="rounded-lg text-sm"
+          onClick={() => {
+            cropResult && onCropComplete(imgSrc, cropResult.croppedAreaPixels);
+          }}
+        >
           Crop
         </Button>
       </div>

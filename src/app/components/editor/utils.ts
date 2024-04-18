@@ -1,10 +1,19 @@
 import { Canvas, FabricImage, ImageProps } from "fabric";
+import { Area } from "react-easy-crop";
 
+/**
+ * Represents the data of an image.
+ */
 export type ImgData = {
   data: string | ArrayBuffer;
   fileName: string;
 };
 
+/**
+ * Reads the file and returns the image source data.
+ * @param file The file to read.
+ * @returns A promise that resolves to the image source data.
+ */
 export const getImgSrcFromFile = (file: File): Promise<ImgData> => {
   return new Promise((resolve, reject) => {
     // create a FileReader to read the file
@@ -27,6 +36,12 @@ export const getImgSrcFromFile = (file: File): Promise<ImgData> => {
   });
 };
 
+/**
+ * Creates a new Fabric image object from the given source.
+ * @param src The image source.
+ * @param options Optional image properties.
+ * @returns A promise that resolves to the new Fabric image object.
+ */
 export const getNewFabricImgFromSrc = async (
   src: string,
   options?: Partial<ImageProps>
@@ -42,6 +57,12 @@ export const getNewFabricImgFromSrc = async (
   });
 };
 
+/**
+ * Finds the Fabric image object in the canvas that matches the given condition.
+ * @param canvas The canvas to search in.
+ * @param fn Optional condition function to filter the image objects.
+ * @returns The found Fabric image object, or null if not found.
+ */
 export const findCanvasImgObj = (
   canvas: Canvas,
   fn?: (o: FabricImage) => boolean
@@ -51,10 +72,80 @@ export const findCanvasImgObj = (
     .find((o) => o.type === "image" && (!fn || fn(o as FabricImage)));
 };
 
+/**
+ * Finds the Fabric image object in the canvas that has the given source.
+ * @param canvas The canvas to search in.
+ * @param src The image source to match.
+ * @returns The found Fabric image object, or null if not found.
+ */
 export const findCanvasImgFromSrc = (
   canvas: Canvas,
   src: string
 ): FabricImage | null => {
   const img = findCanvasImgObj(canvas, (o) => o.getSrc?.() === src);
   return (img as FabricImage) || null;
+};
+
+/**
+ * Creates an HTMLImageElement from the given URL.
+ * @param url The URL of the image.
+ * @returns A promise that resolves to the created HTMLImageElement.
+ */
+const createImage = (url: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.src = url;
+  });
+
+/**
+ * Crops the image based on the provided crop area.
+ * @param imageSrc The source of the image to crop.
+ * @param crop The crop area.
+ * @returns A promise that resolves to the cropped image data URL.
+ */
+export const getCroppedImg = async (
+  imageSrc: string,
+  crop: Area
+): Promise<string | null> => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
+  // set canvas size to match the bounding box
+  canvas.width = image.width;
+  canvas.height = image.height;
+  ctx.drawImage(image, 0, 0);
+  const croppedCanvas = document.createElement("canvas");
+  const croppedCtx = croppedCanvas.getContext("2d");
+  if (!croppedCtx) {
+    return null;
+  }
+  // Set the size of the cropped canvas
+  croppedCanvas.width = crop.width;
+  croppedCanvas.height = crop.height;
+  // Draw the cropped image onto the new canvas
+  croppedCtx.drawImage(
+    canvas,
+    crop.x,
+    crop.y,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    crop.width,
+    crop.height
+  );
+  return new Promise((resolve, reject) => {
+    croppedCanvas.toBlob((blob) => {
+      if (!blob) {
+        reject("Error cropping image");
+      } else {
+        resolve(URL.createObjectURL(blob));
+      }
+    }, "image/jpeg");
+  });
 };
