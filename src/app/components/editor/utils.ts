@@ -20,8 +20,8 @@ export const getImgSrcFromFile = (file: File): Promise<ImgData> => {
     const reader = new FileReader();
     // event handler for when the reader encounters an error
     reader.onerror = (e) => {
-      console.error("Error reading file");
-      reject(e);
+      console.error("Error reading file", e);
+      reject("Error reading file");
     };
     // event handler for when the reader finishes reading the file
     reader.onload = (e) => {
@@ -29,7 +29,8 @@ export const getImgSrcFromFile = (file: File): Promise<ImgData> => {
       if (reader.result) {
         resolve({ data: reader.result, fileName: file.name });
       } else {
-        console.error("Unable to read file");
+        console.error("Unable to read file", e);
+        reject("Unable to read file");
       }
     };
     reader.readAsDataURL(file);

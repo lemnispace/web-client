@@ -28,10 +28,15 @@ export default function ImgEditor({
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     // get the img data from the event
-    const file = e.target.files?.[0];
-    if (file) {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) {
+        throw new Error("No file found");
+      }
       const img = await getImgSrcFromFile(file);
       setUploadeImg(img);
+    } catch (error) {
+      console.error(error);
     }
   };
 
