@@ -1,7 +1,9 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import Canvas, {
+  addImgToFabricCanvas,
   centerImgOnCanvas,
+  resetImgState,
   resizeCanvas,
   scaleImgToCanvas,
 } from "../Canvas";
@@ -29,6 +31,7 @@ const mockCanvas = {
   dispose: jest.fn(),
   clear: jest.fn(),
   setDimensions: jest.fn(),
+  centerObject: jest.fn(),
 };
 
 describe("Canvas", () => {
@@ -142,17 +145,38 @@ describe("Canvas", () => {
     expect(mockFabricImg.fire).toHaveBeenCalledTimes(2);
     expect(mockFabricImg.fire).toHaveBeenCalledWith("scaling");
     const originalError = console.error;
+    const originalWarn = console.warn;
     console.error = jest.fn();
+    console.warn = jest.fn();
     expect(() => {
       scaleImgToCanvas(
         mockFabricImg as any,
         { width: 10, height: 10 } as any,
         1000 // padding that is larger than the canvas
       );
-    }).toThrow("Padding cannot be larger than the canvas width or height");
+    }).not.toThrow();
+    // downgraded the error to a warning since the canvas can have padding that is larger than the canvas for aspect ratio reasons
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith(
+      "Padding cannot be larger than the canvas width or height"
+    );
     console.error = originalError;
+    console.warn = originalWarn;
   });
   test("centerImgOnCanvas", () => {
+    const fImg = {
+      fire: jest.fn(),
+    };
+    const canvas = {
+      getCenterPoint: jest.fn(() => ({ x: 50, y: 50 })),
+      centerObject: jest.fn(),
+    };
+    centerImgOnCanvas(fImg as any, canvas as any);
+    expect(canvas.centerObject).toHaveBeenCalledTimes(1);
+    expect(canvas.centerObject).toHaveBeenCalledWith(fImg);
+    expect(fImg.fire).toHaveBeenCalledWith("moving");
+  });
+  test("addImgToFabricCanvas", () => {
     const setCoords = jest.fn();
     const fImg = {
       width: 100,
@@ -167,17 +191,15 @@ describe("Canvas", () => {
     };
     const canvas = {
       getCenterPoint: jest.fn(() => ({ x: 50, y: 50 })),
+      centerObject: jest.fn(),
     };
-    centerImgOnCanvas(fImg as any, canvas as any);
-    expect(fImg.set).toHaveBeenCalledTimes(1);
-    expect(fImg.set).toHaveBeenCalledWith({
-      left: 25,
-      top: 0,
-      originX: "left",
-      originY: "top",
+    addImgToFabricCanvas("/test-src", canvas as any, {
+      borderColor: "test-color",
+    }).then((fabricImg) => {
+      expect(fabricImg).toBeDefined();
+      expect(fabricImg.borderColor).toEqual("test-color");
+      expect(canvas.centerObject).toHaveBeenCalledTimes(1);
+      expect(canvas.centerObject).toHaveBeenCalledWith(fabricImg);
     });
-    expect(setCoords).toHaveBeenCalledTimes(1);
-    expect(fImg.fire).toHaveBeenCalledTimes(1);
-    expect(fImg.fire).toHaveBeenCalledWith("moving");
   });
 });
