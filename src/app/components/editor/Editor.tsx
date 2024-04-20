@@ -8,7 +8,6 @@ import {
   EyeIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
-import imglyRemoveBackground from "@imgly/background-removal";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useState } from "react";
@@ -18,15 +17,12 @@ import Crop from "./Crop";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
 import { fetchTextMosaic } from "./fetchTextMosaic";
 import { useImgSrc } from "./useImgSrc";
-import { findCanvasImgObj, getCroppedImg } from "./utils";
-
-export type ImgSource =
-  | ImageData
-  | ArrayBuffer
-  | Uint8Array
-  | Blob
-  | URL
-  | string;
+import {
+  ImgSource,
+  findCanvasImgObj,
+  getCroppedImg,
+  removeBackground,
+} from "./utils";
 
 interface EditorProps {
   imgSrc: ImgSource;
@@ -35,37 +31,6 @@ interface EditorProps {
   dimensions?: { width: number; height: number };
   backgroundImgUrl?: string;
 }
-
-interface ProgressHandler {
-  (message: string, progress: number): void;
-}
-
-const removeBackground = async (
-  image_src: ImgSource,
-  handleProgress?: ProgressHandler
-): Promise<Blob> => {
-  const blob = await imglyRemoveBackground(image_src, {
-    progress: (...args) => {
-      if (handleProgress) {
-        const [stage, current, total] = args;
-        let statusMessage = "";
-        if (stage.startsWith("fetch:/models/")) {
-          statusMessage = "Preparing your masterpiece. Hang tight!";
-        } else if (stage.startsWith("fetch:/onnxruntime-web/")) {
-          statusMessage = "AI is powering up. Good things are coming!";
-        } else if (stage.startsWith("compute:inference")) {
-          statusMessage =
-            "Eliminating background distractions. Your image is almost ready!";
-        }
-        const progress = total > 0 ? Math.round((current / total) * 100) : 0;
-
-        handleProgress(statusMessage, progress);
-      }
-    },
-    model: "medium",
-  });
-  return blob;
-};
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
