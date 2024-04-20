@@ -5,6 +5,7 @@ import { filterObject } from "@/utils/mappers";
 import {
   ArrowPathIcon,
   ArrowsPointingInIcon,
+  EyeIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
 import imglyRemoveBackground from "@imgly/background-removal";
@@ -15,7 +16,8 @@ import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
-import { getImgUrl, useImgSrc } from "./useImgSrc";
+import { fetchTextMosaic } from "./fetchTextMosaic";
+import { useImgSrc } from "./useImgSrc";
 import { findCanvasImgObj, getCroppedImg } from "./utils";
 
 export type ImgSource =
@@ -84,7 +86,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     setStatus("loading");
     removeBackground(src, (message, progress) => {
       setStatusMessage(!!progress ? `${message}\n${progress}%` : message);
-      console.log(message, progress);
     })
       .then((blob) => {
         setImgSrc(blob);
@@ -128,6 +129,31 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       .catch(console.error);
   };
 
+  const handlePreview = async () => {
+    if (fCanvas) {
+      try {
+        setStatus("loading");
+        setStatusMessage(
+          "Turning your pixels into a unique text masterpiece. Almost there!"
+        );
+        const textMosaicImg = await fetchTextMosaic(fCanvas, "Hello, World!");
+        if (!textMosaicImg) {
+          console.error("Error generating mosaic: No image returned");
+          setStatus("error");
+          setStatusMessage("Error generating mosaic");
+          return;
+        }
+        setStatus("idle");
+        setStatusMessage("");
+        setImgSrc(textMosaicImg);
+      } catch (error) {
+        console.error("Error generating mosaic:", error);
+        setStatus("error");
+        setStatusMessage("Error generating mosaic");
+      }
+    }
+  };
+
   const actions: EditorControlItemProps[] = [
     {
       label: "Reset",
@@ -149,6 +175,11 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "Crop",
       icon: <CropIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsCropActive((prev) => !prev),
+    },
+    {
+      label: "Preview",
+      icon: <EyeIcon className="h-6 w-6 stroke-white" />,
+      onClick: handlePreview,
     },
   ];
 
@@ -185,7 +216,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         )}
         {isCropActive && (
           <Crop
-            imgSrc={getImgUrl(props.imgSrc)}
+            imgSrc={src}
             aspectRatio={dimensions && dimensions.width / dimensions.height}
             className="bg-transparent rounded-lg p-2 md:p-4"
             onCropComplete={handleCropComplete}
