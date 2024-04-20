@@ -1,5 +1,15 @@
+import { IMAGE_EDITOR_STATUS_TEXT } from "@/utils/text";
+import imglyRemoveBackground from "@imgly/background-removal";
 import { Canvas, FabricImage, ImageProps } from "fabric";
 import { Area } from "react-easy-crop";
+
+export type ImgSource =
+  | ImageData
+  | ArrayBuffer
+  | Uint8Array
+  | Blob
+  | URL
+  | string;
 
 /**
  * Represents the data of an image.
@@ -149,4 +159,47 @@ export const getCroppedImg = async (
       }
     }, "image/jpeg");
   });
+};
+
+interface ProgressHandler {
+  /**
+   * Handles the progress of an operation.
+   * @param message The progress message.
+   * @param progress The progress value.
+   */
+  (message: string, progress: number): void;
+}
+
+/**
+ * Removes the background from an image using the imgly background removal library.
+ * @param image_src The source of the image to remove the background from.
+ * @param handleProgress Optional progress handler function.
+ * @returns A promise that resolves to the resulting image blob.
+ */
+export const removeBackground = async (
+  image_src: ImgSource,
+  handleProgress?: ProgressHandler
+): Promise<Blob> => {
+  const blob = await imglyRemoveBackground(image_src, {
+    progress: (...args) => {
+      if (handleProgress) {
+        const [stage, current, total] = args;
+        let statusMessage = "";
+        if (stage.startsWith("fetch:/models/")) {
+          statusMessage =
+            IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.modelFetch;
+        } else if (stage.startsWith("fetch:/onnxruntime-web/")) {
+          statusMessage =
+            IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.modelCompute;
+        } else if (stage.startsWith("compute:inference")) {
+          statusMessage =
+            IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.inferenceCompute;
+        }
+        const progress = total > 0 ? Math.round((current / total) * 100) : 0;
+        handleProgress(statusMessage, progress);
+      }
+    },
+    model: "medium",
+  });
+  return blob;
 };
