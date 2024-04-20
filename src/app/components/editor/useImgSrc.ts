@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ImgSource } from "./Editor";
+import { ImgSource } from "./utils";
 
 export const getImgUrl = (src: ImgSource) => {
   if (typeof src === "string") {

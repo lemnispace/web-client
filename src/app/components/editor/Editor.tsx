@@ -15,10 +15,11 @@ import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
-import { fetchTextMosaic } from "./fetchTextMosaic";
+import { fetchMosaic } from "./fetchMosaic";
 import { useImgSrc } from "./useImgSrc";
 import {
   ImgSource,
+  canvasToFile,
   findCanvasImgObj,
   getCroppedImg,
   removeBackground,
@@ -101,7 +102,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         setStatusMessage(
           "Turning your pixels into a unique text masterpiece. Almost there!"
         );
-        const textMosaicImg = await fetchTextMosaic(fCanvas, "Hello, World!");
+        const textMosaicImg = await fetchMosaic(fCanvas, "Hello, World!");
         if (!textMosaicImg) {
           console.error("Error generating mosaic: No image returned");
           setStatus("error");
