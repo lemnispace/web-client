@@ -19,6 +19,8 @@ it("should resolve with the correct ImgData object when the file is read success
     data: "data:image/png;base64,dGVzdA==", // Base64 representation of "test"
     fileName: "test.png",
   });
+  // expect to reject when there is no file
+  await expect(getImgSrcFromFile(undefined as any)).rejects.toThrow();
 });
 
 it("should reject with an error when there is an error reading the file", async () => {

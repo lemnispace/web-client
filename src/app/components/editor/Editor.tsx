@@ -177,7 +177,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
               pathColor="#E5E5E5"
             />
             {!!statusMessage && (
-              <p className="text-neutral-200 font-semibold py-2">
+              <p className="text-neutral-200 font-semibold py-2 text-xs sm:text-sm md:text-base text-center">
                 {statusMessage}
               </p>
             )}
