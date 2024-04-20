@@ -203,3 +203,14 @@ export const removeBackground = async (
   });
   return blob;
 };
+
+/**
+ * Converts the Fabric canvas to an image file.
+ * @param canvas The Fabric canvas to convert.
+ * @returns A promise that resolves to the image file.
+ */
+export const canvasToFile = async (canvas: Canvas): Promise<File> => {
+  const dataURL = canvas.toDataURL();
+  const blob = await (await fetch(dataURL)).blob();
+  return new File([blob], "image.png", { type: "image/png" });
+};
