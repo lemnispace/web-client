@@ -32,7 +32,7 @@ type MosaicErrorResponse = {
   errors: MosaicError;
 };
 
-export type FetchTextMosaicResponse =
+type FetchTextMosaicResponse =
   | SuccessResponse
   | ValidationErrorResponse
   | MosaicErrorResponse;
@@ -111,7 +111,7 @@ const schema = z.object({
       }
     ),
 });
-export const fetchTextMosaic = async (
+const fetchTextMosaic = async (
   _formData: FormData
 ): Promise<FetchTextMosaicResponse> => {
   const validatedFields = schema.safeParse({
