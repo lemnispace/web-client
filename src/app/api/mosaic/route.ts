@@ -1,4 +1,5 @@
 import { getErrorMessage } from "@/utils/getters";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 type ValidationErrors = {
@@ -41,7 +42,7 @@ const TEXT_MOSAIC_API_URL = process.env.TEXT_MOSAIC_API_URL;
 if (!TEXT_MOSAIC_API_URL) {
   throw new Error("Missing environment variable: TEXT_MOSAIC_API_URL");
 }
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const schema = z.object({
   text: z
@@ -60,6 +61,7 @@ const schema = z.object({
     .min(1)
     .max(7200)
     .safe()
+    .nullable()
     .optional(),
   baseFontSize: z
     .number({
@@ -69,12 +71,14 @@ const schema = z.object({
     .safe()
     .positive()
     .max(100)
+    .nullable()
     .optional(),
   isBlackAndWhite: z
     .boolean({
       invalid_type_error: "Is black and white must be a boolean",
       description: "Whether the mosaic should be black and white",
     })
+    .nullable()
     .optional(),
   contrastFactor: z
     .number({
@@ -84,6 +88,7 @@ const schema = z.object({
     })
     .safe()
     .positive()
+    .nullable()
     .optional(),
   file: z
     .instanceof(File, {
@@ -176,7 +181,6 @@ export const fetchTextMosaic = async (
       };
     }
   } catch (error) {
-    console.error("Error generating mosaic:", error);
     const errorMessage = await getErrorMessage(
       error,
       "Error generating mosaic"
@@ -193,18 +197,18 @@ export const POST = async (req: Request) => {
   const formData = await req.formData();
   const result = await fetchTextMosaic(formData);
   if ("errors" in result && result.errors) {
-    return Response.json(result.errors, {
+    return NextResponse.json(result.errors, {
       status: result.status,
     });
   }
   if (!result.data) {
     // should never happen
-    return Response.json(
+    return NextResponse.json(
       { mosaic: "Error generating mosaic" },
       { status: 500 }
     );
   }
-  return new Response(result.data, {
+  return new NextResponse(result.data, {
     status: result.status,
     headers: {
       "Content-Type": "image/png",
