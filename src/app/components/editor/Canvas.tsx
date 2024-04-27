@@ -50,6 +50,10 @@ export const scaleImgToCanvas = (
   canvas: FabricCanvas,
   padding = 40
 ) => {
+  // canvas dimensions can become 0 when the canvas is not visible
+  if (canvas.width <= 0 || canvas.height <= 0) {
+    return;
+  }
   if (padding > canvas.width || padding > canvas.height) {
     console.warn("Padding cannot be larger than the canvas width or height");
   }

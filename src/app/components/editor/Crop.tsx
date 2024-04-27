@@ -3,7 +3,7 @@
 import { Button } from "@/components/button";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import Cropper, { Area, CropperProps } from "react-easy-crop";
 
 interface CropProps extends HTMLAttributes<HTMLDivElement> {
@@ -12,6 +12,7 @@ interface CropProps extends HTMLAttributes<HTMLDivElement> {
   aspectRatio?: number;
   className?: string;
   onCropComplete: (originalImgSrc: string, croppedAreaPixels: Area) => void;
+  onCancel(): void;
 }
 
 const Crop = ({
@@ -19,6 +20,7 @@ const Crop = ({
   imgSrc,
   onCropComplete,
   aspectRatio,
+  onCancel,
   ...props
 }: CropProps) => {
   const [crop, setCrop] = useState<CropperProps["crop"]>({ x: 0, y: 0 });
@@ -27,6 +29,20 @@ const Crop = ({
     croppedArea: Area;
     croppedAreaPixels: Area;
   } | null>(null);
+
+  useEffect(() => {
+    // cancel crop when user clicks the `esc` key
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCancel();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div
       className={clsx(className, "flex flex-col w-full min-h-96 h-[80vh]")}
@@ -59,6 +75,13 @@ const Crop = ({
             setZoom(parseFloat(e.target.value));
           }}
         />
+        <Button
+          className="rounded-lg text-sm text-neutral-300"
+          plain
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
         <Button
           color="secondary"
           className="rounded-lg text-sm"
