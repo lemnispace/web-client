@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
@@ -36,15 +36,12 @@ const useImgSourcesState = (imgSrc: ImgSource) => {
   const [originalImgSrc, setImgSrc] = useImgSrc(imgSrc);
   const [cropImgSrc, setCropImgSrc] = useState<string | null>(null);
   const src = cropImgSrc || originalImgSrc;
-  const updateImgSrc = useCallback(
-    (src: ImgSource | null) => {
-      setCropImgSrc(null);
-      setImgSrc(src);
-    },
-    [setImgSrc]
-  );
+  useEffect(() => {
+    setCropImgSrc(null);
+    // whenever the original image source changes, reset the crop image source
+  }, [originalImgSrc]);
 
-  return { originalImgSrc, updateImgSrc, src, setCropImgSrc };
+  return { originalImgSrc, updateImgSrc: setImgSrc, src, setCropImgSrc };
 };
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
@@ -171,7 +168,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   }
 
   return (
-    <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
+    <form className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
       <EditorMenu
         actions={actions}
         disabled={status === "loading" || !fCanvas || isCropActive}
@@ -221,6 +218,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           loadCanvas={setFcanvas}
         />
       </div>
-    </div>
+    </form>
   );
 }
