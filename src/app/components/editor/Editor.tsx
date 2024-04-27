@@ -146,7 +146,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "BG Remove",
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
-      disabled: isCropActive || isTextMosaicPreview,
+      disabled: isTextMosaicPreview,
     },
     {
       label: "Center",
@@ -156,7 +156,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     {
       label: "Crop",
       icon: <CropIcon className="h-6 w-6 stroke-white" />,
-      onClick: () => setIsCropActive((prev) => !prev),
+      onClick: () => setIsCropActive(true),
     },
     {
       label: "Preview",
@@ -203,6 +203,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
             aspectRatio={dimensions && dimensions.width / dimensions.height}
             className="bg-transparent rounded-lg p-2 md:p-4"
             onCropComplete={handleCropComplete}
+            onCancel={() => setIsCropActive(false)}
             canvas={fCanvas}
           />
         )}
