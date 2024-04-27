@@ -1,12 +1,15 @@
 import { Button } from "@/components/button";
 import clsx from "clsx";
+import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
-export interface EditorControlItemProps {
+type HTMLButtonProps = Omit<
+  DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
+  "color"
+>;
+
+export interface EditorControlItemProps extends HTMLButtonProps {
   icon: React.ReactNode;
   label: string;
-  disabled?: boolean;
-  onClick?: () => void;
-  className?: string;
   href?: string;
   download?: boolean;
 }
@@ -19,7 +22,6 @@ export function EditorControlItem({
 }: EditorControlItemProps) {
   return (
     <Button
-      type="button"
       plain
       className={clsx(
         "flex flex-col r w-full",

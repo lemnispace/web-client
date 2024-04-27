@@ -19,6 +19,7 @@ import { fetchMosaic } from "./fetchMosaic";
 import { useImgSrc } from "./useImgSrc";
 import {
   ImgSource,
+  canvasToFile,
   findCanvasImgObj,
   getCroppedImg,
   removeBackground,
@@ -31,7 +32,12 @@ interface EditorProps {
   dimensions?: { width: number; height: number };
   backgroundImgUrl?: string;
 }
-// track the state of the image source
+
+interface PreviewFormData {
+  text?: string;
+}
+
+// Custom hook to manage the image sources state
 const useImgSourcesState = (imgSrc: ImgSource) => {
   const [originalImgSrc, setImgSrc] = useImgSrc(imgSrc);
   const [cropImgSrc, setCropImgSrc] = useState<string | null>(null);
@@ -42,6 +48,18 @@ const useImgSourcesState = (imgSrc: ImgSource) => {
   }, [originalImgSrc]);
 
   return { originalImgSrc, updateImgSrc: setImgSrc, src, setCropImgSrc };
+};
+
+const validatePreviewFormData = (formData: FormData) => {
+  const data = Object.fromEntries(formData.entries()) as PreviewFormData;
+  const errors = [];
+  if (!data.text) {
+    errors.push("Text is required");
+  }
+  if (errors.length) {
+    return errors;
+  }
+  return undefined;
 };
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
@@ -107,14 +125,26 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       .catch(console.error);
   };
 
-  const handlePreview = async () => {
+  const handleSubmitPreview = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formValidationErrors = validatePreviewFormData(formData);
+    if (formValidationErrors) {
+      setStatus("error");
+      setStatusMessage(formValidationErrors.join(", "));
+      return;
+    }
     if (fCanvas) {
+      // add file to form data
+      const file = await canvasToFile(fCanvas);
+      formData.set("file", file);
       try {
         setStatus("loading");
         setStatusMessage(
           "Turning your pixels into a unique text masterpiece. Almost there!"
         );
-        const textMosaicImg = await fetchMosaic(fCanvas, "Hello, World!");
+        const textMosaicImg = await fetchMosaic(formData);
         if (!textMosaicImg) {
           console.error("Error generating mosaic: No image returned");
           setStatus("error");
@@ -131,6 +161,10 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         setStatusMessage("Error generating mosaic");
       }
     }
+  };
+
+  const handlePreview = async () => {
+    // open modal with text input to enter text for text mosaic preview
   };
 
   const actions: EditorControlItemProps[] = [
@@ -168,7 +202,10 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   }
 
   return (
-    <form className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
+    <form
+      className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden"
+      onSubmit={handleSubmitPreview}
+    >
       <EditorMenu
         actions={actions}
         disabled={status === "loading" || !fCanvas || isCropActive}

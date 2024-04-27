@@ -1,12 +1,11 @@
-import { Canvas } from "fabric";
-import { canvasToFile } from "./utils";
-
-export const fetchMosaic = async (canvas: Canvas, text: string) => {
-  const file = await canvasToFile(canvas);
+export const fetchMosaic = async (formData: FormData) => {
   try {
-    const formData = new FormData();
-    formData.append("text", text);
-    formData.append("file", file);
+    if (!formData.get("text")) {
+      throw new Error("Missing text field in form data");
+    }
+    if (!formData.get("file")) {
+      throw new Error("Missing file field in form data");
+    }
     const response = await fetch("/api/mosaic", {
       method: "POST",
       body: formData,
