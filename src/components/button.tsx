@@ -219,6 +219,7 @@ export const Button = React.forwardRef(function Button(
     </Link>
   ) : (
     <HeadlessButton
+      type="button"
       {...props}
       className={clsx(
         classes,
