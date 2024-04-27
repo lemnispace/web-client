@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
@@ -19,7 +19,6 @@ import { fetchMosaic } from "./fetchMosaic";
 import { useImgSrc } from "./useImgSrc";
 import {
   ImgSource,
-  canvasToFile,
   findCanvasImgObj,
   getCroppedImg,
   removeBackground,
@@ -32,16 +31,31 @@ interface EditorProps {
   dimensions?: { width: number; height: number };
   backgroundImgUrl?: string;
 }
+// track the state of the image source
+const useImgSourcesState = (imgSrc: ImgSource) => {
+  const [originalImgSrc, setImgSrc] = useImgSrc(imgSrc);
+  const [cropImgSrc, setCropImgSrc] = useState<string | null>(null);
+  const src = cropImgSrc || originalImgSrc;
+  const updateImgSrc = useCallback(
+    (src: ImgSource | null) => {
+      setCropImgSrc(null);
+      setImgSrc(src);
+    },
+    [setImgSrc]
+  );
+
+  return { originalImgSrc, updateImgSrc, src, setCropImgSrc };
+};
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
-  const [src, setImgSrc] = useImgSrc(props.imgSrc);
+  const imgSources = useImgSourcesState(props.imgSrc);
+  const [isTextMosaicPreview, setIsTextMosaicPreview] = useState(false);
   const [isCropActive, setIsCropActive] = useState(false);
-
   const handleRemoveBackground = () => {
-    if (!src) {
+    if (!imgSources.src) {
       console.error("No image to process");
       setStatusMessage("No image to process");
       setStatus("error");
@@ -50,11 +64,11 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     // Reset the status message
     setStatusMessage("");
     setStatus("loading");
-    removeBackground(src, (message, progress) => {
+    removeBackground(imgSources.src, (message, progress) => {
       setStatusMessage(!!progress ? `${message}\n${progress}%` : message);
     })
       .then((blob) => {
-        setImgSrc(blob);
+        imgSources.updateImgSrc(blob);
         setStatus("idle");
         setStatusMessage("");
       })
@@ -66,7 +80,8 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   };
 
   const handleReset = () => {
-    setImgSrc(null);
+    imgSources.updateImgSrc(null);
+    setIsTextMosaicPreview(false);
     setStatus("idle");
     setStatusMessage("");
     if (fCanvas) {
@@ -89,7 +104,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   ) => {
     getCroppedImg(originalImgSrc, croppedAreaPixels)
       .then((croppedImgUrl) => {
-        croppedImgUrl && setImgSrc(croppedImgUrl);
+        croppedImgUrl && imgSources.setCropImgSrc(croppedImgUrl);
         setIsCropActive(false);
       })
       .catch(console.error);
@@ -111,7 +126,8 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         }
         setStatus("idle");
         setStatusMessage("");
-        setImgSrc(textMosaicImg);
+        imgSources.updateImgSrc(textMosaicImg);
+        setIsTextMosaicPreview(true);
       } catch (error) {
         console.error("Error generating mosaic:", error);
         setStatus("error");
@@ -130,7 +146,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "BG Remove",
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
-      disabled: isCropActive,
+      disabled: isCropActive || isTextMosaicPreview,
     },
     {
       label: "Center",
@@ -146,6 +162,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "Preview",
       icon: <EyeIcon className="h-6 w-6 stroke-white" />,
       onClick: handlePreview,
+      disabled: isTextMosaicPreview,
     },
   ];
 
@@ -182,7 +199,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         )}
         {isCropActive && (
           <Crop
-            imgSrc={src}
+            imgSrc={imgSources.originalImgSrc}
             aspectRatio={dimensions && dimensions.width / dimensions.height}
             className="bg-transparent rounded-lg p-2 md:p-4"
             onCropComplete={handleCropComplete}
@@ -198,7 +215,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
             aspectRatio:
               dimensions && `${dimensions.width}/${dimensions.height}`,
           })}
-          imgSrc={src}
+          imgSrc={imgSources.src}
           canvas={fCanvas}
           loadCanvas={setFcanvas}
         />
