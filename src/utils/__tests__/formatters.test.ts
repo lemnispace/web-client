@@ -1,4 +1,4 @@
-import { formatPrice, sanitizeHtml } from "../formatters";
+import { formatPrice, sanitizeHtml, toKebabCase } from "../formatters";
 
 describe("formatPrice", () => {
   it("should format the price with the currency sign", () => {
@@ -20,4 +20,33 @@ describe("sanitizeHtml", () => {
     const sanitizedHtml = sanitizeHtml(html);
     expect(sanitizedHtml).toBe("<p>Hello, <strong>World!</strong></p>");
   });
+});
+
+test("toKebabCase", () => {
+  expect(toKebabCase("HelloWorld")).toBe("hello-world");
+  expect(toKebabCase("helloWorld")).toBe("hello-world");
+  expect(toKebabCase("hello world")).toBe("hello-world");
+  expect(toKebabCase("hello   world")).toBe("hello-world");
+  expect(toKebabCase("hello   World")).toBe("hello-world");
+  expect(toKebabCase("hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  expect(toKebabCase("  hello   World  ")).toBe("hello-world");
+  // no effect on snake_case
+  expect(toKebabCase("hello_world")).toBe("hello_world");
 });
