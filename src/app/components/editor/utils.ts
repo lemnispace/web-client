@@ -157,7 +157,7 @@ export const getCroppedImg = async (
       } else {
         resolve(URL.createObjectURL(blob));
       }
-    }, "image/jpeg");
+    }, "image/png");
   });
 };
 
