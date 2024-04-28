@@ -50,7 +50,7 @@ function MobileNavigation(props: MobileNavigationProps) {
   return (
     <Popover>
       <Popover.Button
-        className="relative z-10 flex h-8 w-8 items-center justify-center ui-not-focus-visible:outline-none"
+        className="relative z-10 flex h-8 w-8 items-center justify-center ui-not-focus-visible:outline-none focus-visible:ring-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:rounded-md"
         aria-label="Toggle Navigation"
       >
         {({ open }) => <MobileNavIcon open={open} />}
