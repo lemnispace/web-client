@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/dialog";
 import { ErrorMessage, Field, Label } from "@/components/fieldset";
-import { Input } from "@/components/input";
+import { Textarea } from "@/components/textarea";
 import { toKebabCase } from "@/utils/formatters";
 import { useRef } from "react";
 
@@ -26,7 +26,7 @@ interface TextInputDialogProps {
   disabled?: boolean;
 }
 const TextInputDialog = (props: TextInputDialogProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const handleSubmit = () => {
     const value = inputRef.current?.value;
     props.onSubmit?.(value);
@@ -40,10 +40,9 @@ const TextInputDialog = (props: TextInputDialogProps) => {
       <DialogBody>
         <Field>
           <Label>{props.label}</Label>
-          <Input
+          <Textarea
             ref={inputRef}
             name={props.name || toKebabCase(props.label)}
-            type="text"
             value={props.value}
             invalid={!!props.error}
             onChange={
