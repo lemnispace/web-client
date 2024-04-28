@@ -2,6 +2,13 @@
 import { CropIcon } from "@/components/icons/crop";
 import { filterObject } from "@/utils/mappers";
 import {
+  BUTTON_TEXT,
+  ERROR_TEXTS,
+  IMAGE_EDITOR_INPUT_TEXT,
+  IMAGE_EDITOR_MENU_TEXT,
+  IMAGE_EDITOR_STATUS_TEXT,
+} from "@/utils/text";
+import {
   ArrowPathIcon,
   ArrowsPointingInIcon,
   CloudArrowUpIcon,
@@ -74,8 +81,11 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   const imgSources = useImgSourcesState(props.imgSrc);
   const handleRemoveBackground = () => {
     if (!imgSources.src) {
-      console.error("No image to process");
-      updateStatus({ status: "error", message: "No image to process" });
+      console.error(ERROR_TEXTS.imageEditor.noImage);
+      updateStatus({
+        status: "error",
+        message: ERROR_TEXTS.imageEditor.noImage,
+      });
       return;
     }
     updateStatus({ status: "loading" });
@@ -89,7 +99,10 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       })
       .catch((e) => {
         console.error(e);
-        updateStatus({ status: "error", message: "Error removing background" });
+        updateStatus({
+          status: "error",
+          message: ERROR_TEXTS.imageEditor.backgroundRemoval,
+        });
       });
   };
 
@@ -148,22 +161,30 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         setIsPreviewOpen(false);
         updateStatus({
           status: "loading",
-          message:
-            "Turning your pixels into a unique text masterpiece. Almost there!",
+          message: IMAGE_EDITOR_STATUS_TEXT.generateMosaic.progress,
         });
         const textMosaicImg = await fetchMosaic(formData);
         if (!textMosaicImg) {
-          console.error("Error generating mosaic: No image returned");
-          updateStatus({ status: "error", message: "Error generating mosaic" });
+          console.error(
+            ERROR_TEXTS.imageEditor.mosaicGeneration,
+            "- No image returned"
+          );
+          updateStatus({
+            status: "error",
+            message: ERROR_TEXTS.imageEditor.mosaicGeneration,
+          });
           setIsPreviewOpen(true);
           return;
         }
         updateStatus({ status: "idle" });
         imgSources.updateImgSrc(textMosaicImg);
       } catch (error) {
-        console.error("Error generating mosaic:", error);
+        console.error(ERROR_TEXTS.imageEditor.mosaicGeneration, error);
         setIsPreviewOpen(false);
-        updateStatus({ status: "error", message: "Error generating mosaic" });
+        updateStatus({
+          status: "error",
+          message: ERROR_TEXTS.imageEditor.mosaicGeneration,
+        });
       }
     }
   };
@@ -181,32 +202,32 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   const actions: EditorControlItemProps[] = [
     {
-      label: "Reset",
+      label: IMAGE_EDITOR_MENU_TEXT.reset,
       icon: <ArrowPathIcon className="h-6 w-6 stroke-white" />,
       onClick: handleReset,
     },
     {
-      label: "BG Remove",
+      label: IMAGE_EDITOR_MENU_TEXT.backgroundRemove,
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
     },
     {
-      label: "Center",
+      label: IMAGE_EDITOR_MENU_TEXT.centerImg,
       icon: <ArrowsPointingInIcon className="h-6 w-6 stroke-white" />,
       onClick: handleCenter,
     },
     {
-      label: "Crop",
+      label: IMAGE_EDITOR_MENU_TEXT.cropImg,
       icon: <CropIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsCropActive(true),
     },
     {
-      label: "Preview",
+      label: IMAGE_EDITOR_MENU_TEXT.previewImgEffect,
       icon: <EyeIcon className="h-6 w-6 stroke-white" />,
       onClick: handlePreview,
     },
     {
-      label: "Re-upload",
+      label: IMAGE_EDITOR_MENU_TEXT.reuploadImg,
       icon: <CloudArrowUpIcon className="h-6 w-6 stroke-white" />,
       onClick: handleReupload,
     },
@@ -227,13 +248,13 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       >
         <TextInputDialog
           open={isPreviewOpen}
-          title="Generate Text Mosaic"
-          label="Enter Text"
+          title={IMAGE_EDITOR_INPUT_TEXT.title}
+          label={IMAGE_EDITOR_INPUT_TEXT.label}
           onClose={() => setIsPreviewOpen(false)}
           onSubmit={handleSubmitPreview}
           onChange={() => updateStatus({ status: "idle" })}
-          cta="Generate"
-          description="Provide the text you want to use to create the mosaic."
+          cta={BUTTON_TEXT.generate}
+          description={IMAGE_EDITOR_INPUT_TEXT.description}
           name="text"
           error={status === "error" ? statusMessage : undefined}
         />
@@ -262,6 +283,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           loadCanvas={setFcanvas}
         />
       </div>
+      ``
     </form>
   );
 }

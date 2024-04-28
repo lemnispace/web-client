@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/button";
+import { BUTTON_TEXT } from "@/utils/text";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import { HTMLAttributes, useEffect, useState } from "react";
@@ -80,7 +81,7 @@ const Crop = ({
           plain
           onClick={onCancel}
         >
-          Cancel
+          {BUTTON_TEXT.cancel}
         </Button>
         <Button
           color="secondary"
@@ -89,7 +90,7 @@ const Crop = ({
             cropResult && onCropComplete(imgSrc, cropResult.croppedAreaPixels);
           }}
         >
-          Crop
+          {BUTTON_TEXT.crop}
         </Button>
       </div>
     </div>

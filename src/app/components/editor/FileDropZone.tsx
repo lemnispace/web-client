@@ -1,6 +1,7 @@
 "use client";
 
 import { Strong, Text } from "@/components/text";
+import { IMAGE_EDITOR_FILE_DROP_ZONE_TEXT } from "@/utils/text";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { DragEvent, useState } from "react";
@@ -69,7 +70,10 @@ export default function FileDropZone({
           aria-hidden="true"
         />
         <Text className="text-sm text-slate-800">
-          <Strong>Click to upload</Strong> or drag and drop
+          <Strong>
+            {IMAGE_EDITOR_FILE_DROP_ZONE_TEXT.description.emphasis}
+          </Strong>{" "}
+          {IMAGE_EDITOR_FILE_DROP_ZONE_TEXT.description.text}
         </Text>
         <Text className="text-xs text-slate-600">
           PNG, JPEG, PPM, GIF, TIFF, and BMP
