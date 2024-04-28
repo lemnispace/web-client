@@ -283,7 +283,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           loadCanvas={setFcanvas}
         />
       </div>
-      ``
     </form>
   );
 }
