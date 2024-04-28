@@ -3,7 +3,6 @@
 import { getDimensionsFromVariant } from "@/utils/getters";
 import { IMAGE_EDITOR_TEXT } from "@/utils/text";
 import { ProductVariant } from "@/utils/types";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -61,15 +60,9 @@ export default function ImgEditor({
           imgName={uploadedImg.fileName}
           backgroundImgUrl={previewImgUrl}
           dimensions={dimensions}
-          customActions={[
-            {
-              label: "Re-upload",
-              icon: <CloudArrowUpIcon className="h-6 w-6 stroke-white" />,
-              onClick: () => {
-                inputRef.current?.click();
-              },
-            },
-          ]}
+          onUploadImage={() => {
+            inputRef.current?.click();
+          }}
         />
       )}
       <FileDropZone

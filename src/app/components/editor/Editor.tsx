@@ -4,6 +4,7 @@ import { filterObject } from "@/utils/mappers";
 import {
   ArrowPathIcon,
   ArrowsPointingInIcon,
+  CloudArrowUpIcon,
   EyeIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
@@ -13,7 +14,7 @@ import React, { useEffect, useState } from "react";
 import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
-import { EditorLoadStatus, EditorLoader } from "./EditorLoader";
+import { EditorLoader } from "./EditorLoader";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
 import TextInputDialog from "./TextInputDialog";
 import { fetchMosaic } from "./fetchMosaic";
@@ -33,6 +34,7 @@ interface EditorProps {
   customActions?: EditorControlItemProps[];
   dimensions?: { width: number; height: number };
   backgroundImgUrl?: string;
+  onUploadImage: () => void;
 }
 
 interface PreviewFormData {
@@ -67,10 +69,9 @@ const validatePreviewFormData = (formData: FormData) => {
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const { status, statusMessage, updateStatus } = useEditorStatus();
-  const imgSources = useImgSourcesState(props.imgSrc);
-  const [isTextMosaicPreview, setIsTextMosaicPreview] = useState(false);
   const [isCropActive, setIsCropActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const imgSources = useImgSourcesState(props.imgSrc);
   const handleRemoveBackground = () => {
     if (!imgSources.src) {
       console.error("No image to process");
@@ -94,7 +95,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   const handleReset = () => {
     imgSources.updateImgSrc(null);
-    setIsTextMosaicPreview(false);
     updateStatus({ status: "idle" });
     if (fCanvas) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
@@ -104,6 +104,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   const handleCenter = () => {
     if (fCanvas) {
+      if (status === "error") {
+        updateStatus({ status: "idle" });
+      }
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && centerImgOnCanvas(img, fCanvas);
       fCanvas.requestRenderAll();
@@ -114,6 +117,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     originalImgSrc: string,
     croppedAreaPixels: Area
   ) => {
+    if (status === "error") {
+      updateStatus({ status: "idle" });
+    }
     getCroppedImg(originalImgSrc, croppedAreaPixels)
       .then((croppedImgUrl) => {
         croppedImgUrl && imgSources.setCropImgSrc(croppedImgUrl);
@@ -123,6 +129,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   };
 
   const handleSubmitPreview = async (text: string | undefined) => {
+    if (status === "error") {
+      updateStatus({ status: "idle" });
+    }
     const formData = new FormData();
     formData.append("text", text?.trim() || "");
     const formValidationErrors = validatePreviewFormData(formData);
@@ -136,6 +145,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       const file = await canvasToFile(fCanvas);
       formData.append("file", file);
       try {
+        setIsPreviewOpen(false);
         updateStatus({
           status: "loading",
           message:
@@ -145,12 +155,11 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         if (!textMosaicImg) {
           console.error("Error generating mosaic: No image returned");
           updateStatus({ status: "error", message: "Error generating mosaic" });
+          setIsPreviewOpen(true);
           return;
         }
         updateStatus({ status: "idle" });
         imgSources.updateImgSrc(textMosaicImg);
-        setIsTextMosaicPreview(true);
-        setIsPreviewOpen(false);
       } catch (error) {
         console.error("Error generating mosaic:", error);
         setIsPreviewOpen(false);
@@ -164,6 +173,12 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     setIsPreviewOpen(true);
   };
 
+  const handleReupload = () => {
+    props.onUploadImage();
+    setIsPreviewOpen(false);
+    updateStatus({ status: "idle" });
+  };
+
   const actions: EditorControlItemProps[] = [
     {
       label: "Reset",
@@ -174,7 +189,6 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "BG Remove",
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
-      disabled: isTextMosaicPreview,
     },
     {
       label: "Center",
@@ -190,25 +204,13 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       label: "Preview",
       icon: <EyeIcon className="h-6 w-6 stroke-white" />,
       onClick: handlePreview,
-      disabled: isTextMosaicPreview,
+    },
+    {
+      label: "Re-upload",
+      icon: <CloudArrowUpIcon className="h-6 w-6 stroke-white" />,
+      onClick: handleReupload,
     },
   ];
-
-  if (props.customActions) {
-    actions.push(...props.customActions);
-  }
-  // Reset error status on action click
-  actions.forEach((action) => {
-    const onClick = action.onClick;
-    action.onClick =
-      onClick &&
-      ((...args) => {
-        if (status === "error") {
-          updateStatus({ status: "idle" });
-        }
-        onClick(...args);
-      });
-  });
 
   return (
     <form className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
@@ -240,7 +242,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           <Crop
             imgSrc={imgSources.originalImgSrc}
             aspectRatio={dimensions && dimensions.width / dimensions.height}
-            className="bg-transparent rounded-lg p-2 md:p-4"
+            className="dark bg-transparent rounded-lg p-2 md:p-4"
             onCropComplete={handleCropComplete}
             onCancel={() => setIsCropActive(false)}
             canvas={fCanvas}
