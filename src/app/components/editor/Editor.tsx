@@ -1,6 +1,5 @@
 "use client";
 import { CropIcon } from "@/components/icons/crop";
-import { Loader } from "@/components/loader";
 import { filterObject } from "@/utils/mappers";
 import {
   ArrowPathIcon,
@@ -10,12 +9,15 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
+import { EditorLoadStatus, EditorLoader } from "./EditorLoader";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
+import TextInputDialog from "./TextInputDialog";
 import { fetchMosaic } from "./fetchMosaic";
+import useEditorStatus from "./useEditorStatus";
 import { useImgSrc } from "./useImgSrc";
 import {
   ImgSource,
@@ -53,7 +55,7 @@ const useImgSourcesState = (imgSrc: ImgSource) => {
 const validatePreviewFormData = (formData: FormData) => {
   const data = Object.fromEntries(formData.entries()) as PreviewFormData;
   const errors = [];
-  if (!data.text) {
+  if (!data.text?.trim()) {
     errors.push("Text is required");
   }
   if (errors.length) {
@@ -64,41 +66,36 @@ const validatePreviewFormData = (formData: FormData) => {
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [statusMessage, setStatusMessage] = useState<string>("");
+  const { status, statusMessage, updateStatus } = useEditorStatus();
   const imgSources = useImgSourcesState(props.imgSrc);
   const [isTextMosaicPreview, setIsTextMosaicPreview] = useState(false);
   const [isCropActive, setIsCropActive] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const handleRemoveBackground = () => {
     if (!imgSources.src) {
       console.error("No image to process");
-      setStatusMessage("No image to process");
-      setStatus("error");
+      updateStatus({ status: "error", message: "No image to process" });
       return;
     }
-    // Reset the status message
-    setStatusMessage("");
-    setStatus("loading");
+    updateStatus({ status: "loading" });
     removeBackground(imgSources.src, (message, progress) => {
-      setStatusMessage(!!progress ? `${message}\n${progress}%` : message);
+      const statusMessage = !!progress ? `${message}\n${progress}%` : message;
+      updateStatus({ status: "loading", message: statusMessage });
     })
       .then((blob) => {
         imgSources.updateImgSrc(blob);
-        setStatus("idle");
-        setStatusMessage("");
+        updateStatus({ status: "idle" });
       })
       .catch((e) => {
         console.error(e);
-        setStatus("error");
-        setStatusMessage("Error removing background");
+        updateStatus({ status: "error", message: "Error removing background" });
       });
   };
 
   const handleReset = () => {
     imgSources.updateImgSrc(null);
     setIsTextMosaicPreview(false);
-    setStatus("idle");
-    setStatusMessage("");
+    updateStatus({ status: "idle" });
     if (fCanvas) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && resetImgState(img, fCanvas);
@@ -125,46 +122,46 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       .catch(console.error);
   };
 
-  const handleSubmitPreview = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const formData = new FormData(e.target as HTMLFormElement);
+  const handleSubmitPreview = async (text: string | undefined) => {
+    const formData = new FormData();
+    formData.append("text", text?.trim() || "");
     const formValidationErrors = validatePreviewFormData(formData);
     if (formValidationErrors) {
-      setStatus("error");
-      setStatusMessage(formValidationErrors.join(", "));
+      const error = formValidationErrors.join(", ");
+      updateStatus({ status: "error", message: error });
       return;
     }
     if (fCanvas) {
       // add file to form data
       const file = await canvasToFile(fCanvas);
-      formData.set("file", file);
+      formData.append("file", file);
       try {
-        setStatus("loading");
-        setStatusMessage(
-          "Turning your pixels into a unique text masterpiece. Almost there!"
-        );
+        updateStatus({
+          status: "loading",
+          message:
+            "Turning your pixels into a unique text masterpiece. Almost there!",
+        });
         const textMosaicImg = await fetchMosaic(formData);
         if (!textMosaicImg) {
           console.error("Error generating mosaic: No image returned");
-          setStatus("error");
-          setStatusMessage("Error generating mosaic");
+          updateStatus({ status: "error", message: "Error generating mosaic" });
           return;
         }
-        setStatus("idle");
-        setStatusMessage("");
+        updateStatus({ status: "idle" });
         imgSources.updateImgSrc(textMosaicImg);
         setIsTextMosaicPreview(true);
+        setIsPreviewOpen(false);
       } catch (error) {
         console.error("Error generating mosaic:", error);
-        setStatus("error");
-        setStatusMessage("Error generating mosaic");
+        setIsPreviewOpen(false);
+        updateStatus({ status: "error", message: "Error generating mosaic" });
       }
     }
   };
 
-  const handlePreview = async () => {
-    // open modal with text input to enter text for text mosaic preview
+  const handlePreview = () => {
+    updateStatus({ status: "idle" });
+    setIsPreviewOpen(true);
   };
 
   const actions: EditorControlItemProps[] = [
@@ -200,12 +197,21 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   if (props.customActions) {
     actions.push(...props.customActions);
   }
+  // Reset error status on action click
+  actions.forEach((action) => {
+    const onClick = action.onClick;
+    action.onClick =
+      onClick &&
+      ((...args) => {
+        if (status === "error") {
+          updateStatus({ status: "idle" });
+        }
+        onClick(...args);
+      });
+  });
 
   return (
-    <form
-      className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden"
-      onSubmit={handleSubmitPreview}
-    >
+    <form className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
       <EditorMenu
         actions={actions}
         disabled={status === "loading" || !fCanvas || isCropActive}
@@ -217,20 +223,19 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           isCropActive && "bg-neutral-900"
         )}
       >
-        {status === "loading" && (
-          <div className="-ml-4 md:-ml-8 h-full w-full bg-gray-900/75 flex flex-col items-center justify-center absolute cursor-wait z-50">
-            <Loader
-              status={status}
-              className="fill-secondary-500 w-10 h-10"
-              pathColor="#E5E5E5"
-            />
-            {!!statusMessage && (
-              <p className="text-neutral-200 font-semibold py-2 text-xs sm:text-sm md:text-base text-center">
-                {statusMessage}
-              </p>
-            )}
-          </div>
-        )}
+        <TextInputDialog
+          open={isPreviewOpen}
+          title="Generate Text Mosaic"
+          label="Enter Text"
+          onClose={() => setIsPreviewOpen(false)}
+          onSubmit={handleSubmitPreview}
+          onChange={() => updateStatus({ status: "idle" })}
+          cta="Generate"
+          description="Provide the text you want to use to create the mosaic."
+          name="text"
+          error={status === "error" ? statusMessage : undefined}
+        />
+        <EditorLoader status={status} statusMessage={statusMessage} />
         {isCropActive && (
           <Crop
             imgSrc={imgSources.originalImgSrc}
