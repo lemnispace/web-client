@@ -8,10 +8,12 @@ jest.mock("@/utils/text", () => ({
     goBackHome: "test button",
   },
   ERROR_TEXTS: {
-    notFound: {
-      title: "test title",
-      code: "123",
-      description: "test description",
+    page: {
+      404: {
+        title: "test title",
+        code: "123",
+        description: "test description",
+      },
     },
   },
 }));

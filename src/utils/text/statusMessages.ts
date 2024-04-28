@@ -7,4 +7,8 @@ export const IMAGE_EDITOR_STATUS_TEXT = {
         "Eliminating background distractions. Your image is almost ready!",
     },
   },
+  generateMosaic: {
+    progress:
+      "Turning your pixels into a unique text masterpiece. Almost there!",
+  },
 } as const;
