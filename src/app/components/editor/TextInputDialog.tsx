@@ -6,9 +6,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/dialog";
-import { Field, Label } from "@/components/fieldset";
+import { ErrorMessage, Field, Label } from "@/components/fieldset";
 import { Input } from "@/components/input";
 import { toKebabCase } from "@/utils/formatters";
+import { useRef } from "react";
 
 interface TextInputDialogProps {
   title: string;
@@ -17,12 +18,19 @@ interface TextInputDialogProps {
   value?: string;
   onChange?: (value: string) => void;
   onClose: () => void;
-  onSubmit?: () => void;
+  onSubmit?: (text: string | undefined) => void;
   cta: string;
   open: boolean;
   name?: string;
+  error?: string;
+  disabled?: boolean;
 }
 const TextInputDialog = (props: TextInputDialogProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleSubmit = () => {
+    const value = inputRef.current?.value;
+    props.onSubmit?.(value);
+  };
   return (
     <Dialog onClose={props.onClose} open={props.open}>
       <DialogTitle>{props.title}</DialogTitle>
@@ -33,20 +41,23 @@ const TextInputDialog = (props: TextInputDialogProps) => {
         <Field>
           <Label>{props.label}</Label>
           <Input
+            ref={inputRef}
             name={props.name || toKebabCase(props.label)}
             type="text"
             value={props.value}
+            invalid={!!props.error}
             onChange={
               props.onChange && ((e) => props.onChange!(e.target.value))
             }
           />
+          {!!props.error && <ErrorMessage>{props.error}</ErrorMessage>}
         </Field>
       </DialogBody>
       <DialogActions>
         <Button plain onClick={props.onClose}>
           Cancel
         </Button>
-        <Button type="submit" onClick={props.onSubmit}>
+        <Button onClick={handleSubmit} disabled={props.disabled}>
           {props.cta}
         </Button>
       </DialogActions>
