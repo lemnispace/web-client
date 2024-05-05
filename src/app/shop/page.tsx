@@ -4,7 +4,7 @@ import { Container } from "@/components/container";
 import {
   ProductsResponse,
   fetchProductList,
-} from "@/lib/shopify/queries/productsQuery";
+} from "@/lib/shopify/queries/productQuery";
 import { Image } from "@/lib/types/shopify";
 import { sanitizeHtml } from "@/utils/formatters";
 import { mapProductVariantNodeToProductVariant } from "@/utils/mappers";

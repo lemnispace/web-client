@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/button";
 import { CropIcon } from "@/components/icons/crop";
 import { filterObject } from "@/utils/mappers";
 import {
@@ -42,6 +43,7 @@ interface EditorProps {
   dimensions?: { width: number; height: number };
   backgroundImgUrl?: string;
   onUploadImage: () => void;
+  onEditComplete: (file: File) => Promise<void>;
 }
 
 interface PreviewFormData {
@@ -200,6 +202,25 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     updateStatus({ status: "idle" });
   };
 
+  const handleFinishEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (status === "error") {
+      updateStatus({ status: "idle" });
+    }
+    if (fCanvas) {
+      try {
+        const file = await canvasToFile(fCanvas);
+        await props.onEditComplete(file);
+      } catch (error) {
+        console.error(error);
+        updateStatus({
+          status: "error",
+          message: ERROR_TEXTS.general.default,
+        });
+      }
+    }
+  };
+
   const actions: EditorControlItemProps[] = [
     {
       label: IMAGE_EDITOR_MENU_TEXT.reset,
@@ -234,55 +255,62 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
   ];
 
   return (
-    <form className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
-      <EditorMenu
-        actions={actions}
-        disabled={status === "loading" || !fCanvas || isCropActive}
-        className="flex-row md:flex-col"
-      />
-      <div
-        className={clsx(
-          "flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative",
-          isCropActive && "bg-neutral-900"
-        )}
-      >
-        <TextInputDialog
-          open={isPreviewOpen}
-          title={IMAGE_EDITOR_INPUT_TEXT.title}
-          label={IMAGE_EDITOR_INPUT_TEXT.label}
-          onClose={() => setIsPreviewOpen(false)}
-          onSubmit={handleSubmitPreview}
-          onChange={() => updateStatus({ status: "idle" })}
-          cta={BUTTON_TEXT.generate}
-          description={IMAGE_EDITOR_INPUT_TEXT.description}
-          name="text"
-          error={status === "error" ? statusMessage : undefined}
+    <>
+      <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
+        <EditorMenu
+          actions={actions}
+          disabled={status === "loading" || !fCanvas || isCropActive}
+          className="flex-row md:flex-col"
         />
-        <EditorLoader status={status} statusMessage={statusMessage} />
-        {isCropActive && (
-          <Crop
-            imgSrc={imgSources.originalImgSrc}
-            aspectRatio={dimensions && dimensions.width / dimensions.height}
-            className="dark bg-transparent rounded-lg p-2 md:p-4"
-            onCropComplete={handleCropComplete}
-            onCancel={() => setIsCropActive(false)}
-            canvas={fCanvas}
-          />
-        )}
-        <Canvas
+        <div
           className={clsx(
-            "w-full bg-neutral-600 rounded-lg border-dashed border-2 border-white",
-            isCropActive && "hidden"
+            "flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative",
+            isCropActive && "bg-neutral-900"
           )}
-          style={filterObject({
-            aspectRatio:
-              dimensions && `${dimensions.width}/${dimensions.height}`,
-          })}
-          imgSrc={imgSources.src}
-          canvas={fCanvas}
-          loadCanvas={setFcanvas}
-        />
+        >
+          <TextInputDialog
+            open={isPreviewOpen}
+            title={IMAGE_EDITOR_INPUT_TEXT.title}
+            label={IMAGE_EDITOR_INPUT_TEXT.label}
+            onClose={() => setIsPreviewOpen(false)}
+            onSubmit={handleSubmitPreview}
+            onChange={() => updateStatus({ status: "idle" })}
+            cta={BUTTON_TEXT.generate}
+            description={IMAGE_EDITOR_INPUT_TEXT.description}
+            name="text"
+            error={status === "error" ? statusMessage : undefined}
+          />
+          <EditorLoader status={status} statusMessage={statusMessage} />
+          {isCropActive && (
+            <Crop
+              imgSrc={imgSources.originalImgSrc}
+              aspectRatio={dimensions && dimensions.width / dimensions.height}
+              className="dark bg-transparent rounded-lg p-2 md:p-4"
+              onCropComplete={handleCropComplete}
+              onCancel={() => setIsCropActive(false)}
+              canvas={fCanvas}
+            />
+          )}
+          <Canvas
+            className={clsx(
+              "w-full bg-neutral-600 rounded-lg border-dashed border-2 border-white",
+              isCropActive && "hidden"
+            )}
+            style={filterObject({
+              aspectRatio:
+                dimensions && `${dimensions.width}/${dimensions.height}`,
+            })}
+            imgSrc={imgSources.src}
+            canvas={fCanvas}
+            loadCanvas={setFcanvas}
+          />
+        </div>
       </div>
-    </form>
+      <div className="md:flex flex-1 items-center justify-center">
+        <Button color="primary" onClick={handleFinishEdit}>
+          {BUTTON_TEXT.finishEdit}
+        </Button>
+      </div>
+    </>
   );
 }

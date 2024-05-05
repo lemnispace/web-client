@@ -1,3 +1,4 @@
+import { MAX_IMG_FILE_SIZE } from "@/utils/constants";
 import { getErrorMessage } from "@/utils/getters";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -42,7 +43,6 @@ const TEXT_MOSAIC_API_URL = process.env.TEXT_MOSAIC_API_URL;
 if (!TEXT_MOSAIC_API_URL) {
   throw new Error("Missing environment variable: TEXT_MOSAIC_API_URL");
 }
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const schema = z.object({
   text: z
@@ -104,7 +104,7 @@ const schema = z.object({
     )
     .refine(
       (file) => {
-        return file.size <= MAX_FILE_SIZE;
+        return file.size <= MAX_IMG_FILE_SIZE;
       },
       {
         message: "Image size must be less than 10MB",

@@ -1,6 +1,6 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
-import { fetchProduct } from "@/lib/shopify/queries/productsQuery";
+import { fetchProduct } from "@/lib/shopify/queries/productQuery";
 import { mapProduct } from "@/utils/mappers";
 import { redirect } from "next/navigation";
 
