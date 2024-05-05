@@ -1,3 +1,4 @@
+import { ApiVersion } from "@shopify/shopify-api";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 
 const shopifyConfig = (() => {
@@ -17,8 +18,10 @@ const shopifyConfig = (() => {
   };
 })();
 
-export const productClient = createStorefrontApiClient({
+const storefrontClient = createStorefrontApiClient({
   storeDomain: shopifyConfig.product.storeDomain,
-  apiVersion: "2024-04",
+  apiVersion: ApiVersion.April24,
   publicAccessToken: shopifyConfig.product.publicAccessToken,
 });
+
+export default storefrontClient;

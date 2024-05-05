@@ -2,7 +2,7 @@
 
 import { getDimensionsFromVariant } from "@/utils/getters";
 import { IMAGE_EDITOR_TEXT } from "@/utils/text";
-import { ProductVariant } from "@/utils/types";
+import { Product, ProductVariant } from "@/utils/types";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -11,12 +11,29 @@ import { ImgData, getImgSrcFromFile } from "./utils";
 interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   onUploadComplete?: () => void;
   productVariant: ProductVariant;
+  product: Product;
 }
+
+const createCustomProduct = async (
+  file: File,
+  productId: string,
+  variantId: string
+) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("productId", productId);
+  formData.append("variantId", variantId);
+  await fetch("/api/products", {
+    method: "POST",
+    body: formData,
+  });
+};
 
 export default function ImgEditor({
   onUploadComplete,
   className,
   productVariant,
+  product,
   ...props
 }: ImgUploaderProps) {
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
@@ -63,6 +80,9 @@ export default function ImgEditor({
           onUploadImage={() => {
             inputRef.current?.click();
           }}
+          onEditComplete={async (imgFile) =>
+            createCustomProduct(imgFile, product.id, productVariant.id)
+          }
         />
       )}
       <FileDropZone

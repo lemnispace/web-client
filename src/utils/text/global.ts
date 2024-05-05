@@ -15,6 +15,7 @@ export const BUTTON_TEXT = {
   generate: "Generate",
   cancel: "Cancel",
   crop: "Crop",
+  finishEdit: "Finish Editing",
 } as const;
 
 export const NAVIGATION_TEXT = {

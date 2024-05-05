@@ -1,7 +1,7 @@
 import ImgEditor from "@/app/components/editor/ImgEditor";
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { Container } from "@/components/container";
-import { fetchProduct } from "@/lib/shopify/queries/productsQuery";
+import { fetchProduct } from "@/lib/shopify/queries/productQuery";
 import { mapProduct } from "@/utils/mappers";
 import { PRODUCTS_CREATE_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { redirect } from "next/navigation";
@@ -39,7 +39,7 @@ export default async function CreateMosaic(props: MosaicProps) {
           title={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title}
           description={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.description}
         />
-        <ImgEditor productVariant={variant} />
+        <ImgEditor productVariant={variant} product={product} />
       </Container>
     </main>
   );
