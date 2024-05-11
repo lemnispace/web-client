@@ -1,37 +1,18 @@
+import { env } from "@/utils/env";
 import { ApiVersion, shopifyApi } from "@shopify/shopify-api";
 import "@shopify/shopify-api/adapters/node";
 import { restResources } from "@shopify/shopify-api/rest/admin/2024-04";
 
 const shopifyConfig = (() => {
-  const apiAccessToken = process.env.LEMNISPACE_PRODUCTS_ADMIN_API_TOKEN;
-  const storefrontApiAccessToken = process.env.LEMNISPACE_PRODUCTS_API_TOKEN;
-  const apiKey = process.env.LEMNISPACE_PRODUCTS_API_KEY;
-  const apiSecretKey = process.env.LEMNISPACE_PRODUCTS_API_SECRET_KEY;
-  const storeDomain = process.env.LEMNISPACE_STORE_DOMAIN;
-  const hostName = process.env.LEMNISPACE_HOST_NAME;
-  const hostScheme = process.env.NODE_ENV === "development" ? "http" : "https";
-  const shopName = process.env.LEMNISPACE_SHOP_NAME;
-  if (!apiAccessToken) {
-    throw new Error("no product access token found");
-  }
-  if (!storeDomain) {
-    throw new Error("no product store domain found");
-  }
-  if (!apiKey) {
-    throw new Error("no product api key found");
-  }
-  if (!apiSecretKey) {
-    throw new Error("no product api secret key found");
-  }
-  if (!hostName) {
-    throw new Error("no host name found");
-  }
-  if (!hostScheme) {
-    throw new Error("no host scheme found");
-  }
-  if (!shopName) {
-    throw new Error("no shop name found");
-  }
+  const apiAccessToken = env.LEMNISPACE_PRODUCTS_ADMIN_API_TOKEN;
+  const storefrontApiAccessToken = env.LEMNISPACE_PRODUCTS_API_TOKEN;
+  const apiKey = env.LEMNISPACE_PRODUCTS_API_KEY;
+  const apiSecretKey = env.LEMNISPACE_PRODUCTS_API_SECRET_KEY;
+  const storeDomain = env.LEMNISPACE_STORE_DOMAIN;
+  const hostName = env.LEMNISPACE_HOST_NAME;
+  const hostScheme = env.LEMNISPACE_HOST_SCHEME;
+  const shopName = env.LEMNISPACE_SHOP_NAME;
+
   return {
     storeDomain,
     apiAccessToken,
