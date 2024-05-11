@@ -5,7 +5,8 @@
  *                                                                         *
  ***************************************************************************
  */
-export const MAX_IMG_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_IMG_FILE_SIZE_MB = 10;
+export const MAX_IMG_FILE_SIZE = MAX_IMG_FILE_SIZE_MB * 1024 * 1024; // 10MB in bytes
 
 /*
  ***************************************************************************
