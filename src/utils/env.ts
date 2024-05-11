@@ -1,0 +1,47 @@
+"use server";
+
+type EnvVariableName =
+  | "TEXT_MOSAIC_API_URL"
+  | "LEMNISPACE_MOCKUP_GEN_API_URL"
+  | "LEMNISPACE_MOCKUP_GEN_KEY"
+  | "LEMNISPACE_PRODUCTS_API_TOKEN"
+  | "LEMNISPACE_STORE_DOMAIN"
+  | "LEMNISPACE_PRODUCTS_ADMIN_API_TOKEN"
+  | "LEMNISPACE_PRODUCTS_API_KEY"
+  | "LEMNISPACE_PRODUCTS_API_SECRET_KEY"
+  | "LEMNISPACE_HOST_NAME"
+  | "LEMNISPACE_SHOP_NAME"
+  | "NODE_ENV";
+
+const getEnvVariable = (name: EnvVariableName): string => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name}`);
+  }
+  return value;
+};
+
+export const env = {
+  TEXT_MOSAIC_API_URL: getEnvVariable("TEXT_MOSAIC_API_URL"),
+  LEMNISPACE_MOCKUP_GEN_API_URL: getEnvVariable(
+    "LEMNISPACE_MOCKUP_GEN_API_URL"
+  ),
+  LEMNISPACE_MOCKUP_GEN_KEY: getEnvVariable("LEMNISPACE_MOCKUP_GEN_KEY"),
+  LEMNISPACE_PRODUCTS_API_TOKEN: getEnvVariable(
+    "LEMNISPACE_PRODUCTS_API_TOKEN"
+  ),
+  LEMNISPACE_STORE_DOMAIN: getEnvVariable("LEMNISPACE_STORE_DOMAIN"),
+  LEMNISPACE_PRODUCTS_ADMIN_API_TOKEN: getEnvVariable(
+    "LEMNISPACE_PRODUCTS_ADMIN_API_TOKEN"
+  ),
+  LEMNISPACE_PRODUCTS_API_KEY: getEnvVariable("LEMNISPACE_PRODUCTS_API_KEY"),
+  LEMNISPACE_PRODUCTS_API_SECRET_KEY: getEnvVariable(
+    "LEMNISPACE_PRODUCTS_API_SECRET_KEY"
+  ),
+  LEMNISPACE_HOST_NAME: getEnvVariable("LEMNISPACE_HOST_NAME"),
+  LEMNISPACE_SHOP_NAME: getEnvVariable("LEMNISPACE_SHOP_NAME"),
+  NODE_ENV: getEnvVariable("NODE_ENV"),
+  get LEMNISPACE_HOST_SCHEME() {
+    return this.NODE_ENV === "development" ? "http" : "https";
+  },
+} as const;

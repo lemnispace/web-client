@@ -1,15 +1,10 @@
+import { env } from "@/utils/env";
 import { ApiVersion } from "@shopify/shopify-api";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 
 const shopifyConfig = (() => {
-  const productApiToken = process.env.LEMNISPACE_PRODUCTS_API_TOKEN;
-  const productDomain = process.env.LEMNISPACE_STORE_DOMAIN;
-  if (!productApiToken) {
-    throw new Error("no product access token found");
-  }
-  if (!productDomain) {
-    throw new Error("no product store domain found");
-  }
+  const productApiToken = env.LEMNISPACE_PRODUCTS_API_TOKEN;
+  const productDomain = env.LEMNISPACE_STORE_DOMAIN;
   return {
     product: {
       storeDomain: productDomain,
