@@ -1,5 +1,11 @@
-import { MAX_IMG_FILE_SIZE } from "@/utils/constants";
+import { env } from "@/utils/env";
 import { getErrorMessage } from "@/utils/getters";
+import {
+  optionalBooleanSchema,
+  optionalNumberSchema,
+  requiredImageFileSchema,
+  requiredStringSchema,
+} from "@/utils/schemaValidators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -38,79 +44,36 @@ type FetchTextMosaicResponse =
   | ValidationErrorResponse
   | MosaicErrorResponse;
 
-const TEXT_MOSAIC_API_URL = process.env.TEXT_MOSAIC_API_URL;
-
-if (!TEXT_MOSAIC_API_URL) {
-  throw new Error("Missing environment variable: TEXT_MOSAIC_API_URL");
-}
-
 const schema = z.object({
-  text: z
-    .string({
-      invalid_type_error: "Text must be a string",
-      description: "The text to use for the mosaic",
-      required_error: "Text is required",
-    })
-    .trim()
-    .min(1),
-  width: z
-    .number({
-      invalid_type_error: "Width must be a number",
-      description: "The width of the mosaic",
-    })
-    .min(1)
-    .max(7200)
-    .safe()
-    .nullable()
-    .optional(),
-  baseFontSize: z
-    .number({
-      invalid_type_error: "Base font size must be a number",
-      description: "The base font size of the mosaic",
-    })
-    .safe()
-    .positive()
-    .max(100)
-    .nullable()
-    .optional(),
-  isBlackAndWhite: z
-    .boolean({
-      invalid_type_error: "Is black and white must be a boolean",
-      description: "Whether the mosaic should be black and white",
-    })
-    .nullable()
-    .optional(),
-  contrastFactor: z
-    .number({
-      invalid_type_error: "Contrast factor must be a number",
-      description:
-        "A floating point value controlling the enhancement. Factor 1.0 always returns a copy of the original image, lower factors mean less color (brightness, contrast, etc), and higher values more",
-    })
-    .safe()
-    .positive()
-    .nullable()
-    .optional(),
-  file: z
-    .instanceof(File, {
-      message: "File is required",
-    })
-    .refine(
-      (file) => {
-        return file.type.startsWith("image/");
-      },
-      {
-        message: "File must be an image",
-      }
-    )
-    .refine(
-      (file) => {
-        return file.size <= MAX_IMG_FILE_SIZE;
-      },
-      {
-        message: "Image size must be less than 10MB",
-      }
-    ),
+  text: requiredStringSchema({
+    name: "Text",
+    description: "The text to use for the mosaic",
+  }),
+  width: optionalNumberSchema({
+    name: "Width",
+    description: "The width of the mosaic",
+    min: 1,
+    max: 7200,
+  }),
+  baseFontSize: optionalNumberSchema({
+    name: "Base Font Size",
+    description: "The base font size of the mosaic",
+    min: 1,
+    max: 100,
+  }),
+  isBlackAndWhite: optionalBooleanSchema({
+    name: "Is Black and White",
+    description: "Whether the mosaic should be black and white",
+  }),
+  contrastFactor: optionalNumberSchema({
+    name: "Contrast Factor",
+    description:
+      "A floating point value controlling the enhancement. Factor 1.0 always returns a copy of the original image, lower factors mean less color (brightness, contrast, etc), and higher values more",
+    min: 0,
+  }),
+  file: requiredImageFileSchema(),
 });
+
 const fetchTextMosaic = async (
   _formData: FormData
 ): Promise<FetchTextMosaicResponse> => {
@@ -159,7 +122,7 @@ const fetchTextMosaic = async (
 
   try {
     // Make the POST request to the endpoint using fetch
-    const response = await fetch(TEXT_MOSAIC_API_URL, {
+    const response = await fetch(env.TEXT_MOSAIC_API_URL, {
       method: "POST",
       body: formData,
     });
