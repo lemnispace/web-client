@@ -140,6 +140,13 @@ describe("getErrorMessage", () => {
     const message = await getErrorMessage(error);
     expect(message).toBe("Validation failed");
   });
+  it("should return the error message from response data with an 'error' property", async () => {
+    const error = new Response(JSON.stringify({ error: "API error" }), {
+      status: 400,
+    });
+    const message = await getErrorMessage(error);
+    expect(message).toBe("API error");
+  });
   it("should return the status error message for a 401 Unauthorized response", async () => {
     const error = new Response(null, { status: 401 });
 
@@ -180,11 +187,17 @@ describe("getErrorMessage", () => {
     expect(message).toBe("Unknown error");
   });
   it("should return the status error message for a Response error with invalid JSON data", async () => {
-    const error = new Response("Invalid JSON", { status: 500 });
+    const error = new Response(`{"message": 'test invalid json"}`, {
+      status: 500,
+    });
     const message = await getErrorMessage(error, "Default error message");
     expect(message).toBe("Internal Server Error");
   });
-
+  it("should return the error text for a response error with non-JSON error text", async () => {
+    const error = new Response("Server error", { status: 500 });
+    const message = await getErrorMessage(error);
+    expect(message).toBe("Server error");
+  });
   it('should return the error message for an object with a "message" property', async () => {
     const error = { message: "Access denied" };
     const message = await getErrorMessage(error);
@@ -196,19 +209,31 @@ describe("getErrorMessage", () => {
     const message = await getErrorMessage(error);
     expect(message).toBe("Not found");
   });
-
+  it("should prioritize the 'message' property over the 'error' property in response data", async () => {
+    const error = new Response(
+      JSON.stringify({ message: "Validation error", error: "Invalid input" }),
+      { status: 400 }
+    );
+    const message = await getErrorMessage(error);
+    expect(message).toBe("Validation error");
+  });
+  it("should prioritize the 'message' property over the 'error' property in an object error", async () => {
+    const error = { message: "Validation error", error: "Invalid input" };
+    const message = await getErrorMessage(error);
+    expect(message).toBe("Validation error");
+  });
   it('should return the combined error messages for an object with an "errors" array', async () => {
     const error = {
       errors: [
         "Field is required",
         { message: "Invalid format" },
-        { code: "ERR001" },
+        { code: "ERR001" }, // ignored since it's not a string or an object with a "message" or "error" property
+        { error: "ERR002" },
+        { error: "[object Object]" }, // ignored since it's not considered an appropriate string value
       ],
     };
     const message = await getErrorMessage(error);
-    expect(message).toBe(
-      'Field is required; Invalid format; {"code":"ERR001"}'
-    );
+    expect(message).toBe("Field is required; Invalid format; ERR002");
   });
 
   it("should return the stringified error for an unknown object structure", async () => {
@@ -220,9 +245,10 @@ describe("getErrorMessage", () => {
   });
 
   it("should return the default message for an unknown error type", async () => {
-    const error = undefined;
-    const message = await getErrorMessage(error, "An unknown error occurred");
-    expect(message).toBe("An unknown error occurred");
+    for (const error of [null, undefined, {}, 0]) {
+      const message = await getErrorMessage(error, "An unknown error occurred");
+      expect(message).toBe("An unknown error occurred");
+    }
   });
   it("should never throw an error", async () => {
     const errorCases = [
@@ -236,12 +262,13 @@ describe("getErrorMessage", () => {
       new Error("Test error"),
       "String error",
       new Response(null, { status: 500 }),
-      new Response("Invalid JSON", { status: 500 }),
+      new Response(`{"invalid": json}`, { status: 500 }),
       new Response(JSON.stringify({ message: "API error" }), { status: 400 }),
     ];
     for (const error of errorCases) {
       expect(async () => {
-        await expect(getErrorMessage(error));
+        const message = await getErrorMessage(error);
+        expect(message).toBeTruthy();
       }).not.toThrow();
     }
   });
