@@ -6,6 +6,7 @@ import {
   requiredImageFileSchema,
   requiredStringSchema,
 } from "@/utils/schemaValidators";
+import { ApiResponse } from "@/utils/types";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -19,30 +20,10 @@ type ValidationErrors = {
 };
 
 type MosaicError = {
-  mosaic: string;
+  message: string;
 };
 
-type SuccessResponse = {
-  data: Blob;
-  status: number;
-};
-
-type ValidationErrorResponse = {
-  data: undefined;
-  status: 400;
-  errors: ValidationErrors;
-};
-
-type MosaicErrorResponse = {
-  data: undefined;
-  status: number;
-  errors: MosaicError;
-};
-
-type FetchTextMosaicResponse =
-  | SuccessResponse
-  | ValidationErrorResponse
-  | MosaicErrorResponse;
+type FetchTextMosaicResponse = ApiResponse<ValidationErrors, MosaicError, Blob>;
 
 const schema = z.object({
   text: requiredStringSchema({
@@ -91,7 +72,6 @@ const fetchTextMosaic = async (
       validatedFields.error.flatten().fieldErrors
     );
     return {
-      data: undefined,
       status: 400,
       errors: validatedFields.error.flatten().fieldErrors,
     };
@@ -130,18 +110,14 @@ const fetchTextMosaic = async (
     if (response.ok) {
       // response is an "image/png"
       const data = await response.blob();
-      return { data, status: response.status };
+      return { data, status: 200 };
     } else {
       console.error(
         "Error generating mosaic:",
         JSON.stringify(response, null, 2)
       );
       const errorMessage = await getErrorMessage(response);
-      return {
-        data: undefined,
-        status: response.status,
-        errors: { mosaic: errorMessage },
-      };
+      throw new Error(errorMessage);
     }
   } catch (error) {
     const errorMessage = await getErrorMessage(
@@ -151,7 +127,7 @@ const fetchTextMosaic = async (
     return {
       data: undefined,
       status: 500,
-      errors: { mosaic: errorMessage },
+      errors: { message: errorMessage },
     };
   }
 };
