@@ -38,3 +38,29 @@ export interface ProductItem {
 export interface Product extends ProductItem {
   images?: ProductImg[];
 }
+
+export interface BaseResponse {
+  status: number;
+}
+
+export interface ValidationErrorResponse<T = unknown> extends BaseResponse {
+  status: 400 | 401 | 403 | 404 | 422;
+  errors: T;
+  data?: undefined;
+}
+
+export interface ServerErrorResponse<T> extends BaseResponse {
+  status: 500;
+  errors: T;
+  data?: undefined;
+}
+
+export interface SuccessResponse<T> extends BaseResponse {
+  status: 200 | 201 | 204;
+  data: T;
+}
+
+export type ApiResponse<VALIDATION_ERRORS, SERVER_ERRORS, DATA> =
+  | ValidationErrorResponse<VALIDATION_ERRORS>
+  | ServerErrorResponse<SERVER_ERRORS>
+  | SuccessResponse<DATA>;
