@@ -244,11 +244,7 @@ export interface ProductNode {
   variants?: Edges<ProductVariantEdge>;
 }
 
-export enum ProductStatus {
-  ACTIVE = "ACTIVE",
-  ARCHIVED = "ARCHIVED",
-  DRAFT = "DRAFT",
-}
+export type ProductStatus = "ACTIVE" | "ARCHIVED" | "DRAFT";
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
