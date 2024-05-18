@@ -6,6 +6,7 @@ import {
   StagedUploadTarget,
 } from "@/lib/types/shopify";
 import { getErrorMessage } from "@/utils/getters";
+import { parseClientResponse } from "@/utils/parsers";
 import adminClient from "../adminClient";
 
 interface StagedUploadsCreatePayload {
@@ -97,8 +98,8 @@ const stagedUploadsCreate = async (input: StagedUploadInput) => {
         },
       }
     );
-    const stagedTarget = response.data?.stagedUploadsCreate.stagedTargets[0];
-
+    const data = parseClientResponse(response, "Error creating staged upload");
+    const stagedTarget = data.stagedUploadsCreate.stagedTargets[0];
     if (!stagedTarget) {
       throw new Error("No staged target returned from Shopify");
     }
@@ -176,14 +177,11 @@ const createImageFromStagedTarget = async (
         },
       }
     );
-    if (!response.data) {
-      const errMessage = await getErrorMessage(
-        response,
-        "Error creating image from staged target"
-      );
-      throw new Error(errMessage);
-    }
-    return response.data.fileCreate;
+    const data = parseClientResponse(
+      response,
+      "Error creating image from staged target"
+    );
+    return data.fileCreate;
   } catch (error) {
     console.error("CreateImageFromStagedTarget Error: ", error);
     const errMessage = await getErrorMessage(
@@ -221,7 +219,7 @@ export const createImage = async ({
     if (response.userErrors?.length) {
       console.error("Error creating image: ", response.userErrors);
       throw new Error(
-        response.userErrors?.[0].message || "Error creating image"
+        response.userErrors?.[0]?.message || "Error creating image"
       );
     }
     if (!response.files.length) {
