@@ -8,6 +8,12 @@ import { sanitizeHtml } from "./formatters";
 import { Product, ProductVariant } from "./types";
 import { isDefined } from "./validators";
 
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Product Mappers                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
 /**
  * Maps product variant nodes to product variants.
  *
@@ -134,6 +140,12 @@ export const getAllProductVariantOptions = (
     isDefined
   );
 };
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Utility Mappers                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
 
 /**
  * Filters an object by removing properties with falsy values.
