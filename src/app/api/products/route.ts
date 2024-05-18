@@ -1,10 +1,13 @@
 import { createImage } from "@/lib/shopify/mutations/mediaMutations";
-import { ShopifyFile } from "@/lib/types/shopify";
+import { duplicateProduct } from "@/lib/shopify/mutations/productMutations";
+import { ProductNode, ShopifyFile } from "@/lib/types/shopify";
 import { getErrorMessage } from "@/utils/getters";
+import { parseClientResponse } from "@/utils/parsers";
 import {
   requiredImageFileSchema,
   requiredStringSchema,
 } from "@/utils/schemaValidators";
+import { ApiResponse } from "@/utils/types";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -20,26 +23,11 @@ type ValidationErrors = {
   file?: string[];
 };
 
-type SuccessResponse = {
-  status: number;
-};
-
-type ValidationErrorResponse = {
-  data: undefined;
-  status: 400;
-  errors: ValidationErrors;
-};
-
-type ShopifyErrorResponse = {
-  data: undefined;
-  status: number;
-  errors: unknown;
-};
-
-type CreateCustomProductResponse =
-  | SuccessResponse
-  | ValidationErrorResponse
-  | ShopifyErrorResponse;
+type CreateCustomProductResponse = ApiResponse<
+  ValidationErrors,
+  unknown,
+  ProductNode
+>;
 
 const schema = z.object({
   productId: requiredStringSchema({
@@ -97,18 +85,31 @@ const createCustomProduct = async (
     };
   }
   try {
-    // upload the image to Shopify
-    const imgMedia = await uploadCustomProductImage({
-      img: validatedFields.data.file,
-      productId: validatedFields.data.productId,
-      variantId: validatedFields.data.variantId,
-      userId,
-    });
-    console.log("Image uploaded:", imgMedia);
-    // TODO: duplicate the product
+    const [imgMedia, duplicateProductResponse] = await Promise.all([
+      // upload the user's custom image to Shopify
+      uploadCustomProductImage({
+        img: validatedFields.data.file,
+        productId: validatedFields.data.productId,
+        variantId: validatedFields.data.variantId,
+        userId,
+      }),
+      // duplicate the modified product
+      duplicateProduct({
+        newStatus: "DRAFT",
+        productId: validatedFields.data.productId,
+        newTitle: "Custom Product",
+      }),
+    ]);
+
+    const duplicateProductData = parseClientResponse(
+      duplicateProductResponse,
+      "Error duplicating product"
+    );
+
     // TODO: modify the variant to use the new image
     return {
       status: 200,
+      data: duplicateProductData.productDuplicate.newProduct,
     };
   } catch (error) {
     console.error("Error creating custom product:", error);
