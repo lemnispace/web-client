@@ -1,3 +1,4 @@
+import { toFloat } from "./parsers";
 import { Product, ProductVariant, ProductVariantOption } from "./types";
 import {
   isDefined,
@@ -7,8 +8,13 @@ import {
   isStringEmpty,
   isStringJSONLike,
   isValidJSON,
-  toFloat,
 } from "./validators";
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Product Getters                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
 
 /**
  * Retrieves a variant from a product by its ID.
@@ -63,6 +69,21 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
   // Return an object with the extracted width and height
   return { width, height };
 };
+
+interface CustomProductIdProps {
+  userId: string;
+  productId: string;
+  variantId: string;
+}
+export const getCustomProductId = (product: CustomProductIdProps) => {
+  return `${product.userId}-${product.productId}-${product.variantId}`;
+};
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Error Getters                                  ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
 
 const statusErrorMap: Record<number, string> = {
   400: "Bad Request",
