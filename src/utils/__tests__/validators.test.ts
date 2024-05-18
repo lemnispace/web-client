@@ -1,7 +1,18 @@
-import exp from "constants";
 import { getMockProduct } from "../test_utils";
 import { Product } from "../types";
-import { hasVariant, isDefined, isNumber, toFloat, toInt } from "../validators";
+import {
+  hasVariant,
+  isDefined,
+  isEmptyObject,
+  isNumber,
+  isObject,
+  isString,
+  isStringEmpty,
+  isStringJSONLike,
+  isValidJSON,
+  toFloat,
+  toInt,
+} from "../validators";
 
 test.each([
   [10, true],
@@ -190,4 +201,111 @@ describe("toFloat", () => {
       expect(toFloat(value as any)).toBe(expected);
     }
   );
+});
+
+describe("isString", () => {
+  it("should return true for string values", () => {
+    expect(isString("hello")).toBe(true);
+    expect(isString("")).toBe(true);
+    expect(isString("[object ]")).toBe(true);
+  });
+
+  it("should return false for non-string values", () => {
+    expect(isString(123)).toBe(false);
+    expect(isString(true)).toBe(false);
+    expect(isString(null)).toBe(false);
+    expect(isString(undefined)).toBe(false);
+    expect(isString({})).toBe(false);
+    expect(isString([])).toBe(false);
+    expect(isString(`${{ something: "blue" }}`)).toBe(false);
+    expect(isString("[object Object]")).toBe(false);
+  });
+});
+
+describe("isStringJSONLike", () => {
+  it("should return true for JSON-like strings", () => {
+    expect(isStringJSONLike("{}")).toBe(true);
+    expect(isStringJSONLike('{"key": "value"}')).toBe(true);
+    expect(isStringJSONLike('{"key": \'value"}')).toBe(true);
+  });
+
+  it("should return false for non-JSON-like strings", () => {
+    expect(isStringJSONLike("")).toBe(false);
+    expect(isStringJSONLike("hello")).toBe(false);
+    expect(isStringJSONLike("{")).toBe(false);
+    expect(isStringJSONLike("}")).toBe(false);
+  });
+
+  it("should return false for non-string values", () => {
+    expect(isStringJSONLike(123)).toBe(false);
+    expect(isStringJSONLike(true)).toBe(false);
+    expect(isStringJSONLike(null)).toBe(false);
+    expect(isStringJSONLike(undefined)).toBe(false);
+    expect(isStringJSONLike({})).toBe(false);
+    expect(isStringJSONLike([])).toBe(false);
+  });
+});
+
+describe("isObject", () => {
+  it("should return true for object values", () => {
+    expect(isObject({})).toBe(true);
+    expect(isObject({ key: "value" })).toBe(true);
+  });
+
+  it("should return false for non-object values", () => {
+    expect(isObject(123)).toBe(false);
+    expect(isObject("hello")).toBe(false);
+    expect(isObject(true)).toBe(false);
+    expect(isObject(null)).toBe(false);
+    expect(isObject(undefined)).toBe(false);
+    expect(isObject([])).toBe(false);
+  });
+});
+
+describe("isValidJSON", () => {
+  it("should return true for valid JSON strings", () => {
+    expect(isValidJSON("{}")).toBe(true);
+    expect(isValidJSON('{"key": "value"}')).toBe(true);
+    expect(isValidJSON("[]")).toBe(true);
+    expect(isValidJSON('["item1", "item2"]')).toBe(true);
+  });
+
+  it("should return false for invalid JSON strings", () => {
+    expect(isValidJSON("")).toBe(false);
+    expect(isValidJSON("hello")).toBe(false);
+    expect(isValidJSON("{")).toBe(false);
+    expect(isValidJSON("}")).toBe(false);
+    expect(isValidJSON('{"key": value}')).toBe(false);
+  });
+});
+
+describe("isStringEmpty", () => {
+  it("should return true for empty strings", () => {
+    expect(isStringEmpty("")).toBe(true);
+    expect(isStringEmpty("   ")).toBe(true);
+  });
+
+  it("should return false for non-empty strings", () => {
+    expect(isStringEmpty("hello")).toBe(false);
+    expect(isStringEmpty(" hello ")).toBe(false);
+  });
+});
+
+describe("isEmptyObject", () => {
+  it("should return true for empty objects", () => {
+    expect(isEmptyObject({})).toBe(true);
+  });
+
+  it("should return false for non-empty objects", () => {
+    expect(isEmptyObject({ key: "value" })).toBe(false);
+  });
+
+  it("should return false for non-object values", () => {
+    expect(isEmptyObject(123)).toBe(false);
+    expect(isEmptyObject("hello")).toBe(false);
+    expect(isEmptyObject(true)).toBe(false);
+    expect(isEmptyObject(null)).toBe(false);
+    expect(isEmptyObject(undefined)).toBe(false);
+    expect(isEmptyObject([])).toBe(false);
+  });
 });

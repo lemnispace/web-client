@@ -70,3 +70,63 @@ export const toFloat = (value: string | undefined): number | undefined => {
   const float = parseFloat(value);
   return isNumber(float) ? float : undefined;
 };
+
+/**
+ * Checks if a value is a string.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a string, `false` otherwise.
+ */
+export const isString = (value: unknown): value is string =>
+  typeof value === "string" && value !== "[object Object]";
+
+/**
+ * Checks if a value is a string that resembles JSON.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a string that resembles JSON, `false` otherwise.
+ */
+export const isStringJSONLike = (value: unknown): value is string =>
+  isString(value) && value.startsWith("{") && value.endsWith("}");
+
+/**
+ * Checks if a value is an object.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is an object, `false` otherwise.
+ */
+export const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * Checks if a string value is a valid JSON.
+ *
+ * @param value - The string value to check.
+ * @returns `true` if the string value is a valid JSON, `false` otherwise.
+ */
+export const isValidJSON = (value: string): boolean => {
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Checks if a string value is empty (contains only whitespace characters).
+ *
+ * @param value - The string value to check.
+ * @returns `true` if the string value is empty, `false` otherwise.
+ */
+export const isStringEmpty = (value: string): boolean =>
+  value.trim().length === 0;
+
+/**
+ * Checks if an object is empty (has no properties).
+ *
+ * @param value - The object to check.
+ * @returns `true` if the object is empty, `false` otherwise.
+ */
+export const isEmptyObject = (value: unknown): value is Record<string, never> =>
+  isObject(value) && Object.keys(value).length === 0;
