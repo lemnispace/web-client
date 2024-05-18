@@ -1,5 +1,3 @@
-"use server";
-
 type EnvVariableName =
   | "TEXT_MOSAIC_API_URL"
   | "LEMNISPACE_MOCKUP_GEN_API_URL"
