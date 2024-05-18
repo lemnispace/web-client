@@ -1,6 +1,6 @@
 "use client";
 
-import { toFloat } from "@/utils/validators";
+import { toFloat } from "@/utils/parsers";
 import {
   CanvasOptions,
   Canvas as FabricCanvas,
