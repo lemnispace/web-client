@@ -1,5 +1,14 @@
 import { Product, ProductVariant, ProductVariantOption } from "./types";
-import { isDefined, toFloat } from "./validators";
+import {
+  isDefined,
+  isEmptyObject,
+  isObject,
+  isString,
+  isStringEmpty,
+  isStringJSONLike,
+  isValidJSON,
+  toFloat,
+} from "./validators";
 
 /**
  * Retrieves a variant from a product by its ID.
@@ -55,11 +64,108 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
   return { width, height };
 };
 
+const statusErrorMap: Record<number, string> = {
+  400: "Bad Request",
+  401: "Unauthorized",
+  403: "Forbidden",
+  404: "Not Found",
+  500: "Internal Server Error",
+};
+
 /**
- * Attempts to retrieve the error message from an error value of any type.
- * @param error - The error value to retrieve the message from.
- * @param defaultMessage - The default error message to use if the error message cannot be extracted.
+ * Retrieves the error message from a response object.
+ * If the response contains a valid JSON error message, it will be returned.
+ * Otherwise, the default error message will be returned.
+ *
+ * @param response - The response object.
+ * @param defaultMessage - The default error message to return if no valid error message is found.
  * @returns A promise that resolves to the error message.
+ */
+const getResponseErrorMessage = async (
+  response: Response,
+  defaultMessage: string
+): Promise<string> => {
+  const errorMessage = statusErrorMap[response.status];
+
+  try {
+    const errorText = await response.text();
+    if (isValidJSON(errorText)) {
+      const errorData = JSON.parse(errorText);
+      if (isString(errorData.message)) {
+        return errorData.message;
+      }
+      if (isString(errorData.error)) {
+        return errorData.error;
+      }
+    }
+    if (
+      isString(errorText) &&
+      !isStringEmpty(errorText) &&
+      !isStringJSONLike(errorText)
+    ) {
+      return errorText;
+    }
+
+    return errorMessage || defaultMessage;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return errorMessage || defaultMessage;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Returns the error message from an error object or a default message if the error object is empty.
+ *
+ * @param error - The error object.
+ * @param defaultMessage - The default error message to return if the error object is empty.
+ * @returns The error message.
+ */
+const getObjectErrorMessage = (
+  error: Record<string, unknown>,
+  defaultMessage: string
+): string => {
+  if (isEmptyObject(error)) {
+    return defaultMessage;
+  }
+  if (isString(error.message)) {
+    return error.message;
+  }
+  if (isString(error.error)) {
+    return error.error;
+  }
+  if (Array.isArray(error.errors)) {
+    const errorMessages = error.errors.map((err) => {
+      if (isString(err)) {
+        return err;
+      }
+      if (isObject(err)) {
+        if (isString(err.message)) {
+          return err.message;
+        }
+        if (isString(err.error)) {
+          return err.error;
+        }
+      }
+      return null;
+    });
+    return errorMessages.filter(isDefined).join("; ");
+  }
+  return JSON.stringify(error);
+};
+
+/**
+ * Retrieves the error message from the given error value.
+ * If the error value is an instance of Error, it returns the error message.
+ * If the error value is a string, it returns the string itself.
+ * If the error value is an instance of Response, it returns the error message from the response.
+ * If the error value is an object, it returns the error message from the object.
+ * If none of the above conditions are met, it returns the default error message.
+ *
+ * @param error - The error object.
+ * @param defaultMessage - The default error message to return if no specific error message is found.
+ * @returns The error message.
  */
 export const getErrorMessage = async (
   error: unknown,
@@ -68,70 +174,14 @@ export const getErrorMessage = async (
   if (error instanceof Error) {
     return error.message || defaultMessage;
   }
-
-  if (typeof error === "string") {
+  if (isString(error)) {
     return error;
   }
-
-  const statusErrorMap: Record<number, string> = {
-    400: "Bad Request",
-    401: "Unauthorized",
-    403: "Forbidden",
-    404: "Not Found",
-    500: "Internal Server Error",
-  };
-
   if (error instanceof Response) {
-    const errorMessage = statusErrorMap[error.status] as string | undefined;
-    try {
-      const errorData = await error.json();
-      if (isObject(errorData)) {
-        if (isString(errorData.message)) {
-          return errorData.message;
-        }
-        if (isString(errorData.error)) {
-          return errorData.error;
-        }
-      }
-    } catch (parseError) {
-      // Fallback to default message if parsing fails
-      return errorMessage || defaultMessage;
-    }
-
-    if (errorMessage) {
-      return errorMessage;
-    }
+    return getResponseErrorMessage(error, defaultMessage);
   }
-
   if (isObject(error)) {
-    if (isString(error.message)) {
-      return error.message;
-    }
-
-    if (isString(error.error)) {
-      return error.error;
-    }
-
-    if (Array.isArray(error.errors)) {
-      const errorMessages = error.errors.map((err) => {
-        if (isString(err)) {
-          return err;
-        }
-        if (isObject(err) && isString(err.message)) {
-          return err.message;
-        }
-        return JSON.stringify(err);
-      });
-      return errorMessages.join("; ");
-    }
-
-    return JSON.stringify(error);
+    return getObjectErrorMessage(error, defaultMessage);
   }
-
   return defaultMessage;
 };
-
-// Helper functions
-const isString = (value: unknown): value is string => typeof value === "string";
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
