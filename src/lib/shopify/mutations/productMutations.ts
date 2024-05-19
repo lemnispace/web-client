@@ -2,6 +2,7 @@ import {
   ImageJobNode,
   ProductNode,
   ProductStatus,
+  ProductVariantNode,
   UserError,
 } from "@/lib/types/shopify";
 import {
@@ -9,7 +10,7 @@ import {
   VARIANT_METADATA_PREVIEW_IMAGE_KEY,
 } from "@/utils/constants";
 import adminClient from "../adminClient";
-import { getVariantsFragment } from "../fragments";
+import { getNewProductVariantEdgesFragment } from "../fragments";
 
 export interface ProductDuplicateResponse {
   productDuplicate: {
@@ -26,21 +27,14 @@ interface ProductDuplicateInput {
 }
 export interface ProductVariantUpdateResponse {
   productVariantUpdate: {
-    productVariant: {
-      id: string;
-      image: {
-        id: string;
-        url: string;
-        altText: string;
-      };
-    };
-    userErrors: UserError[];
+    productVariant: Pick<ProductVariantNode, "id" | "title" | "media">;
+    product: Pick<ProductNode, "id"> | null;
   };
 }
 
 interface ProductVariantUpdateInput {
   id: string;
-  imageId: string;
+  mediaId: string;
 }
 
 export const productDuplicateMutation = /* GraphQL */ `
@@ -62,7 +56,7 @@ export const productDuplicateMutation = /* GraphQL */ `
         description
         descriptionHtml
         handle
-        variants(first: 99) ${getVariantsFragment(
+        variants(first: 99) ${getNewProductVariantEdgesFragment(
           VARIANT_METADATA_NAMESPACE,
           VARIANT_METADATA_PREVIEW_IMAGE_KEY
         )}
@@ -75,15 +69,54 @@ export const productDuplicateMutation = /* GraphQL */ `
   }
 `;
 
+export const productVariantAppendMediaMutation = /* GraphQL */ `
+  mutation productVariantAppendMedia(
+    $productId: ID!
+    $variantMedia: [ProductVariantAppendMediaInput!]!
+  ) {
+    productVariantAppendMedia(
+      productId: $productId
+      variantMedia: $variantMedia
+    ) {
+      product {
+        id
+      }
+      productVariants {
+        media(first: 10) {
+          edges {
+            node {
+              mediaContentType
+              preview {
+                image {
+                  url
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const productVariantUpdateMutation = /* GraphQL */ `
-  mutation ProductVariantUpdate($input: ProductVariantInput!) {
+  mutation UpdateProductVariant($input: ProductVariantInput!) {
     productVariantUpdate(input: $input) {
+      product {
+        id
+      }
       productVariant {
         id
-        image {
-          id
-          url
-          altText
+        title
+        media(first: 1) {
+          nodes {
+            id
+            alt
+            mediaContentType
+            preview {
+              status
+            }
+          }
         }
       }
       userErrors {
@@ -94,8 +127,8 @@ export const productVariantUpdateMutation = /* GraphQL */ `
   }
 `;
 
-export function duplicateProduct(input: ProductDuplicateInput) {
-  return adminClient.request<ProductDuplicateResponse>(
+export async function duplicateProduct(input: ProductDuplicateInput) {
+  const response = await adminClient.request<ProductDuplicateResponse>(
     productDuplicateMutation,
     {
       variables: {
@@ -106,17 +139,15 @@ export function duplicateProduct(input: ProductDuplicateInput) {
       },
     }
   );
+  return response;
 }
 
-export function updateProductVariantImage(input: ProductVariantUpdateInput) {
+export async function productVariantUpdate(input: ProductVariantUpdateInput) {
   return adminClient.request<ProductVariantUpdateResponse>(
     productVariantUpdateMutation,
     {
       variables: {
-        input: {
-          id: input.id,
-          imageId: input.imageId,
-        },
+        input,
       },
     }
   );

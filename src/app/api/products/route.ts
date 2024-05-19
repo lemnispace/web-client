@@ -1,7 +1,18 @@
-import { createImage } from "@/lib/shopify/mutations/mediaMutations";
-import { duplicateProduct } from "@/lib/shopify/mutations/productMutations";
-import { ProductNode, ShopifyFile } from "@/lib/types/shopify";
-import { getErrorMessage } from "@/utils/getters";
+import {
+  duplicateProduct,
+  productVariantUpdate,
+} from "@/lib/shopify/mutations/productMutations";
+import {
+  createImageForProduct,
+  stageImageForUpload,
+} from "@/lib/shopify/mutations/stagedUploads";
+import { ProductNode } from "@/lib/types/shopify";
+import {
+  getCustomProductId,
+  getErrorMessage,
+  getVariantByTitle,
+} from "@/utils/getters";
+import { mapProduct } from "@/utils/mappers";
 import { parseClientResponse } from "@/utils/parsers";
 import {
   requiredImageFileSchema,
@@ -11,22 +22,20 @@ import { ApiResponse } from "@/utils/types";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-interface UserProductImage {
-  productId: string;
-  variantId: string;
-  img: File;
-  userId: string;
-}
-
-type ValidationErrors = {
+interface ValidationErrors {
   productId?: string[];
   file?: string[];
-};
+}
+
+interface CustomProductResponse {
+  productId: string;
+  variantId: string;
+}
 
 type CreateCustomProductResponse = ApiResponse<
   ValidationErrors,
   unknown,
-  ProductNode
+  CustomProductResponse
 >;
 
 const schema = z.object({
@@ -34,34 +43,39 @@ const schema = z.object({
     name: "ProductId",
     description: "The ProductId of the product to use for customizations",
   }),
-  variantId: requiredStringSchema({
-    name: "VariantId",
+  variantTitle: requiredStringSchema({
+    name: "VariantTitle",
     description:
-      "The VariantId of the variant associated with the product to use for customizations",
+      "The variantTitle of the variant associated with the product to use for customizations",
   }),
   file: requiredImageFileSchema(),
 });
 
-const uploadCustomProductImage = async (
-  userProductImage: UserProductImage
-): Promise<ShopifyFile> => {
-  // combine the userid, productId, and variantId to create a unique filename
-  const customProductId = `${userProductImage.userId}-${userProductImage.productId}-${userProductImage.variantId}`;
-  try {
-    const createdFiles = await createImage({
-      filename: customProductId,
-      img: userProductImage.img,
-      alt: "custom product image",
-    });
-    return createdFiles[0];
-  } catch (error) {
-    console.error("Error uploading custom product image: ", error);
-    const errMessage = await getErrorMessage(
-      error,
-      "Error uploading custom product image"
-    );
-    throw new Error(errMessage);
+interface UpdateCustomProductParams {
+  variantTitle: string;
+  product: ProductNode;
+  imageId: string;
+}
+
+const updateCustomProductVariant = async ({
+  product,
+  variantTitle,
+  imageId,
+}: UpdateCustomProductParams) => {
+  const variant = getVariantByTitle(mapProduct(product), variantTitle);
+  if (!variant) {
+    throw new Error(`No variant found with title: ${variantTitle}`);
   }
+  // modify the variant to use the new image
+  const updateVariantResponse = await productVariantUpdate({
+    id: variant.id,
+    mediaId: imageId,
+  });
+  const parsedUpdateVariantResponse = parseClientResponse(
+    updateVariantResponse,
+    "Error updating variant image"
+  );
+  return parsedUpdateVariantResponse.productVariantUpdate.productVariant;
 };
 
 const createCustomProduct = async (
@@ -71,7 +85,7 @@ const createCustomProduct = async (
   const validatedFields = schema.safeParse({
     file: _formData.get("file"),
     productId: _formData.get("productId"),
-    variantId: _formData.get("variantId"),
+    variantTitle: _formData.get("variantTitle"),
   });
   if (!validatedFields.success) {
     console.error(
@@ -85,31 +99,54 @@ const createCustomProduct = async (
     };
   }
   try {
-    const [imgMedia, duplicateProductResponse] = await Promise.all([
-      // upload the user's custom image to Shopify
-      uploadCustomProductImage({
-        img: validatedFields.data.file,
-        productId: validatedFields.data.productId,
-        variantId: validatedFields.data.variantId,
-        userId,
-      }),
-      // duplicate the modified product
-      duplicateProduct({
-        newStatus: "DRAFT",
-        productId: validatedFields.data.productId,
-        newTitle: "Custom Product",
-      }),
-    ]);
+    const [stagedImageUploadResponse, duplicateProductResponse] =
+      await Promise.all([
+        // stage the image for upload (host the image on Shopify's servers)
+        stageImageForUpload(
+          validatedFields.data.file,
+          getCustomProductId({
+            productId: validatedFields.data.productId,
+            variantTitle: validatedFields.data.variantTitle,
+            userId,
+          })
+        ),
+        // duplicate the modified product
+        duplicateProduct({
+          newStatus: "DRAFT",
+          productId: validatedFields.data.productId,
+          newTitle: getCustomProductId({
+            userId,
+            productId: validatedFields.data.productId,
+            variantTitle: validatedFields.data.variantTitle,
+          }),
+        }),
+      ]);
 
     const duplicateProductData = parseClientResponse(
       duplicateProductResponse,
       "Error duplicating product"
     );
+    // create the image for the new product using the staged image
+    const createImageForProductResponse = await createImageForProduct({
+      productId: duplicateProductData.productDuplicate.newProduct.id,
+      resourceUrl: stagedImageUploadResponse.resourceUrl,
+    });
+    // modify the variant to use the new image
+    const updatedCustomVariant = await updateCustomProductVariant({
+      product: duplicateProductData.productDuplicate.newProduct,
+      variantTitle: validatedFields.data.variantTitle,
+      imageId: createImageForProductResponse.mediaId,
+    });
+    if (!updatedCustomVariant) {
+      throw new Error("Failed to update custom product variant");
+    }
 
-    // TODO: modify the variant to use the new image
     return {
       status: 200,
-      data: duplicateProductData.productDuplicate.newProduct,
+      data: {
+        productId: duplicateProductData.productDuplicate.newProduct.id,
+        variantId: updatedCustomVariant.id,
+      },
     };
   } catch (error) {
     console.error("Error creating custom product:", error);
@@ -122,15 +159,23 @@ const createCustomProduct = async (
 };
 
 export const POST = async (req: Request) => {
-  const formData = await req.formData();
-  const result = await createCustomProduct(formData);
-  if ("errors" in result && result.errors) {
-    return NextResponse.json(result.errors, {
+  try {
+    const formData = await req.formData();
+    const result = await createCustomProduct(formData);
+    if ("errors" in result && result.errors) {
+      return NextResponse.json(result.errors, {
+        status: result.status,
+      });
+    }
+    return NextResponse.json(result, {
       status: result.status,
     });
+  } catch (error) {
+    console.error("Error creating custom product:", error);
+    const errorMessage = await getErrorMessage(
+      error,
+      "Error creating custom product"
+    );
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
-
-  return NextResponse.json(result, {
-    status: result.status,
-  });
 };

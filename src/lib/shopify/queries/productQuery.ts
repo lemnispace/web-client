@@ -4,7 +4,7 @@ import {
   VARIANT_METADATA_PREVIEW_IMAGE_KEY,
 } from "@/utils/constants";
 import {
-  getVariantsFragment,
+  getVariantEdgesFragment,
   imageFragment,
   moneyFragment,
 } from "../fragments";
@@ -51,7 +51,7 @@ query getProductByHandle($handle: String!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
-    variants(first: 99) ${getVariantsFragment(
+    variants(first: 99) ${getVariantEdgesFragment(
       VARIANT_METADATA_NAMESPACE,
       VARIANT_METADATA_PREVIEW_IMAGE_KEY
     )}
