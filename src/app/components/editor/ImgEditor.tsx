@@ -17,12 +17,12 @@ interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
 const createCustomProduct = async (
   file: File,
   productId: string,
-  variantId: string
+  variantTitle: string
 ) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("productId", productId);
-  formData.append("variantId", variantId);
+  formData.append("variantTitle", variantTitle);
   await fetch("/api/products", {
     method: "POST",
     body: formData,
@@ -81,7 +81,7 @@ export default function ImgEditor({
             inputRef.current?.click();
           }}
           onEditComplete={async (imgFile) =>
-            createCustomProduct(imgFile, product.id, productVariant.id)
+            createCustomProduct(imgFile, product.id, productVariant.title)
           }
         />
       )}

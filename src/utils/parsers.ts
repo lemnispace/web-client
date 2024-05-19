@@ -1,4 +1,5 @@
 import { ClientResponse } from "@shopify/storefront-api-client";
+import { getArrayErrorMessage } from "./getters";
 import { isNumber } from "./validators";
 
 /**
@@ -34,7 +35,9 @@ export const parseClientResponse = <T>(
   defaultErrorMessage: string
 ): NonNullable<T> => {
   if (!response.data) {
-    const errorMessage = response.errors?.message;
+    const errorMessage =
+      getArrayErrorMessage(response.errors?.graphQLErrors) ||
+      response.errors?.message;
     throw new Error(errorMessage || defaultErrorMessage);
   }
   return response.data;

@@ -27,6 +27,16 @@ export const getVariantById = (product: Product, id: string) => {
 };
 
 /**
+ * Retrieves a variant from a product by its title.
+ * @param product - The product object.
+ * @param title - The title of the variant to retrieve.
+ * @returns The first variant object with the specified title, or undefined if not found.
+ */
+export const getVariantByTitle = (product: Product, title: string) => {
+  return product.variants?.find((variant) => variant.title === title);
+};
+
+/**
  * Retrieves a variant from a product by its variant options.
  * @param product - The product object.
  * @param variantOptions - The variant options to match.
@@ -73,10 +83,10 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
 interface CustomProductIdProps {
   userId: string;
   productId: string;
-  variantId: string;
+  variantTitle: string;
 }
 export const getCustomProductId = (product: CustomProductIdProps) => {
-  return `${product.userId}-${product.productId}-${product.variantId}`;
+  return `${product.userId}-${product.productId}-${product.variantTitle}`;
 };
 
 /*
@@ -136,6 +146,30 @@ const getResponseErrorMessage = async (
   }
 };
 
+export const getArrayErrorMessage = (
+  errors: unknown,
+  delimeter = "; "
+): string | undefined => {
+  if (Array.isArray(errors)) {
+    const errorMessages = errors.map((err) => {
+      if (isString(err)) {
+        return err;
+      }
+      if (isObject(err)) {
+        if (isString(err.message)) {
+          return err.message;
+        }
+        if (isString(err.error)) {
+          return err.error;
+        }
+      }
+      return null;
+    });
+    const message = errorMessages.filter(isDefined).join(delimeter);
+    return message.trim() || undefined;
+  }
+};
+
 /**
  * Returns the error message from an error object or a default message if the error object is empty.
  *
@@ -157,21 +191,7 @@ const getObjectErrorMessage = (
     return error.error;
   }
   if (Array.isArray(error.errors)) {
-    const errorMessages = error.errors.map((err) => {
-      if (isString(err)) {
-        return err;
-      }
-      if (isObject(err)) {
-        if (isString(err.message)) {
-          return err.message;
-        }
-        if (isString(err.error)) {
-          return err.error;
-        }
-      }
-      return null;
-    });
-    return errorMessages.filter(isDefined).join("; ");
+    return getArrayErrorMessage(error.errors) || defaultMessage;
   }
   return JSON.stringify(error);
 };
