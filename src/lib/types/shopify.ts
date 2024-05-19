@@ -112,6 +112,7 @@ export interface MediaNode {
   alt?: string;
   mediaContentType: MediaContentType;
   previewImage: Image;
+  status?: FileStatus;
 }
 
 interface MediaPreviewImage {
@@ -122,6 +123,21 @@ interface MediaPreviewImage {
 export interface ImageJobNode {
   id: string;
   done: boolean;
+}
+
+export interface CreateMediaInput {
+  /**
+   * The alt text associated with the media.
+   */
+  alt?: string;
+  /**
+   * The media content type.
+   */
+  mediaContentType: MediaContentType;
+  /**
+   * The original source of the media object. This might be an external URL or a staged upload URL.
+   */
+  originalSource: string;
 }
 
 /*
@@ -223,6 +239,18 @@ export interface ProductVariantNode {
   selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
   image?: Image;
   metafield?: ProductVariantMetafield;
+  media?: Edges<MediaEdge>;
+}
+
+export interface ProductVariantAppendMediaInput {
+  /**
+   * Specifies the media to append to the variant.
+   */
+  mediaIds: string[];
+  /**
+   * Specifies the variant to which media will be appended.
+   */
+  variantId: string;
 }
 
 /*
