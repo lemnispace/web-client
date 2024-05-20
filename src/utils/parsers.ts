@@ -1,6 +1,7 @@
 import { ClientResponse } from "@shopify/storefront-api-client";
-import { getArrayErrorMessage } from "./getters";
-import { isNumber } from "./validators";
+import { getArrayErrorMessage, getErrorMessage } from "./getters";
+import { ApiResponse, ServerParsedApiResponse } from "./types";
+import { isErrorResponse, isNumber } from "./validators";
 
 /**
  * Converts a string value to an integer.
@@ -41,4 +42,26 @@ export const parseClientResponse = <T>(
     throw new Error(errorMessage || defaultErrorMessage);
   }
   return response.data;
+};
+
+export const parseApiResponse = async <
+  DATA,
+  SERVER_ERRORS = unknown,
+  VALIDATION_ERRORS = unknown,
+>(
+  response: ApiResponse<VALIDATION_ERRORS, SERVER_ERRORS, DATA>,
+  defaultMessage: string
+): Promise<ServerParsedApiResponse<DATA>> => {
+  if (isErrorResponse(response)) {
+    // Handle validation errors
+    const errorMessage = await getErrorMessage(response.errors, defaultMessage);
+    return {
+      status: response.status,
+      errors: errorMessage,
+    };
+  }
+  return {
+    status: response.status,
+    data: response.data,
+  };
 };

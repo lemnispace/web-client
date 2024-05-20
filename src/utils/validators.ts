@@ -1,5 +1,10 @@
 import { ProductVariantOptionType } from "@/lib/types/shopify";
-import { Product } from "./types";
+import {
+  ApiResponse,
+  Product,
+  ServerErrorResponse,
+  ValidationErrorResponse,
+} from "./types";
 
 /**
  * Checks if a value is defined (not undefined or null).
@@ -102,3 +107,23 @@ export const isStringEmpty = (value: string): boolean =>
  */
 export const isEmptyObject = (value: unknown): value is Record<string, never> =>
   isObject(value) && Object.keys(value).length === 0;
+
+export const isServerErrorResponse = <SERVER_ERROR>(
+  response: ApiResponse<unknown, SERVER_ERROR, unknown>
+): response is ServerErrorResponse<SERVER_ERROR> => {
+  return response.status === 500;
+};
+
+export const isValidationErrorResponse = <VALIDATION_ERROR>(
+  response: ApiResponse<VALIDATION_ERROR, unknown, unknown>
+): response is ValidationErrorResponse<VALIDATION_ERROR> => {
+  return response.status >= 400 && response.status < 500;
+};
+
+export const isErrorResponse = <VALIDATION_ERROR, SERVER_ERROR>(
+  response: ApiResponse<VALIDATION_ERROR, SERVER_ERROR, unknown>
+): response is
+  | ServerErrorResponse<SERVER_ERROR>
+  | ValidationErrorResponse<VALIDATION_ERROR> => {
+  return isServerErrorResponse(response) || isValidationErrorResponse(response);
+};
