@@ -7,18 +7,15 @@ import {
   stageImageForUpload,
 } from "@/lib/shopify/mutations/stagedUploads";
 import { ProductNode } from "@/lib/types/shopify";
-import {
-  getCustomProductId,
-  getErrorMessage,
-  getVariantByTitle,
-} from "@/utils/getters";
+import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapProduct } from "@/utils/mappers";
-import { parseClientResponse } from "@/utils/parsers";
+import { parseApiResponse, parseClientResponse } from "@/utils/parsers";
 import {
   requiredImageFileSchema,
   requiredStringSchema,
 } from "@/utils/schemaValidators";
-import { ApiResponse } from "@/utils/types";
+import { ApiResponse, ServerApiResponse } from "@/utils/types";
+import { isErrorResponse } from "@/utils/validators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -158,24 +155,28 @@ const createCustomProduct = async (
   }
 };
 
-export const POST = async (req: Request) => {
+export const POST = async (
+  req: Request
+): Promise<ServerApiResponse<CustomProductResponse>> => {
   try {
     const formData = await req.formData();
-    const result = await createCustomProduct(formData);
-    if ("errors" in result && result.errors) {
-      return NextResponse.json(result.errors, {
-        status: result.status,
-      });
+    const createCustomProductResponse = await createCustomProduct(formData);
+    const result = await parseApiResponse(
+      createCustomProductResponse,
+      "Error creating custom product"
+    );
+    if (isErrorResponse(result)) {
+      throw new Error(result.errors);
     }
-    return NextResponse.json(result, {
-      status: result.status,
+    const { status, ...response } = result;
+    return NextResponse.json(response, {
+      status,
     });
   } catch (error) {
     console.error("Error creating custom product:", error);
-    const errorMessage = await getErrorMessage(
-      error,
-      "Error creating custom product"
+    return NextResponse.json(
+      { errors: "Error creating custom product", data: undefined },
+      { status: 500 }
     );
-    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 };
