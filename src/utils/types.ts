@@ -38,6 +38,7 @@ export interface ProductItem {
 
 export interface Product extends ProductItem {
   images?: ProductImg[];
+  customProductId?: string;
 }
 
 export interface BaseResponse {

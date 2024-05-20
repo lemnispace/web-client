@@ -26,6 +26,7 @@ interface ValidationErrors {
 
 interface CustomProductResponse {
   productId: string;
+  productHandle: string;
   variantId: string;
 }
 
@@ -142,6 +143,7 @@ const createCustomProduct = async (
       status: 200,
       data: {
         productId: duplicateProductData.productDuplicate.newProduct.id,
+        productHandle: duplicateProductData.productDuplicate.newProduct.handle,
         variantId: updatedCustomVariant.id,
       },
     };

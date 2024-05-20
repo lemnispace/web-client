@@ -44,6 +44,16 @@ export const parseClientResponse = <T>(
   return response.data;
 };
 
+export const tryParseClientResponse = <T>(
+  response?: ClientResponse<T>
+): T | undefined => {
+  try {
+    return response && parseClientResponse(response, "");
+  } catch {
+    return undefined;
+  }
+};
+
 export const parseApiResponse = async <
   DATA,
   SERVER_ERRORS = unknown,
