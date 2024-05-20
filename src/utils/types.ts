@@ -3,6 +3,7 @@ import {
   ProductVariantNode,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
+import { NextResponse } from "next/server";
 
 export interface ProductImg {
   src: string;
@@ -64,3 +65,8 @@ export type ApiResponse<VALIDATION_ERRORS, SERVER_ERRORS, DATA> =
   | ValidationErrorResponse<VALIDATION_ERRORS>
   | ServerErrorResponse<SERVER_ERRORS>
   | SuccessResponse<DATA>;
+
+export type ServerParsedApiResponse<DATA> = ApiResponse<string, string, DATA>;
+export type ServerApiResponse<DATA> = NextResponse<
+  Omit<ServerParsedApiResponse<DATA>, "status">
+>;
