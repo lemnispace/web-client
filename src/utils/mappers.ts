@@ -125,6 +125,37 @@ export function mapProduct(product: ProductNode): Product {
   };
 }
 
+export function mapCustomProduct(product: ProductNode): Product {
+  const customProduct = mapProduct(product);
+  const validCustomVariants = customProduct.variants?.filter((variant) => {
+    const hasImage = Boolean(variant.image || variant.media);
+    return hasImage;
+  });
+  return { ...customProduct, variants: validCustomVariants };
+}
+
+export const mergeCustomProduct = (
+  product: Product,
+  customProduct?: Product
+): Product => {
+  // replace the product variants with the custom product variants (both have the same title)
+  const customVariantTitlesSet = new Set(
+    customProduct?.variants?.map((variant) => variant.title)
+  );
+  const productVariants = product.variants?.filter(
+    (variant) => !customVariantTitlesSet.has(variant.title)
+  );
+  const mergedVariants = [
+    ...(productVariants ?? []),
+    ...(customProduct?.variants ?? []),
+  ];
+  return {
+    ...product,
+    variants: mergedVariants,
+    customProductId: customProduct?.id,
+  };
+};
+
 /**
  * Gets all unique values of a specific product variant option type from an array of product variants.
  *

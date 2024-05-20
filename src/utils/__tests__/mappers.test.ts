@@ -3,6 +3,7 @@ import { Product, ProductVariant } from "@/utils/types";
 import {
   filterObject,
   getAllProductVariantOptions,
+  mapCustomProduct,
   mapProduct,
   mapProductVariantNodeToProductVariant,
 } from "../mappers";
@@ -365,5 +366,254 @@ describe("filterObject", () => {
       age: 30,
       email: "",
     });
+  });
+});
+
+describe("mapCustomProduct", () => {
+  it("should map a product node to a product with valid custom variants", () => {
+    const productNode = {
+      id: "1",
+      title: "Custom Product",
+      handle: "custom-product",
+      description: "This is a custom product",
+      descriptionHtml: "<p>This is a custom product.</p>",
+      productType: "custom",
+      priceRange: {
+        minVariantPrice: {
+          amount: 19.99,
+          currencyCode: "USD",
+        },
+        maxVariantPrice: {
+          amount: 29.99,
+          currencyCode: "USD",
+        },
+      },
+      tags: ["custom", "personalized"],
+      images: {
+        edges: [
+          {
+            cursor: "1",
+            node: {
+              id: "image-1",
+              altText: "Custom Image 1",
+              url: "custom-image1.jpg",
+              width: 800,
+              height: 600,
+            },
+          },
+        ],
+      },
+      variants: {
+        edges: [
+          {
+            cursor: "1",
+            node: {
+              id: "1",
+              title: "Custom Variant 1",
+              quantityAvailable: 5,
+              price: {
+                amount: "19.99",
+                currencyCode: "USD",
+              },
+              image: {
+                url: "custom-variant1.jpg",
+                height: 600,
+                width: 800,
+                id: "image-2",
+                altText: "Custom Variant 1",
+              },
+              selectedOptions: [
+                { name: "Size", value: "Small" },
+                { name: "Color", value: "Red" },
+              ],
+            },
+          },
+          {
+            cursor: "2",
+            node: {
+              id: "2",
+              title: "Custom Variant 2",
+              quantityAvailable: 3,
+              price: {
+                amount: "29.99",
+                currencyCode: "USD",
+              },
+              image: null!,
+              selectedOptions: [
+                { name: "Size", value: "Large" },
+                { name: "Color", value: "Blue" },
+              ],
+            },
+          },
+        ],
+      },
+    } satisfies ProductNode;
+
+    const expectedCustomProduct = {
+      id: "1",
+      name: "Custom Product",
+      description: "This is a custom product",
+      descriptionHtml: "<p>This is a custom product.</p>",
+      tags: ["custom", "personalized"],
+      priceRange: {
+        minVariantPrice: {
+          amount: 19.99,
+          currencyCode: "USD",
+        },
+        maxVariantPrice: {
+          amount: 29.99,
+          currencyCode: "USD",
+        },
+      },
+      type: "custom",
+      href: "/shop/mosaics/custom-product",
+      images: [
+        {
+          src: "custom-image1.jpg",
+          alt: "Custom Image 1",
+          width: 800,
+          height: 600,
+          id: "image-1",
+        },
+      ],
+      variants: [
+        {
+          id: "1",
+          title: "Custom Variant 1",
+          quantityAvailable: 5,
+          Size: "Small",
+          Color: "Red",
+          price: {
+            amount: "19.99",
+            currencyCode: "USD",
+          },
+          image: {
+            id: "image-2",
+            src: "custom-variant1.jpg",
+            alt: "Custom Variant 1",
+            width: 800,
+            height: 600,
+          },
+        },
+      ],
+    } satisfies Product;
+
+    const mappedCustomProduct = mapCustomProduct(productNode);
+
+    expect(mappedCustomProduct).toEqual(expectedCustomProduct);
+  });
+
+  it("should filter out custom variants without image or media", () => {
+    const productNode = {
+      id: "2",
+      title: "Custom Product 2",
+      handle: "custom-product-2",
+      description: "This is another custom product",
+      descriptionHtml: "<p>This is another custom product.</p>",
+      productType: "custom",
+      priceRange: {
+        minVariantPrice: {
+          amount: 15.99,
+          currencyCode: "USD",
+        },
+        maxVariantPrice: {
+          amount: 25.99,
+          currencyCode: "USD",
+        },
+      },
+      tags: ["custom"],
+      images: {
+        edges: [],
+      },
+      variants: {
+        edges: [
+          {
+            cursor: "1",
+            node: {
+              id: "1",
+              title: "Custom Variant 1",
+              quantityAvailable: 10,
+              price: {
+                amount: "15.99",
+                currencyCode: "USD",
+              },
+              image: null!,
+              selectedOptions: [
+                { name: "Size", value: "Medium" },
+                { name: "Color", value: "Green" },
+              ],
+            },
+          },
+          {
+            cursor: "2",
+            node: {
+              id: "2",
+              title: "Custom Variant 2",
+              quantityAvailable: 8,
+              price: {
+                amount: "25.99",
+                currencyCode: "USD",
+              },
+              image: {
+                url: "custom-variant2.jpg",
+                height: 600,
+                width: 800,
+                id: "image-3",
+                altText: "Custom Variant 2",
+              },
+              selectedOptions: [
+                { name: "Size", value: "Large" },
+                { name: "Color", value: "Yellow" },
+              ],
+            },
+          },
+        ],
+      },
+    } satisfies ProductNode;
+
+    const expectedCustomProduct = {
+      id: "2",
+      name: "Custom Product 2",
+      description: "This is another custom product",
+      descriptionHtml: "<p>This is another custom product.</p>",
+      tags: ["custom"],
+      priceRange: {
+        minVariantPrice: {
+          amount: 15.99,
+          currencyCode: "USD",
+        },
+        maxVariantPrice: {
+          amount: 25.99,
+          currencyCode: "USD",
+        },
+      },
+      type: "custom",
+      href: "/shop/mosaics/custom-product-2",
+      images: [],
+      variants: [
+        {
+          id: "2",
+          title: "Custom Variant 2",
+          quantityAvailable: 8,
+          Size: "Large",
+          Color: "Yellow",
+          price: {
+            amount: "25.99",
+            currencyCode: "USD",
+          },
+          image: {
+            id: "image-3",
+            src: "custom-variant2.jpg",
+            alt: "Custom Variant 2",
+            width: 800,
+            height: 600,
+          },
+        },
+      ],
+    } satisfies Product;
+
+    const mappedCustomProduct = mapCustomProduct(productNode);
+
+    expect(mappedCustomProduct).toEqual(expectedCustomProduct);
   });
 });
