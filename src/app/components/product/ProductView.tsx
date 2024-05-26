@@ -1,7 +1,7 @@
 "use client";
 
 import { formatPrice } from "@/utils/formatters";
-import { Product, ProductVariant } from "@/utils/types";
+import { ProductVariant, ProductWithCustomization } from "@/utils/types";
 import React, {
   Dispatch,
   SetStateAction,
@@ -14,7 +14,7 @@ import ProductSelectionForm from "./ProductSelectionForm";
 import ProductTitle from "./ProductTitle";
 
 interface ProductViewProps {
-  product: Product;
+  product: ProductWithCustomization;
 }
 
 interface ProductVariantContextProps {

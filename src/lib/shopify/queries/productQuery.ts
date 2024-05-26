@@ -1,9 +1,8 @@
 import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
+import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
+import adminClient from "../adminClient";
 import {
-  VARIANT_METADATA_NAMESPACE,
-  VARIANT_METADATA_PREVIEW_IMAGE_KEY,
-} from "@/utils/constants";
-import {
+  getNewProductVariantEdgesFragment,
   getVariantEdgesFragment,
   imageFragment,
   moneyFragment,
@@ -51,9 +50,25 @@ query getProductByHandle($handle: String!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
-    variants(first: 99) ${getVariantEdgesFragment(
-      VARIANT_METADATA_NAMESPACE,
-      VARIANT_METADATA_PREVIEW_IMAGE_KEY
+    variants(first: 99) ${getVariantEdgesFragment(undefined)}
+  }
+}
+`;
+
+export const productWithMetafieldsQuery = /* GraphQL */ `
+query getProductWithMetafields($id: ID!) {
+  product(id: $id) {
+    id
+    title
+    description
+    descriptionHtml
+    handle
+    priceRange {
+      maxVariantPrice ${moneyFragment}
+      minVariantPrice ${moneyFragment}
+    }
+    variants(first: 99) ${getNewProductVariantEdgesFragment(
+      VARIANT_METADATA_NAMESPACE
     )}
   }
 }
@@ -79,6 +94,14 @@ export function fetchProduct(handle: string) {
   return storefrontClient.request<ProductResponse>(productQuery, {
     variables: {
       handle,
+    },
+  });
+}
+
+export function fetchCustomProduct(id: string) {
+  return adminClient.request<ProductResponse>(productWithMetafieldsQuery, {
+    variables: {
+      id,
     },
   });
 }

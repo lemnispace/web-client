@@ -2,15 +2,16 @@ import {
   ImageJobNode,
   ProductNode,
   ProductStatus,
+  ProductVariantInput,
   ProductVariantNode,
   UserError,
 } from "@/lib/types/shopify";
-import {
-  VARIANT_METADATA_NAMESPACE,
-  VARIANT_METADATA_PREVIEW_IMAGE_KEY,
-} from "@/utils/constants";
+import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
-import { getNewProductVariantEdgesFragment } from "../fragments";
+import {
+  getMetafieldsFragment,
+  getNewProductVariantEdgesFragment,
+} from "../fragments";
 
 export interface ProductDuplicateResponse {
   productDuplicate: {
@@ -30,11 +31,6 @@ export interface ProductVariantUpdateResponse {
     productVariant: Pick<ProductVariantNode, "id" | "title" | "media">;
     product: Pick<ProductNode, "id"> | null;
   };
-}
-
-interface ProductVariantUpdateInput {
-  id: string;
-  mediaId: string;
 }
 
 export const productDuplicateMutation = /* GraphQL */ `
@@ -57,43 +53,12 @@ export const productDuplicateMutation = /* GraphQL */ `
         descriptionHtml
         handle
         variants(first: 99) ${getNewProductVariantEdgesFragment(
-          VARIANT_METADATA_NAMESPACE,
-          VARIANT_METADATA_PREVIEW_IMAGE_KEY
+          VARIANT_METADATA_NAMESPACE
         )}
       }
       userErrors {
         field
         message
-      }
-    }
-  }
-`;
-
-export const productVariantAppendMediaMutation = /* GraphQL */ `
-  mutation productVariantAppendMedia(
-    $productId: ID!
-    $variantMedia: [ProductVariantAppendMediaInput!]!
-  ) {
-    productVariantAppendMedia(
-      productId: $productId
-      variantMedia: $variantMedia
-    ) {
-      product {
-        id
-      }
-      productVariants {
-        media(first: 10) {
-          edges {
-            node {
-              mediaContentType
-              preview {
-                image {
-                  url
-                }
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -118,6 +83,7 @@ export const productVariantUpdateMutation = /* GraphQL */ `
             }
           }
         }
+        ${getMetafieldsFragment(VARIANT_METADATA_NAMESPACE)}
       }
       userErrors {
         field
@@ -142,7 +108,7 @@ export async function duplicateProduct(input: ProductDuplicateInput) {
   return response;
 }
 
-export async function productVariantUpdate(input: ProductVariantUpdateInput) {
+export async function productVariantUpdate(input: ProductVariantInput) {
   return adminClient.request<ProductVariantUpdateResponse>(
     productVariantUpdateMutation,
     {

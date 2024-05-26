@@ -4,6 +4,11 @@
  *  ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
+import {
+  VariantMetadataKey,
+  VariantMetadataNamespace,
+} from "@/utils/constants";
+
 export type Edge<T> = {
   cursor: string;
   node: T;
@@ -17,6 +22,7 @@ export type ProductVariantEdge = Edge<ProductVariantNode>;
 export type MediaEdge = Edge<MediaNode>;
 export type ImageEdge = Edge<Image>;
 export type ProductEdge = Edge<ProductNode>;
+export type ProductVariantMetafieldEdge = Edge<ProductVariantMetafield>;
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -224,11 +230,37 @@ export type ProductVariantOptionType = "Color" | "Size" | "Material" | "Style";
 
 export interface ProductVariantMetafield {
   key: string;
+  id: string;
   value: string;
+  namespace: string;
   reference?: {
+    /**
+     * The unique ID of the reference.
+     */
     id: string;
-    image: Image;
+    /**
+     * The image associated with the reference if the reference is an image.
+     */
+    image?: Image;
+    /**
+     * The title of the product variant if the reference is a product variant.
+     */
+    title?: string;
+    /**
+     * The handle of the product if the reference is a product.
+     */
+    handle?: string;
   };
+}
+
+export interface ProductVariantInput {
+  id?: string;
+  mediaId?: string;
+  mediaSrc?: string[];
+  metafields?: MetafieldInput[];
+  options?: string[];
+  position?: number;
+  productId?: string;
 }
 
 export interface ProductVariantNode {
@@ -238,7 +270,7 @@ export interface ProductVariantNode {
   price: Price;
   selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
   image?: Image;
-  metafield?: ProductVariantMetafield;
+  metafields?: Edges<ProductVariantMetafieldEdge>;
   media?: Edges<MediaEdge>;
 }
 
@@ -273,6 +305,34 @@ export interface ProductNode {
 }
 
 export type ProductStatus = "ACTIVE" | "ARCHIVED" | "DRAFT";
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Metafield Types                              ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+export interface MetafieldInput {
+  /**
+   * The unique ID of the metafield. Required when updating.
+   */
+  id?: string;
+  /**
+   * The unique identifier for a metafield within its namespace. Required when creating.
+   */
+  key?: VariantMetadataKey;
+  /**
+   * The container for a group of metafields that the metafield is or will be associated with. Required when creating.
+   */
+  namespace?: VariantMetadataNamespace;
+  /**
+   * The type of data that is stored in the metafield. Required when creating.
+   */
+  type?: string;
+  /**
+   * The data stored in the metafield. Always stored as a string.
+   */
+  value: string;
+}
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
