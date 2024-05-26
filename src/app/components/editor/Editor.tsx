@@ -41,7 +41,6 @@ interface EditorProps {
   imgName?: string;
   customActions?: EditorControlItemProps[];
   dimensions?: { width: number; height: number };
-  backgroundImgUrl?: string;
   onUploadImage: () => void;
   onEditComplete: (file: File) => Promise<void>;
 }

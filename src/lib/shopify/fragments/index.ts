@@ -1,3 +1,8 @@
+import {
+  VARIANT_METADATA_NAMESPACE,
+  VariantMetadataNamespace,
+} from "@/utils/constants";
+
 export const moneyFragment = /* GraphQL */ `
   {
     amount
@@ -15,20 +20,38 @@ export const imageFragment = /* GraphQL */ `
   }
 `;
 
-export const metafieldFragment = /* GraphQL */ `
+const metafieldFragment = /* GraphQL */ `
   {
     key
     value
+    id
+    namespace
     reference {
-      ... on MediaImage {
-        id
-        image ${imageFragment}
+        ... on MediaImage {
+          id
+          image ${imageFragment}
+        }
+        ... on ProductVariant {
+          title
+          id
+        }
+        ... on Product {
+          handle
+          id
+        }
       }
-    }
   }
 `;
 
-export const variantFragment = /* GraphQL */ `
+const metafieldsFragment = /* GraphQL */ `
+metafields(namespace: "custom", first: 99) {
+  edges {
+    node ${metafieldFragment}
+  }
+}
+`;
+
+const variantFragment = /* GraphQL */ `
   {
     id
     title
@@ -39,11 +62,25 @@ export const variantFragment = /* GraphQL */ `
       value
     }
     image ${imageFragment}
-    metafield(namespace: $namespace, key: $key) ${metafieldFragment}
   }
 `;
 
-export const newProductvariantFragment = /* GraphQL */ `
+const variantFragmentWithMetafields = /* GraphQL */ `
+  {
+    id
+    title
+    quantityAvailable
+    price ${moneyFragment}
+    selectedOptions {
+      name
+      value
+    }
+    image ${imageFragment}
+    ${metafieldsFragment}
+  }
+`;
+
+const newProductvariantWithMetafieldsFragment = /* GraphQL */ `
   {
     id
     title
@@ -52,11 +89,11 @@ export const newProductvariantFragment = /* GraphQL */ `
       value
     }
     image ${imageFragment}
-    metafield(namespace: $namespace, key: $key) ${metafieldFragment}
+    ${metafieldsFragment}
   }
 `;
 
-export const variantEdgesFragment = /* GraphQL */ `
+const variantEdgesFragment = /* GraphQL */ `
   {
     edges {
       cursor
@@ -65,47 +102,48 @@ export const variantEdgesFragment = /* GraphQL */ `
   }
 `;
 
-export const newProductvariantEdgesFragment = /* GraphQL */ `
+const variantEdgesWithMetafieldsFragment = /* GraphQL */ `
   {
     edges {
       cursor
-      node ${newProductvariantFragment}
+      node ${variantFragmentWithMetafields}
     }
   }
 `;
 
+const newProductvariantEdgesWithMetafieldsFragment = /* GraphQL */ `
+  {
+    edges {
+      cursor
+      node ${newProductvariantWithMetafieldsFragment}
+    }
+  }
+`;
+
+export const getMetafieldsFragment = (
+  namespace: VariantMetadataNamespace,
+  fragment: string = metafieldsFragment
+) => {
+  return fragment.replace(/\$namespace/g, `"${namespace}"`);
+};
+
 /**
  * Returns a fragment for multiple variants with the provided namespace and key.
  */
-export const getVariantEdgesFragment = (namespace: string, key: string) => {
-  return variantEdgesFragment
-    .replace(/\$namespace/g, `"${namespace}"`)
-    .replace(/\$key/g, `"${key}"`);
+export const getVariantEdgesFragment = (
+  namespace: VariantMetadataNamespace | undefined
+) => {
+  if (namespace) {
+    return getMetafieldsFragment(namespace, variantEdgesWithMetafieldsFragment);
+  }
+  return variantEdgesFragment;
 };
 
 export const getNewProductVariantEdgesFragment = (
-  namespace: string,
-  key: string
+  namespace: VariantMetadataNamespace = VARIANT_METADATA_NAMESPACE
 ) => {
-  return newProductvariantEdgesFragment
-    .replace(/\$namespace/g, `"${namespace}"`)
-    .replace(/\$key/g, `"${key}"`);
-};
-
-/**
- * Returns a fragment for a single variant with the provided namespace and key.
- */
-export const getVariantFragment = (namespace: string, key: string) => {
-  return variantFragment
-    .replace(/\$namespace/g, `"${namespace}"`)
-    .replace(/\$key/g, `"${key}"`);
-};
-
-export const getNewProductVariantFragment = (
-  namespace: string,
-  key: string
-) => {
-  return newProductvariantFragment
-    .replace(/\$namespace/g, `"${namespace}"`)
-    .replace(/\$key/g, `"${key}"`);
+  return getMetafieldsFragment(
+    namespace,
+    newProductvariantEdgesWithMetafieldsFragment
+  );
 };

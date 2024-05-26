@@ -2,6 +2,7 @@ import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
 import {
   ProductResponse,
+  fetchCustomProduct,
   fetchProduct,
 } from "@/lib/shopify/queries/productQuery";
 import {
@@ -17,29 +18,29 @@ interface MosaicProps {
   params: {
     slug: string;
   };
-  searchParams?: { customProductHandle?: string };
+  searchParams?: { customProductId?: string };
 }
 
 const fetchAllProducts = async (
   productHandle: string,
-  customProductHandle?: string
+  customProductId?: string
 ): Promise<
   [ClientResponse<ProductResponse>, ClientResponse<ProductResponse> | undefined]
 > => {
-  if (customProductHandle) {
+  if (customProductId) {
     return Promise.all([
       fetchProduct(productHandle),
-      fetchProduct(customProductHandle),
+      fetchCustomProduct(customProductId),
     ]);
   }
   const response = await fetchProduct(productHandle);
   return [response, undefined];
 };
 export default async function Mosaic(props: MosaicProps) {
-  const customProductHandle = props.searchParams?.customProductHandle;
+  const customProductId = props.searchParams?.customProductId;
   const [productResponse, customProductResponse] = await fetchAllProducts(
     props.params.slug,
-    customProductHandle
+    customProductId
   );
   const parsedProductResponse = parseClientResponse(
     productResponse,

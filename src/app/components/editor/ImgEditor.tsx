@@ -1,8 +1,9 @@
 "use client";
 
+import { CustomProductResponse } from "@/app/api/products/route";
 import { getDimensionsFromVariant } from "@/utils/getters";
 import { IMAGE_EDITOR_TEXT } from "@/utils/text";
-import { Product, ProductVariant } from "@/utils/types";
+import { ClientResponse, Product, ProductVariant } from "@/utils/types";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -23,10 +24,20 @@ const createCustomProduct = async (
   formData.append("file", file);
   formData.append("productId", productId);
   formData.append("variantTitle", variantTitle);
-  await fetch("/api/products", {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const response = await fetch("/api/products", {
+      method: "POST",
+      body: formData,
+    });
+    const data: ClientResponse<CustomProductResponse> = await response.json();
+    if (!data.data) {
+      throw new Error(data.errors);
+    }
+    return data.data;
+  } catch (error) {
+    console.error("Error creating custom product:", error);
+    return null;
+  }
 };
 
 export default function ImgEditor({
@@ -38,7 +49,6 @@ export default function ImgEditor({
 }: ImgUploaderProps) {
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const previewImgUrl = productVariant.metafield?.reference?.image.url;
   const dimensions = getDimensionsFromVariant(productVariant);
 
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,14 +85,23 @@ export default function ImgEditor({
         <Editor
           imgSrc={uploadedImg.data}
           imgName={uploadedImg.fileName}
-          backgroundImgUrl={previewImgUrl}
           dimensions={dimensions}
           onUploadImage={() => {
             inputRef.current?.click();
           }}
-          onEditComplete={async (imgFile) =>
-            createCustomProduct(imgFile, product.id, productVariant.title)
-          }
+          onEditComplete={async (imgFile) => {
+            const response = await createCustomProduct(
+              imgFile,
+              product.id,
+              productVariant.title
+            );
+            if (response) {
+              // redirect to the product details page:
+              window.location.replace(
+                `${product.href}?customProductId=${response.productId}`
+              );
+            }
+          }}
         />
       )}
       <FileDropZone

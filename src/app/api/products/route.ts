@@ -7,6 +7,13 @@ import {
   stageImageForUpload,
 } from "@/lib/shopify/mutations/stagedUploads";
 import { ProductNode } from "@/lib/types/shopify";
+import {
+  VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
+  VARIANT_METADATA_NAMESPACE,
+  VARIANT_METADATA_ORIGIN_PRODUCT_KEY,
+  VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
+  VARIANT_METADATA_USER_ID_KEY,
+} from "@/utils/constants";
 import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapProduct } from "@/utils/mappers";
 import { parseApiResponse, parseClientResponse } from "@/utils/parsers";
@@ -24,7 +31,7 @@ interface ValidationErrors {
   file?: string[];
 }
 
-interface CustomProductResponse {
+export interface CustomProductResponse {
   productId: string;
   productHandle: string;
   variantId: string;
@@ -53,12 +60,18 @@ interface UpdateCustomProductParams {
   variantTitle: string;
   product: ProductNode;
   imageId: string;
+  userId: string;
+  originProductId: string;
+  originProductVariantId: string;
 }
 
 const updateCustomProductVariant = async ({
   product,
   variantTitle,
   imageId,
+  userId,
+  originProductId,
+  originProductVariantId,
 }: UpdateCustomProductParams) => {
   const variant = getVariantByTitle(mapProduct(product), variantTitle);
   if (!variant) {
@@ -68,6 +81,34 @@ const updateCustomProductVariant = async ({
   const updateVariantResponse = await productVariantUpdate({
     id: variant.id,
     mediaId: imageId,
+    metafields: [
+      {
+        id: variant.metafields?.[VARIANT_METADATA_USER_ID_KEY].id,
+        namespace: VARIANT_METADATA_NAMESPACE,
+        key: VARIANT_METADATA_USER_ID_KEY,
+        value: userId,
+      },
+      {
+        id: variant.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_KEY].id,
+        namespace: VARIANT_METADATA_NAMESPACE,
+        key: VARIANT_METADATA_ORIGIN_PRODUCT_KEY,
+        value: originProductId,
+      },
+      {
+        id: variant.metafields?.[VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY]
+          .id,
+        namespace: VARIANT_METADATA_NAMESPACE,
+        key: VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
+        value: new Date().toISOString(),
+      },
+      {
+        id: variant.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY]
+          .id,
+        namespace: VARIANT_METADATA_NAMESPACE,
+        key: VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
+        value: originProductVariantId,
+      },
+    ],
   });
   const parsedUpdateVariantResponse = parseClientResponse(
     updateVariantResponse,
@@ -134,6 +175,9 @@ const createCustomProduct = async (
       product: duplicateProductData.productDuplicate.newProduct,
       variantTitle: validatedFields.data.variantTitle,
       imageId: createImageForProductResponse.mediaId,
+      userId,
+      originProductId: validatedFields.data.productId,
+      originProductVariantId: validatedFields.data.variantTitle,
     });
     if (!updatedCustomVariant) {
       throw new Error("Failed to update custom product variant");
