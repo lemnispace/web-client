@@ -311,7 +311,56 @@ export type ProductStatus = "ACTIVE" | "ARCHIVED" | "DRAFT";
  *  ║                                 Metafield Types                              ║
  *  ╚══════════════════════════════════════════════════════════════════════════════╝
  */
-export interface MetafieldInput {
+
+/**
+ * The possible types for a metafield or metafield definition.
+ */
+type MetafieldType =
+  | "boolean"
+  | "color"
+  | "date"
+  | "date_time"
+  | "dimension"
+  | "json"
+  | "money"
+  | "multi_line_text_field"
+  | "number_decimal"
+  | "number_integer"
+  | "rating"
+  | "rich_text_field"
+  | "single_line_text_field"
+  | "url"
+  | "volume"
+  | "weight"
+  // Reference types
+  | "collection_reference"
+  | "file_reference"
+  | "metaobject_reference"
+  | "mixed_reference"
+  | "page_reference"
+  | "product_reference"
+  | "variant_reference"
+  // List types
+  | "list.collection_reference"
+  | "list.color"
+  | "list.date"
+  | "list.date_time"
+  | "list.dimension"
+  | "list.file_reference"
+  | "list.metaobject_reference"
+  | "list.mixed_reference"
+  | "list.number_integer"
+  | "list.number_decimal"
+  | "list.page_reference"
+  | "list.product_reference"
+  | "list.rating"
+  | "list.single_line_text_field"
+  | "list.url"
+  | "list.variant_reference"
+  | "list.volume"
+  | "list.weight";
+
+interface BaseMetafieldInput {
   /**
    * The unique ID of the metafield. Required when updating.
    */
@@ -327,13 +376,16 @@ export interface MetafieldInput {
   /**
    * The type of data that is stored in the metafield. Required when creating.
    */
-  type?: string;
+  type?: MetafieldType;
   /**
    * The data stored in the metafield. Always stored as a string.
    */
   value: string;
 }
 
+export type UpdateMetafieldInput = RequireFields<BaseMetafieldInput, "id">;
+export type CreateMetafieldInput = RequireFields<BaseMetafieldInput, "key" | "namespace" | "type">;
+export type MetafieldInput = UpdateMetafieldInput | CreateMetafieldInput;
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                                 Error Types                                  ║
@@ -362,3 +414,12 @@ export interface UserError {
   field?: string[];
   message: string;
 }
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Utility Types                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export type RequireFields<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;

@@ -22,7 +22,7 @@ export type ProductVariantOption = {
 export type ProductVariantMetafieldValue = Omit<ProductVariantMetafield, "key">;
 
 export type ProductVariantMetafields = {
-  [K in VariantMetadataKey]: ProductVariantMetafieldValue;
+  [K in VariantMetadataKey]?: ProductVariantMetafieldValue;
 };
 export interface ProductVariant
   extends ProductVariantOption,

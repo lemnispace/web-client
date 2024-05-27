@@ -54,6 +54,22 @@ query getProductByHandle($handle: String!) {
   }
 }
 `;
+export const productByIdQuery = /* GraphQL */ `
+query getProductById($id: String!) {
+  product(id: $id) {
+    id
+    title
+    description
+    descriptionHtml
+    handle
+    priceRange {
+      maxVariantPrice ${moneyFragment}
+      minVariantPrice ${moneyFragment}
+    }
+    variants(first: 99) ${getVariantEdgesFragment(undefined)}
+  }
+}
+`;
 
 export const productWithMetafieldsQuery = /* GraphQL */ `
 query getProductWithMetafields($id: ID!) {
@@ -90,10 +106,28 @@ export interface ProductResponse {
   product?: ProductNode;
 }
 
-export function fetchProduct(handle: string) {
+type ProductVariables =
+  | {
+      handle: string;
+    }
+  | {
+      id: string;
+    };
+
+export function fetchProduct(variables: ProductVariables) {
+  if ("id" in variables && variables.id) {
+    return storefrontClient.request<ProductResponse>(productByIdQuery, {
+      variables: {
+        id: variables.id,
+      },
+    });
+  }
+  if (!("handle" in variables) || !variables.handle) {
+    throw new Error("Invalid product handle");
+  }
   return storefrontClient.request<ProductResponse>(productQuery, {
     variables: {
-      handle,
+      handle: variables.handle,
     },
   });
 }

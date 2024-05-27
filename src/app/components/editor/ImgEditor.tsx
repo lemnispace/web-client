@@ -15,15 +15,18 @@ interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   product: Product;
 }
 
-const createCustomProduct = async (
-  file: File,
-  productId: string,
-  variantTitle: string
-) => {
+interface CreateCustomProductRequest {
+  productId: string;
+  variantId: string;
+  variantTitle: string;
+  file: File;
+}
+const createCustomProduct = async (req: CreateCustomProductRequest) => {
   const formData = new FormData();
-  formData.append("file", file);
-  formData.append("productId", productId);
-  formData.append("variantTitle", variantTitle);
+  formData.append("file", req.file);
+  formData.append("productId", req.productId);
+  formData.append("variantTitle", req.variantTitle);
+  formData.append("variantId", req.variantId);
   try {
     const response = await fetch("/api/products", {
       method: "POST",
@@ -90,11 +93,12 @@ export default function ImgEditor({
             inputRef.current?.click();
           }}
           onEditComplete={async (imgFile) => {
-            const response = await createCustomProduct(
-              imgFile,
-              product.id,
-              productVariant.title
-            );
+            const response = await createCustomProduct({
+              file: imgFile,
+              productId: product.id,
+              variantId: productVariant.id,
+              variantTitle: productVariant.title,
+            });
             if (response) {
               // redirect to the product details page:
               window.location.replace(
