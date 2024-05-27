@@ -5,8 +5,10 @@
 import {
   getDimensionsFromVariant,
   getErrorMessage,
+  getObjFirstValue,
   getVariantById,
   getVariantByValues,
+  getuserErrorsFromResponseData,
 } from "../getters";
 import { getMockProduct } from "../test_utils";
 import { Product } from "../types";
@@ -272,4 +274,54 @@ describe("getErrorMessage", () => {
       }).not.toThrow();
     }
   });
+});
+
+test("getFirstEntry", () => {
+  expect(getObjFirstValue({ a: 1, b: 2, c: 3 })).toEqual(1);
+  expect(getObjFirstValue({})).toBeUndefined();
+  expect(getObjFirstValue(null!)).toBeUndefined();
+  expect(getObjFirstValue(123 as any)).toBeUndefined();
+  expect(getObjFirstValue("four" as any)).toBeUndefined();
+  expect(getObjFirstValue([1, 2, 3] as any)).toBeUndefined();
+  expect(
+    getObjFirstValue({
+      productVariantUpdate: {
+        product: { id: "12" },
+        userErrors: [{ field: "title", message: "Title is required" }],
+      },
+    })
+  ).toEqual({
+    product: { id: "12" },
+    userErrors: [{ field: "title", message: "Title is required" }],
+  });
+});
+
+test("getuserErrorsFromResponseData", () => {
+  expect(getuserErrorsFromResponseData(null!)).toBeUndefined();
+  expect(getuserErrorsFromResponseData({})).toBeUndefined();
+  expect(getuserErrorsFromResponseData({ userErrors: [] })).toEqual([]);
+  expect(
+    getuserErrorsFromResponseData({
+      userErrors: [{ field: "title", message: "Title is required" }],
+    })
+  ).toEqual([{ field: "title", message: "Title is required" }]);
+  expect(
+    getuserErrorsFromResponseData({
+      productVariantUpdate: {
+        userErrors: [{ field: "title", message: "Title is required" }],
+      },
+    })
+  ).toEqual([{ field: "title", message: "Title is required" }]);
+  expect(
+    getuserErrorsFromResponseData({
+      productVariantUpdate: {
+        something: [{ field: "title", message: "Title is required" }],
+      },
+    })
+  ).toBeUndefined();
+  expect(
+    getuserErrorsFromResponseData({
+      productVariantUpdate: ["one"],
+    })
+  ).toBeUndefined();
 });

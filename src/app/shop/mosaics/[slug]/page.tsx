@@ -29,11 +29,11 @@ const fetchAllProducts = async (
 > => {
   if (customProductId) {
     return Promise.all([
-      fetchProduct(productHandle),
+      fetchProduct({handle: productHandle}),
       fetchCustomProduct(customProductId),
     ]);
   }
-  const response = await fetchProduct(productHandle);
+  const response = await fetchProduct({handle: productHandle});
   return [response, undefined];
 };
 export default async function Mosaic(props: MosaicProps) {

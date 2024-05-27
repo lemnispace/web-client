@@ -226,3 +226,33 @@ export const getErrorMessage = async (
   }
   return defaultMessage;
 };
+
+export const getuserErrorsFromResponseData = (
+  data: Record<string, unknown>
+) => {
+  if (!data) {
+    return undefined;
+  }
+  if ("userErrors" in data) {
+    return data.userErrors;
+  }
+  const nestedData = getObjFirstValue(data);
+  if (nestedData && isObject(nestedData) && "userErrors" in nestedData) {
+    return nestedData.userErrors;
+  }
+};
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Utility Getters                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export const getObjFirstValue = (obj: Record<string, unknown>) => {
+  if (isObject(obj)) {
+    const firstEntry = Object.entries(obj)?.[0];
+    if (firstEntry) {
+      return firstEntry[1];
+    }
+  }
+};

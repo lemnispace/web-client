@@ -173,6 +173,15 @@ describe("parseClientResponse", () => {
       parseClientResponse(
         {
           data: undefined,
+          errors: { message: "test message" },
+        },
+        "defaultErrorMessage"
+      )
+    ).toThrow("test message");
+    expect(() =>
+      parseClientResponse(
+        {
+          data: undefined,
           errors: { message: undefined },
         },
         "defaultErrorMessage"
@@ -187,5 +196,22 @@ describe("parseClientResponse", () => {
     expect(parseClientResponse(response, "default error message")).toBe(
       response.data
     );
+  });
+  it("should throw an error if the response data has user errors", () => {
+    const response = {
+      data: {
+        productVariantUpdate: {
+          product: { id: "123" },
+          productVariant: { id: "456" },
+          userErrors: [
+            { field: ["field", "4", "value"], message: "test user error" },
+          ],
+        },
+      },
+      errors: undefined,
+    };
+    expect(() =>
+      parseClientResponse(response, "default error message")
+    ).toThrow("test user error");
   });
 });

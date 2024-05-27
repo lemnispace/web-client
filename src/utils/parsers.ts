@@ -1,5 +1,9 @@
 import { ClientResponse } from "@shopify/storefront-api-client";
-import { getArrayErrorMessage, getErrorMessage } from "./getters";
+import {
+  getArrayErrorMessage,
+  getErrorMessage,
+  getuserErrorsFromResponseData,
+} from "./getters";
 import { ApiResponse, ServerParsedApiResponse } from "./types";
 import { isErrorResponse, isNumber } from "./validators";
 
@@ -31,6 +35,13 @@ export const toFloat = (value: string | undefined): number | undefined => {
   return isNumber(float) ? float : undefined;
 };
 
+const parseUserErrorsFromClientResponse = (response: ClientResponse) => {
+  const userErrors = getuserErrorsFromResponseData(response?.data);
+  if (userErrors) {
+    return getArrayErrorMessage(userErrors);
+  }
+};
+
 export const parseClientResponse = <T>(
   response: ClientResponse<T>,
   defaultErrorMessage: string
@@ -40,6 +51,10 @@ export const parseClientResponse = <T>(
       getArrayErrorMessage(response.errors?.graphQLErrors) ||
       response.errors?.message;
     throw new Error(errorMessage || defaultErrorMessage);
+  }
+  const userErrors = parseUserErrorsFromClientResponse(response);
+  if (userErrors) {
+    throw new Error(userErrors);
   }
   return response.data;
 };

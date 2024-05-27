@@ -16,7 +16,7 @@ interface MosaicProps {
 export default async function CreateMosaic(props: MosaicProps) {
   const variantId = props.searchParams.variant;
   const productHandle = props.params.slug;
-  const productResponse = await fetchProduct(productHandle);
+  const productResponse = await fetchProduct({handle: productHandle});
   if (productResponse.errors) {
     console.error("Error getting product: ", productResponse.errors);
   }

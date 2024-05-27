@@ -48,6 +48,11 @@ const schema = z.object({
     name: "ProductId",
     description: "The ProductId of the product to use for customizations",
   }),
+  variantId: requiredStringSchema({
+    name: "VariantId",
+    description:
+      "The VariantId of the variant associated with the product to use for customizations",
+  }),
   variantTitle: requiredStringSchema({
     name: "VariantTitle",
     description:
@@ -83,27 +88,31 @@ const updateCustomProductVariant = async ({
     mediaId: imageId,
     metafields: [
       {
-        id: variant.metafields?.[VARIANT_METADATA_USER_ID_KEY].id,
+        type: "single_line_text_field",
+        id: variant.metafields?.[VARIANT_METADATA_USER_ID_KEY]?.id,
         namespace: VARIANT_METADATA_NAMESPACE,
         key: VARIANT_METADATA_USER_ID_KEY,
         value: userId,
       },
       {
-        id: variant.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_KEY].id,
+        type: "product_reference",
+        id: variant.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_KEY]?.id,
         namespace: VARIANT_METADATA_NAMESPACE,
         key: VARIANT_METADATA_ORIGIN_PRODUCT_KEY,
         value: originProductId,
       },
       {
+        type: "date_time",
         id: variant.metafields?.[VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY]
-          .id,
+          ?.id,
         namespace: VARIANT_METADATA_NAMESPACE,
         key: VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
         value: new Date().toISOString(),
       },
       {
+        type: "variant_reference",
         id: variant.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY]
-          .id,
+          ?.id,
         namespace: VARIANT_METADATA_NAMESPACE,
         key: VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
         value: originProductVariantId,
@@ -125,6 +134,7 @@ const createCustomProduct = async (
     file: _formData.get("file"),
     productId: _formData.get("productId"),
     variantTitle: _formData.get("variantTitle"),
+    variantId: _formData.get("variantId"),
   });
   if (!validatedFields.success) {
     console.error(
@@ -177,7 +187,7 @@ const createCustomProduct = async (
       imageId: createImageForProductResponse.mediaId,
       userId,
       originProductId: validatedFields.data.productId,
-      originProductVariantId: validatedFields.data.variantTitle,
+      originProductVariantId: validatedFields.data.variantId,
     });
     if (!updatedCustomVariant) {
       throw new Error("Failed to update custom product variant");
