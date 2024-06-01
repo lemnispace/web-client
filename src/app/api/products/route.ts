@@ -1,12 +1,15 @@
+import { collectionCreate } from "@/lib/shopify/mutations/collectionMutations";
 import {
   duplicateProduct,
+  productUpdate,
   productVariantUpdate,
 } from "@/lib/shopify/mutations/productMutations";
 import {
   createImageForProduct,
   stageImageForUpload,
 } from "@/lib/shopify/mutations/stagedUploads";
-import { ProductNode } from "@/lib/types/shopify";
+import { fetchCollection } from "@/lib/shopify/queries/collectionQuery";
+import { Collection, ProductNode } from "@/lib/types/shopify";
 import {
   VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
   VARIANT_METADATA_NAMESPACE,
@@ -35,6 +38,7 @@ export interface CustomProductResponse {
   productId: string;
   productHandle: string;
   variantId: string;
+  collection: Pick<Collection, "id" | "handle">;
 }
 
 type CreateCustomProductResponse = ApiResponse<
@@ -42,6 +46,24 @@ type CreateCustomProductResponse = ApiResponse<
   unknown,
   CustomProductResponse
 >;
+
+interface UpdateCustomProductParams {
+  variantTitle: string;
+  product: ProductNode;
+  imageId: string;
+  userId: string;
+  originProductId: string;
+  originProductVariantId: string;
+}
+
+interface UpdateCustomProductVariantWithImageParams {
+  customProduct: ProductNode;
+  originProductId: string;
+  originProductVariantId: string;
+  userId: string;
+  resourceUrl: string;
+  variantTitle: string;
+}
 
 const schema = z.object({
   productId: requiredStringSchema({
@@ -61,14 +83,45 @@ const schema = z.object({
   file: requiredImageFileSchema(),
 });
 
-interface UpdateCustomProductParams {
-  variantTitle: string;
-  product: ProductNode;
-  imageId: string;
-  userId: string;
-  originProductId: string;
-  originProductVariantId: string;
-}
+const getCollection = async (handle: string) => {
+  const collectionResponse = await fetchCollection(handle, 1);
+  return parseClientResponse(collectionResponse, "Error fetching collection")
+    .collectionByHandle;
+};
+
+const createCollection = async (userId: string, productIds: string[]) => {
+  const createCollectionResponse = await collectionCreate({
+    title: userId,
+    products: productIds,
+  });
+  const createdCollection = parseClientResponse(
+    createCollectionResponse,
+    "Error creating collection"
+  );
+  if (!createdCollection.collectionCreate.collection) {
+    throw new Error("Failed to create collection");
+  }
+  return createdCollection.collectionCreate.collection;
+};
+
+const addProductToCollection = async (userId: string, productId: string) => {
+  const collection = await getCollection(userId);
+  if (!collection) {
+    return await createCollection(userId, [productId]);
+  }
+  const productUpdateRespone = await productUpdate({
+    id: productId,
+    collectionsToJoin: [collection.id],
+  });
+  const updatedProduct = parseClientResponse(
+    productUpdateRespone,
+    "Error updating product"
+  );
+  if (!updatedProduct.productUpdate.product) {
+    throw new Error("Failed to update product");
+  }
+  return collection;
+};
 
 const updateCustomProductVariant = async ({
   product,
@@ -126,6 +179,34 @@ const updateCustomProductVariant = async ({
   return parsedUpdateVariantResponse.productVariantUpdate.productVariant;
 };
 
+const updateCustomProductVariantWithImage = async ({
+  customProduct,
+  userId,
+  resourceUrl,
+  variantTitle,
+  originProductId,
+  originProductVariantId,
+}: UpdateCustomProductVariantWithImageParams) => {
+  // create the image for the new product using the staged image
+  const createImageForProductResponse = await createImageForProduct({
+    productId: customProduct.id,
+    resourceUrl,
+  });
+  // modify the variant to use the new image
+  const updatedCustomVariant = await updateCustomProductVariant({
+    product: customProduct,
+    variantTitle,
+    imageId: createImageForProductResponse.mediaId,
+    userId,
+    originProductId,
+    originProductVariantId,
+  });
+  if (!updatedCustomVariant) {
+    throw new Error("Failed to update custom product variant");
+  }
+  return updatedCustomVariant;
+};
+
 const createCustomProduct = async (
   _formData: FormData
 ): Promise<CreateCustomProductResponse> => {
@@ -159,7 +240,7 @@ const createCustomProduct = async (
             userId,
           })
         ),
-        // duplicate the modified product
+        // duplicate the product being customized to add the custom variant
         duplicateProduct({
           newStatus: "DRAFT",
           productId: validatedFields.data.productId,
@@ -175,23 +256,23 @@ const createCustomProduct = async (
       duplicateProductResponse,
       "Error duplicating product"
     );
-    // create the image for the new product using the staged image
-    const createImageForProductResponse = await createImageForProduct({
-      productId: duplicateProductData.productDuplicate.newProduct.id,
-      resourceUrl: stagedImageUploadResponse.resourceUrl,
-    });
-    // modify the variant to use the new image
-    const updatedCustomVariant = await updateCustomProductVariant({
-      product: duplicateProductData.productDuplicate.newProduct,
-      variantTitle: validatedFields.data.variantTitle,
-      imageId: createImageForProductResponse.mediaId,
-      userId,
-      originProductId: validatedFields.data.productId,
-      originProductVariantId: validatedFields.data.variantId,
-    });
-    if (!updatedCustomVariant) {
-      throw new Error("Failed to update custom product variant");
-    }
+
+    const [updatedCustomVariant, collection] = await Promise.all([
+      // add the uploaded image & metafields to the new product variant
+      await updateCustomProductVariantWithImage({
+        customProduct: duplicateProductData.productDuplicate.newProduct,
+        originProductId: validatedFields.data.productId,
+        originProductVariantId: validatedFields.data.variantId,
+        userId,
+        resourceUrl: stagedImageUploadResponse.resourceUrl,
+        variantTitle: validatedFields.data.variantTitle,
+      }),
+      // add the new product to the user's collection
+      await addProductToCollection(
+        userId,
+        duplicateProductData.productDuplicate.newProduct.id
+      ),
+    ]);
 
     return {
       status: 200,
@@ -199,6 +280,10 @@ const createCustomProduct = async (
         productId: duplicateProductData.productDuplicate.newProduct.id,
         productHandle: duplicateProductData.productDuplicate.newProduct.handle,
         variantId: updatedCustomVariant.id,
+        collection: {
+          id: collection.id,
+          handle: collection.handle,
+        },
       },
     };
   } catch (error) {
