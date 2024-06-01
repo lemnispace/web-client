@@ -2,6 +2,7 @@ import {
   ImageJobNode,
   ProductNode,
   ProductStatus,
+  ProductUpdateInput,
   ProductVariantInput,
   ProductVariantNode,
   UserError,
@@ -10,7 +11,7 @@ import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
 import {
   getMetafieldsFragment,
-  getNewProductVariantEdgesFragment,
+  getVariantEdgesWithMetafieldsFragment,
 } from "../fragments";
 
 export interface ProductDuplicateResponse {
@@ -30,6 +31,14 @@ export interface ProductVariantUpdateResponse {
   productVariantUpdate: {
     productVariant: Pick<ProductVariantNode, "id" | "title" | "media">;
     product: Pick<ProductNode, "id"> | null;
+    userErrors: UserError[];
+  };
+}
+
+export interface ProductUpdateResponse {
+  productUpdate: {
+    product: Pick<ProductNode, "id"> | null;
+    userErrors: UserError[];
   };
 }
 
@@ -52,7 +61,7 @@ export const productDuplicateMutation = /* GraphQL */ `
         description
         descriptionHtml
         handle
-        variants(first: 99) ${getNewProductVariantEdgesFragment(
+        variants(first: 99) ${getVariantEdgesWithMetafieldsFragment(
           VARIANT_METADATA_NAMESPACE
         )}
       }
@@ -93,6 +102,20 @@ export const productVariantUpdateMutation = /* GraphQL */ `
   }
 `;
 
+export const productUpdateMutation = /* GraphQL */ `
+  mutation UpdateProduct($input: ProductInput!) {
+    productUpdate(input: $input) {
+      product {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 export async function duplicateProduct(input: ProductDuplicateInput) {
   const response = await adminClient.request<ProductDuplicateResponse>(
     productDuplicateMutation,
@@ -117,4 +140,12 @@ export async function productVariantUpdate(input: ProductVariantInput) {
       },
     }
   );
+}
+
+export async function productUpdate(input: ProductUpdateInput) {
+  return adminClient.request<ProductUpdateResponse>(productUpdateMutation, {
+    variables: {
+      input,
+    },
+  });
 }

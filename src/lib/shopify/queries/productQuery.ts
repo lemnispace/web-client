@@ -2,8 +2,8 @@ import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
 import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
 import {
-  getNewProductVariantEdgesFragment,
   getVariantEdgesFragment,
+  getVariantEdgesWithMetafieldsFragment,
   imageFragment,
   moneyFragment,
 } from "../fragments";
@@ -38,9 +38,9 @@ export const productsQuery = /* GraphQL */ `
   }
 `;
 
-export const productQuery = /* GraphQL */ `
-query getProductByHandle($handle: String!) {
-  product(handle: $handle) {
+export const getProductQuery = (by: "handle" | "id") => /* GraphQL */ `
+query getProduct(${by === "handle" ? "$handle: String!" : "$id: ID!"}) {
+  product(${by === "handle" ? "handle: $handle" : "id: $id"}) {
     id
     title
     description
@@ -50,23 +50,10 @@ query getProductByHandle($handle: String!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
-    variants(first: 99) ${getVariantEdgesFragment(undefined)}
-  }
-}
-`;
-export const productByIdQuery = /* GraphQL */ `
-query getProductById($id: String!) {
-  product(id: $id) {
-    id
-    title
-    description
-    descriptionHtml
-    handle
-    priceRange {
-      maxVariantPrice ${moneyFragment}
-      minVariantPrice ${moneyFragment}
-    }
-    variants(first: 99) ${getVariantEdgesFragment(undefined)}
+    variants(first: 99) ${getVariantEdgesFragment({
+      includePrice: true,
+      includeQuantityAvailable: true,
+    })}
   }
 }
 `;
@@ -83,7 +70,7 @@ query getProductWithMetafields($id: ID!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
-    variants(first: 99) ${getNewProductVariantEdgesFragment(
+    variants(first: 99) ${getVariantEdgesWithMetafieldsFragment(
       VARIANT_METADATA_NAMESPACE
     )}
   }
@@ -116,7 +103,7 @@ type ProductVariables =
 
 export function fetchProduct(variables: ProductVariables) {
   if ("id" in variables && variables.id) {
-    return storefrontClient.request<ProductResponse>(productByIdQuery, {
+    return storefrontClient.request<ProductResponse>(getProductQuery("id"), {
       variables: {
         id: variables.id,
       },
@@ -125,7 +112,7 @@ export function fetchProduct(variables: ProductVariables) {
   if (!("handle" in variables) || !variables.handle) {
     throw new Error("Invalid product handle");
   }
-  return storefrontClient.request<ProductResponse>(productQuery, {
+  return storefrontClient.request<ProductResponse>(getProductQuery("handle"), {
     variables: {
       handle: variables.handle,
     },
