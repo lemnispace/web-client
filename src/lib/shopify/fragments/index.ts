@@ -27,123 +27,85 @@ const metafieldFragment = /* GraphQL */ `
     id
     namespace
     reference {
-        ... on MediaImage {
-          id
-          image ${imageFragment}
-        }
-        ... on ProductVariant {
-          title
-          id
-        }
-        ... on Product {
-          handle
-          id
-        }
+      ... on MediaImage {
+        id
+        image ${imageFragment}
       }
-  }
-`;
-
-const metafieldsFragment = /* GraphQL */ `
-metafields(namespace: "custom", first: 99) {
-  edges {
-    node ${metafieldFragment}
-  }
-}
-`;
-
-const variantFragment = /* GraphQL */ `
-  {
-    id
-    title
-    quantityAvailable
-    price ${moneyFragment}
-    selectedOptions {
-      name
-      value
-    }
-    image ${imageFragment}
-  }
-`;
-
-const variantFragmentWithMetafields = /* GraphQL */ `
-  {
-    id
-    title
-    quantityAvailable
-    price ${moneyFragment}
-    selectedOptions {
-      name
-      value
-    }
-    image ${imageFragment}
-    ${metafieldsFragment}
-  }
-`;
-
-const newProductvariantWithMetafieldsFragment = /* GraphQL */ `
-  {
-    id
-    title
-    selectedOptions {
-      name
-      value
-    }
-    image ${imageFragment}
-    ${metafieldsFragment}
-  }
-`;
-
-const variantEdgesFragment = /* GraphQL */ `
-  {
-    edges {
-      cursor
-      node ${variantFragment}
-    }
-  }
-`;
-
-const variantEdgesWithMetafieldsFragment = /* GraphQL */ `
-  {
-    edges {
-      cursor
-      node ${variantFragmentWithMetafields}
-    }
-  }
-`;
-
-const newProductvariantEdgesWithMetafieldsFragment = /* GraphQL */ `
-  {
-    edges {
-      cursor
-      node ${newProductvariantWithMetafieldsFragment}
+      ... on ProductVariant {
+        title
+        id
+      }
+      ... on Product {
+        handle
+        id
+      }
     }
   }
 `;
 
 export const getMetafieldsFragment = (
-  namespace: VariantMetadataNamespace,
-  fragment: string = metafieldsFragment
-) => {
-  return fragment.replace(/\$namespace/g, `"${namespace}"`);
+  namespace: VariantMetadataNamespace = VARIANT_METADATA_NAMESPACE,
+  first = 99
+) => /* GraphQL */ `
+  metafields(namespace: "${namespace}", first: ${first}) {
+    edges {
+      node ${metafieldFragment}
+    }
+  }
+`;
+
+interface VariantFragmentOptions {
+  metafields?: string;
+  includeQuantityAvailable?: boolean;
+  includePrice?: boolean;
+}
+
+export const getVariantFragment = (options: VariantFragmentOptions = {}) => {
+  return /* GraphQL */ `
+    {
+      id
+      title
+      ${options.includeQuantityAvailable ? "quantityAvailable" : ""}
+      ${options.includePrice ? `price ${moneyFragment}` : ""}
+      selectedOptions {
+        name
+        value
+      }
+      image ${imageFragment}
+      ${options.metafields ?? ""}
+    }
+  `;
 };
 
-/**
- * Returns a fragment for multiple variants with the provided namespace and key.
- */
 export const getVariantEdgesFragment = (
-  namespace: VariantMetadataNamespace | undefined
+  options: VariantFragmentOptions = {}
+) => /* GraphQL */ `
+  {
+    edges {
+      cursor
+      node ${getVariantFragment(options)}
+    }
+  }
+`;
+
+export const getVariantWithMetafieldsFragment = (
+  namespace: VariantMetadataNamespace = VARIANT_METADATA_NAMESPACE,
+  options: VariantFragmentOptions = {}
+) => {
+  const metafields = getMetafieldsFragment(namespace);
+  return getVariantFragment({ ...options, metafields });
+};
+
+export const getVariantEdgesWithMetafieldsFragment = (
+  namespace: VariantMetadataNamespace | undefined,
+  options: VariantFragmentOptions = {}
 ) => {
   if (namespace) {
-    return getMetafieldsFragment(namespace, variantEdgesWithMetafieldsFragment);
+    const metafields = getMetafieldsFragment(namespace);
+    return getVariantEdgesFragment({
+      ...options,
+      metafields,
+    });
   }
-  return variantEdgesFragment;
-};
-
-export const getNewProductVariantEdgesFragment = (
-  namespace: VariantMetadataNamespace = VARIANT_METADATA_NAMESPACE
-) => {
-  return getMetafieldsFragment(
-    namespace,
-    newProductvariantEdgesWithMetafieldsFragment
-  );
+  return getVariantEdgesFragment(options);
 };
