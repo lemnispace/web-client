@@ -66,22 +66,9 @@ export interface FileError extends BaseFileError {
   details?: string;
 }
 
-export interface FileCreateInput {
-  alt?: string;
-  contentType?: FileContentType;
-  duplicateResolutionMode?: FileCreateInputDuplicateResolutionMode;
-  filename?: string;
-  originalSource: string;
-}
-
 export type FileStatus = "FAILED" | "PROCESSING" | "READY" | "UPLOADED";
 
 export type FileContentType = "FILE" | "IMAGE" | "VIDEO";
-
-export type FileCreateInputDuplicateResolutionMode =
-  | "APPEND_UUID"
-  | "RAISE_ERROR"
-  | "REPLACE";
 
 export interface ShopifyFile {
   alt?: string;
@@ -121,7 +108,7 @@ export interface MediaNode {
   status?: FileStatus;
 }
 
-interface MediaPreviewImage {
+export interface MediaPreviewImage {
   image?: Image;
   status: FileStatus;
 }
@@ -129,21 +116,6 @@ interface MediaPreviewImage {
 export interface ImageJobNode {
   id: string;
   done: boolean;
-}
-
-export interface CreateMediaInput {
-  /**
-   * The alt text associated with the media.
-   */
-  alt?: string;
-  /**
-   * The media content type.
-   */
-  mediaContentType: MediaContentType;
-  /**
-   * The original source of the media object. This might be an external URL or a staged upload URL.
-   */
-  originalSource: string;
 }
 
 /*
@@ -177,26 +149,6 @@ export interface StagedUploadTarget {
    * Url you'll use to post data to aws. It's a generic s3 url that when combined with the params sends your data to the right place.
    */
   url?: string;
-}
-
-export interface StagedUploadInput {
-  /**
-   * The size of the file to upload, in bytes.
-   * This is required when the request's resource property is set to `VIDEO` or `MODEL_3D`
-   */
-  fileSize?: number;
-  filename: string;
-  /**
-   * The HTTP method to be used when sending a request to upload the file using the returned staged upload target.
-   * Possible values are POST and PUT.
-   * @default POST
-   * */
-  httpMethod?: "POST" | "PUT";
-  /**
-   * The file's MIME type.
-   * */
-  mimeType: string;
-  resource: StagedUploadTargetGenerateUploadResource;
 }
 
 /*
@@ -253,16 +205,6 @@ export interface ProductVariantMetafield {
   };
 }
 
-export interface ProductVariantInput {
-  id?: string;
-  mediaId?: string;
-  mediaSrc?: string[];
-  metafields?: MetafieldInput[];
-  options?: string[];
-  position?: number;
-  productId?: string;
-}
-
 export interface ProductVariantNode {
   id: string;
   title: string;
@@ -272,17 +214,6 @@ export interface ProductVariantNode {
   image?: Image;
   metafields?: Edges<ProductVariantMetafieldEdge>;
   media?: Edges<MediaEdge>;
-}
-
-export interface ProductVariantAppendMediaInput {
-  /**
-   * Specifies the media to append to the variant.
-   */
-  mediaIds: string[];
-  /**
-   * Specifies the variant to which media will be appended.
-   */
-  variantId: string;
 }
 
 /*
@@ -360,6 +291,843 @@ type MetafieldType =
   | "list.volume"
   | "list.weight";
 
+/**
+ * Metafield definitions enable you to define additional validation constraints for metafields,
+ * and enable the merchant to edit metafield values in context.
+ */
+export interface MetafieldDefinition {
+  /**
+   * The access settings associated with the metafield definition.
+   */
+  access: MetafieldAccess;
+
+  /**
+   * The description of the metafield definition.
+   */
+  description?: string;
+
+  /**
+   * A globally-unique ID.
+   */
+  id: string;
+
+  /**
+   * The unique identifier for the metafield definition within its namespace.
+   */
+  key: string;
+
+  /**
+   * The count of the metafields that belong to the metafield definition.
+   */
+  metafieldsCount: number;
+
+  /**
+   * The human-readable name of the metafield definition.
+   */
+  name: string;
+
+  /**
+   * The container for a group of metafields that the metafield definition is associated with.
+   */
+  namespace: string;
+
+  /**
+   * The resource type that the metafield definition is attached to.
+   */
+  ownerType: MetafieldOwnerType;
+
+  /**
+   * The position of the metafield definition in the pinned list.
+   */
+  pinnedPosition?: number;
+
+  /**
+   * The standard metafield definition template associated with the metafield definition.
+   */
+  standardTemplate?: StandardMetafieldDefinitionTemplate;
+
+  /**
+   * The type of data that each of the metafields that belong to the metafield definition will store.
+   * Refer to the list of supported types.
+   */
+  type: MetafieldDefinitionType;
+
+  /**
+   * Whether the metafield definition can be used as a collection condition.
+   */
+  useAsCollectionCondition: boolean;
+
+  /**
+   * The validation status for the metafields that belong to the metafield definition.
+   */
+  validationStatus: MetafieldDefinitionValidationStatus;
+
+  /**
+   * A list of validation options for the metafields that belong to the metafield definition.
+   */
+  validations: MetafieldDefinitionValidation[];
+}
+
+/**
+ * The access settings associated with the metafield definition.
+ */
+export interface MetafieldAccess {
+  /**
+   * The default admin access setting used for the metafields under this definition.
+   */
+  admin?: MetafieldAdminAccess;
+
+  /**
+   * The explicit grants for this metafield definition, superseding the default admin access for the specified grantees.
+   */
+  grants: MetafieldAccessGrant[];
+
+  /**
+   * The storefront access setting used for the metafields under this definition.
+   */
+  storefront?: MetafieldStorefrontAccess;
+}
+
+/**
+ * The default admin access setting used for the metafields under this definition.
+ */
+type MetafieldAdminAccess =
+  | "MERCHANT_READ"
+  | "MERCHANT_READ_WRITE"
+  | "PRIVATE"
+  | "PUBLIC_READ";
+
+/**
+ * The explicit grants for this metafield definition, superseding the default admin access for the specified grantees.
+ */
+export interface MetafieldAccessGrant {
+  /**
+   * The level of access the grantee has.
+   */
+  access: MetafieldGrantAccessLevel;
+
+  /**
+   * The grantee being granted access.
+   */
+  grantee: string;
+}
+
+/**
+ * The level of access the grantee has.
+ */
+type MetafieldGrantAccessLevel = "FULL" | "READ" | "WRITE";
+
+/**
+ * The storefront access setting used for the metafields under this definition.
+ */
+type MetafieldStorefrontAccess = "NONE" | "PUBLIC_READ";
+
+/**
+ * The resource type that the metafield definition is attached to.
+ */
+type MetafieldOwnerType =
+  | "API_PERMISSION"
+  | "ARTICLE"
+  | "BLOG"
+  | "CARTTRANSFORM"
+  | "COLLECTION"
+  | "COMPANY"
+  | "COMPANY_LOCATION"
+  | "CUSTOMER"
+  | "DELIVERY_CUSTOMIZATION"
+  | "DISCOUNT"
+  | "DRAFTORDER"
+  | "FULFILLMENT_CONSTRAINT_RULE"
+  | "LOCATION"
+  | "MARKET"
+  | "MEDIA_IMAGE"
+  | "ORDER"
+  | "ORDER_ROUTING_LOCATION_RULE"
+  | "PAGE"
+  | "PAYMENT_CUSTOMIZATION"
+  | "PRODUCT"
+  | "PRODUCTVARIANT"
+  | "SHOP"
+  | "VALIDATION"
+  | "PRODUCTIMAGE";
+
+/**
+ * The standard metafield definition template associated with the metafield definition.
+ */
+export interface StandardMetafieldDefinitionTemplate {
+  /**
+   * The description of the standard metafield definition.
+   */
+  description?: string;
+
+  /**
+   * A globally-unique ID.
+   */
+  id: string;
+
+  /**
+   * The key owned by the definition after the definition has been activated.
+   */
+  key: string;
+
+  /**
+   * The human-readable name for the standard metafield definition.
+   */
+  name: string;
+
+  /**
+   * The namespace owned by the definition after the definition has been activated.
+   */
+  namespace: string;
+
+  /**
+   * The list of resource types that the standard metafield definition can be applied to.
+   */
+  ownerTypes: MetafieldOwnerType[];
+
+  /**
+   * The associated metafield definition type that the metafield stores.
+   */
+  type: MetafieldDefinitionType;
+
+  /**
+   * The configured validations for the standard metafield definition.
+   */
+  validations: MetafieldDefinitionValidation[];
+
+  /**
+   * Whether metafields for the definition are by default visible using the Storefront API.
+   */
+  visibleToStorefrontApi: boolean;
+}
+
+/**
+ * The associated metafield definition type that the metafield stores.
+ */
+export interface MetafieldDefinitionType {
+  /**
+   * The category associated with the metafield definition type.
+   */
+  category: string;
+
+  /**
+   * The name of the type for the metafield definition. See the list of supported types.
+   */
+  name: string;
+
+  /**
+   * The supported validations for a metafield definition type.
+   */
+  supportedValidations: MetafieldDefinitionSupportedValidation[];
+
+  /**
+   * Whether metafields without a definition can be migrated to a definition of this type.
+   */
+  supportsDefinitionMigrations: boolean;
+
+  /**
+   * The value type for a metafield created with this definition type. valueType is deprecated and name should be used for type information.
+   */
+  valueType: MetafieldValueType;
+}
+
+/**
+ * The supported validations for a metafield definition type.
+ */
+export interface MetafieldDefinitionSupportedValidation {
+  /**
+   * The name of the metafield definition validation.
+   */
+  name: string;
+
+  /**
+   * The type of input for the validation.
+   */
+  type: string;
+}
+
+/**
+ * The value type for a metafield created with this definition type.
+ */
+type MetafieldValueType = "BOOLEAN" | "INTEGER" | "JSON_STRING" | "STRING";
+
+/**
+ * The validation status for the metafields that belong to the metafield definition.
+ */
+type MetafieldDefinitionValidationStatus =
+  | "ALL_VALID"
+  | "IN_PROGRESS"
+  | "SOME_INVALID";
+
+/**
+ * A list of validation options for the metafields that belong to the metafield definition.
+ */
+export interface MetafieldDefinitionValidation {
+  /**
+   * The validation name.
+   */
+  name: string;
+
+  /**
+   * The name for the metafield type of this validation.
+   */
+  type: string;
+
+  /**
+   * The validation value.
+   */
+  value?: string;
+}
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Collection Types                             ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export interface ProductTaxonomyNode {
+  /**
+   * The full name of the product taxonomy node.
+   * For example, Animals & Pet Supplies > Pet Supplies > Dog Supplies > Dog Beds.
+   */
+  fullName: string;
+
+  /**
+   * The ID of the product taxonomy node.
+   */
+  id: string;
+
+  /**
+   * Whether the node is a leaf node.
+   */
+  isLeaf: boolean;
+
+  /**
+   * Whether the node is a root node.
+   */
+  isRoot: boolean;
+
+  /**
+   * The name of the product taxonomy node.
+   * For example, Dog Beds.
+   */
+  name: string;
+}
+
+export interface SEO {
+  description: string;
+  title: string;
+}
+
+export type CollectionRuleColumn =
+  | "IS_PRICE_REDUCED"
+  | "PRODUCT_METAFIELD_DEFINITION"
+  | "PRODUCT_TAXONOMY_NODE_ID"
+  | "TAG"
+  | "TITLE"
+  | "TYPE"
+  | "VARIANT_COMPARE_AT_PRICE"
+  | "VARIANT_INVENTORY"
+  | "VARIANT_METAFIELD_DEFINITION"
+  | "VARIANT_PRICE"
+  | "VARIANT_TITLE"
+  | "VARIANT_WEIGHT"
+  | "VENDOR";
+
+export type CollectionRuleRelation =
+  | "CONTAINS"
+  | "ENDS_WITH"
+  | "EQUALS"
+  | "GREATER_THAN"
+  | "IS_NOT_SET"
+  | "IS_SET"
+  | "LESS_THAN"
+  | "NOT_CONTAINS"
+  | "NOT_EQUALS"
+  | "STARTS_WITH";
+
+export type CollectionSortOrder =
+  /**
+   * Alphabetically, in ascending order (A - Z).
+   */
+  | "ALPHA_ASC"
+
+  /**
+   * Alphabetically, in descending order (Z - A).
+   */
+  | "ALPHA_DESC"
+
+  /**
+   * By best-selling products.
+   */
+  | "BEST_SELLING"
+
+  /**
+   * By date created, in ascending order (oldest - newest).
+   */
+  | "CREATED"
+
+  /**
+   * By date created, in descending order (newest - oldest).
+   */
+  | "CREATED_DESC"
+
+  /**
+   * In the order set manually by the merchant.
+   */
+  | "MANUAL"
+
+  /**
+   * By price, in ascending order (lowest - highest).
+   */
+  | "PRICE_ASC"
+
+  /**
+   * By price, in descending order (highest - lowest).
+   */
+  | "PRICE_DESC";
+
+/**
+ * Represents a group of products that can be displayed in online stores and other sales channels.
+ */
+export interface Collection {
+  /**
+   * A globally-unique ID.
+   */
+  id: string;
+
+  /**
+   * The name of the collection. It's displayed in the Shopify admin and is typically displayed in sales channels, such as an online store.
+   */
+  title: string;
+
+  /**
+   * A single-line, text-only description of the collection, stripped of any HTML tags and formatting that were included in the description.
+   */
+  description?: string;
+
+  /**
+   * The description of the collection, including any HTML tags and formatting. This content is typically displayed to customers, such as on an online store, depending on the theme.
+   */
+  descriptionHtml?: string;
+
+  /**
+   * A unique string that identifies the collection.
+   */
+  handle: string;
+
+  /**
+   * The image associated with the collection.
+   */
+  image?: Image;
+
+  /**
+   * The number of products in the collection.
+   */
+  productsCount?: number;
+
+  /**
+   * For a smart (automated) collection, specifies the rules that determine whether a product is included.
+   */
+  ruleSet?: CollectionRuleSet;
+
+  /**
+   * If the default SEO fields for page title and description have been modified, contains the modified information.
+   */
+  seo?: SEO;
+
+  /**
+   * The order in which the products in the collection are displayed by default in the Shopify admin and in sales channels, such as an online store.
+   */
+  sortOrder?: CollectionSortOrder;
+
+  /**
+   * The suffix of the Liquid template being used to show the collection in an online store.
+   */
+  templateSuffix?: string;
+
+  /**
+   * The date and time (ISO 8601 format) when the collection was last modified.
+   */
+  updatedAt: string;
+}
+
+/**
+ * The set of rules that are used to determine which products are included in the collection.
+ */
+export interface CollectionRuleSet {
+  /**
+   * Whether products must match any or all of the rules to be included in the collection.
+   * If true, then products must match at least one of the rules to be included in the collection.
+   * If false, then products must match all of the rules to be included in the collection.
+   */
+  appliedDisjunctively: boolean;
+
+  /**
+   * The rules used to assign products to the collection.
+   */
+  rules: CollectionRule[];
+}
+
+/**
+ * Represents a rule that's used to assign products to a collection.
+ */
+export interface CollectionRule {
+  /**
+   * The attribute that the rule focuses on. For example, title or product_type.
+   */
+  column: CollectionRuleColumn;
+
+  /**
+   * The value that the operator is applied to. For example, Hats.
+   */
+  condition: string;
+
+  /**
+   * The value that the operator is applied to.
+   */
+  conditionObject?: CollectionRuleConditionObject;
+
+  /**
+   * The type of operator that the rule is based on. For example, equals, contains, or not_equals.
+   */
+  relation: CollectionRuleRelation;
+}
+
+/**
+ * Specifies the condition for the rule.
+ */
+type CollectionRuleConditionObject =
+  | CollectionRuleMetafieldCondition
+  | CollectionRuleProductCategoryCondition
+  | CollectionRuleTextCondition;
+
+/**
+ * Identifies a metafield definition used as a rule for the smart collection.
+ */
+export interface CollectionRuleMetafieldCondition {
+  /**
+   * The metafield definition associated with the condition.
+   */
+  metafieldDefinition: MetafieldDefinition;
+}
+
+/**
+ * Specifies the condition for a Product Category field.
+ */
+export interface CollectionRuleProductCategoryCondition {
+  /**
+   * The value of the condition.
+   */
+  value: ProductTaxonomyNode;
+}
+
+/**
+ * Specifies the condition for a text field.
+ */
+export interface CollectionRuleTextCondition {
+  /**
+   * The value of the condition.
+   */
+  value: string;
+}
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Input Types                                  ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export type FileCreateInputDuplicateResolutionMode =
+  | "APPEND_UUID"
+  | "RAISE_ERROR"
+  | "REPLACE";
+
+export interface FileCreateInput {
+  alt?: string;
+  contentType?: FileContentType;
+  duplicateResolutionMode?: FileCreateInputDuplicateResolutionMode;
+  filename?: string;
+  originalSource: string;
+}
+
+export interface ImageInput {
+  altText?: string;
+  id?: string;
+  src?: string;
+}
+
+export interface CreateMediaInput {
+  /**
+   * The alt text associated with the media.
+   */
+  alt?: string;
+  /**
+   * The media content type.
+   */
+  mediaContentType: MediaContentType;
+  /**
+   * The original source of the media object. This might be an external URL or a staged upload URL.
+   */
+  originalSource: string;
+}
+
+export interface StagedUploadInput {
+  /**
+   * The size of the file to upload, in bytes.
+   * This is required when the request's resource property is set to `VIDEO` or `MODEL_3D`
+   */
+  fileSize?: number;
+  filename: string;
+  /**
+   * The HTTP method to be used when sending a request to upload the file using the returned staged upload target.
+   * Possible values are POST and PUT.
+   * @default POST
+   * */
+  httpMethod?: "POST" | "PUT";
+  /**
+   * The file's MIME type.
+   * */
+  mimeType: string;
+  resource: StagedUploadTargetGenerateUploadResource;
+}
+
+export interface ProductVariantInput {
+  id?: string;
+  mediaId?: string;
+  mediaSrc?: string[];
+  metafields?: MetafieldInput[];
+  options?: string[];
+  position?: number;
+  productId?: string;
+}
+
+export interface ProductUpdateInput {
+  /**
+   * The IDs of the collections that this product will be added to.
+   */
+  collectionsToJoin?: string[];
+
+  /**
+   * The IDs of collections that will no longer include the existing product.
+   */
+  collectionsToLeave?: string[];
+
+  /**
+   * The custom product type specified by the merchant.
+   */
+  customProductType?: string;
+
+  /**
+   * The description of the product, complete with HTML formatting.
+   */
+  descriptionHtml?: string;
+
+  /**
+   * Whether the product is a gift card.
+   */
+  giftCard?: boolean;
+
+  /**
+   * The theme template used when viewing the gift card in a store.
+   */
+  giftCardTemplateSuffix?: string;
+
+  /**
+   * A unique, human-friendly string for the product. Automatically generated from the product's title unless otherwise specified.
+   */
+  handle?: string;
+
+  /**
+   * Specifies the product to update in productUpdate or creates a new product if absent in productCreate.
+   */
+  id?: string;
+
+  /**
+   * The metafields to associate with this product.
+   */
+  metafields?: MetafieldInput[];
+
+  /**
+   * The product type specified by the merchant.
+   */
+  productType?: string;
+
+  /**
+   * Whether a redirect is required after a new handle has been provided. If true, then the old handle is redirected to the new one automatically.
+   */
+  redirectNewHandle?: boolean;
+
+  /**
+   * Whether the product can only be purchased with a selling plan (subscription).
+   * Products that are sold exclusively on subscription can only be created on online stores.
+   * If set to true on an already existing product, then the product will be marked unavailable on channels that don't support subscriptions.
+   */
+  requiresSellingPlan?: boolean;
+
+  /**
+   * The SEO information associated with the product.
+   */
+  seo?: SEOInput;
+
+  /**
+   * The status of the product.
+   */
+  status?: ProductStatus;
+
+  /**
+   * A comma separated list of tags that have been added to the product.
+   */
+  tags?: string[];
+
+  /**
+   * The theme template used when viewing the product in a store.
+   */
+  templateSuffix?: string;
+
+  /**
+   * The title of the product.
+   */
+  title?: string;
+
+  /**
+   * The name of the product's vendor.
+   */
+  vendor?: string;
+
+  /**
+   * List of new media to be added to the product.
+   */
+  media?: CreateMediaInput[];
+}
+
+export interface ProductVariantAppendMediaInput {
+  /**
+   * Specifies the media to append to the variant.
+   */
+  mediaIds: string[];
+  /**
+   * Specifies the variant to which media will be appended.
+   */
+  variantId: string;
+}
+
+export interface CollectionInput {
+  /**
+   * The description of the collection, in HTML format.
+   */
+  descriptionHtml?: string;
+
+  /**
+   * A unique human-friendly string for the collection. Automatically generated from the collection's title.
+   */
+  handle?: string;
+
+  /**
+   * Specifies the collection to update or create a new collection if absent. Required for updating a collection.
+   */
+  id?: string;
+
+  /**
+   * The image associated with the collection.
+   */
+  image?: ImageInput;
+
+  /**
+   * The metafields to associate with the collection.
+   */
+  metafields?: MetafieldInput[];
+
+  /**
+   * Initial list of collection products. Only valid with collectionCreate and without rules.
+   */
+  products?: string[];
+
+  /**
+   * Indicates whether a redirect is required after a new handle has been provided.
+   * If true, then the old handle is redirected to the new one automatically.
+   * @default false
+   */
+  redirectNewHandle?: boolean;
+
+  /**
+   * The rules used to assign products to the collection.
+   */
+  ruleSet?: CollectionRuleSetInput;
+
+  /**
+   * SEO information for the collection.
+   */
+  seo?: SEOInput;
+
+  /**
+   * The order in which the collection's products are sorted.
+   */
+  sortOrder?: CollectionSortOrder;
+
+  /**
+   * The theme template used when viewing the collection in a store.
+   */
+  templateSuffix?: string;
+
+  /**
+   * The title of the collection. Required for creating a new collection.
+   */
+  title?: string;
+}
+
+/**
+ * The input fields for a rule set of the collection.
+ */
+export interface CollectionRuleSetInput {
+  /**
+   * Whether products must match any or all of the rules to be included in the collection.
+   * If true, then products must match at least one of the rules to be included in the collection.
+   * If false, then products must match all of the rules to be included in the collection.
+   */
+  appliedDisjunctively: boolean;
+
+  /**
+   * The rules used to assign products to the collection.
+   */
+  rules?: CollectionRuleInput[];
+}
+
+export interface CollectionRuleInput {
+  /**
+   * The attribute that the rule focuses on. For example, `title` or `product_type`.
+   */
+  column: CollectionRuleColumn;
+
+  /**
+   * The value that the operator is applied to. For example, `Hats`.
+   */
+  condition: string;
+
+  /**
+   * The object ID that points to additional attributes for the collection rule.
+   * This is only required when using metafield definition rules.
+   */
+  conditionObjectId?: string;
+
+  /**
+   * The type of operator that the rule is based on. For example, `equals`, `contains`, or `not_equals`.
+   */
+  relation: CollectionRuleRelation;
+}
+
+export interface SEOInput {
+  /**
+   * SEO description of the product.
+   */
+  description?: string;
+
+  /**
+   * SEO title of the product.
+   */
+  title?: string;
+}
+
 interface BaseMetafieldInput {
   /**
    * The unique ID of the metafield. Required when updating.
@@ -384,8 +1152,12 @@ interface BaseMetafieldInput {
 }
 
 export type UpdateMetafieldInput = RequireFields<BaseMetafieldInput, "id">;
-export type CreateMetafieldInput = RequireFields<BaseMetafieldInput, "key" | "namespace" | "type">;
+export type CreateMetafieldInput = RequireFields<
+  BaseMetafieldInput,
+  "key" | "namespace" | "type"
+>;
 export type MetafieldInput = UpdateMetafieldInput | CreateMetafieldInput;
+
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                                 Error Types                                  ║
