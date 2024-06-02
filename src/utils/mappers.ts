@@ -1,16 +1,16 @@
 import {
+  Edge,
   Edges,
+  ProductMetafield,
   ProductNode,
   ProductVariantEdge,
-  ProductVariantMetafieldEdge,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
 import { sanitizeHtml } from "./formatters";
 import {
   Product,
+  ProductMetafields,
   ProductVariant,
-  ProductVariantMetafieldValue,
-  ProductVariantMetafields,
   ProductWithCustomization,
 } from "./types";
 import { isDefined } from "./validators";
@@ -21,14 +21,11 @@ import { isDefined } from "./validators";
  *  ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
-export const mapProductVariantMetafields = (
-  metafield: Edges<ProductVariantMetafieldEdge>
-): ProductVariantMetafields => {
+export const mapMetafields = <DATA extends { key: string }, RESPONSE>(
+  metafield: Edges<Edge<DATA>>
+): RESPONSE => {
   const metafieldEntries = metafield.edges.map(({ node: { key, ...node } }) => {
-    const value = {
-      ...node,
-    } satisfies ProductVariantMetafieldValue;
-    return [key, value];
+    return [key, node];
   });
   return Object.fromEntries(metafieldEntries);
 };
@@ -111,8 +108,7 @@ export const mapProductVariantNodeToProductVariant = (
         height: node.image.height,
         id: node.image.id,
       },
-      metafields:
-        node.metafields && mapProductVariantMetafields(node.metafields),
+      metafields: node.metafields && mapMetafields(node.metafields),
     };
     node.selectedOptions.forEach((option) => {
       variant[option.name as ProductVariantOptionType] = option.value;
@@ -145,9 +141,14 @@ export function mapProduct(product: ProductNode): Product {
   };
 }
 
-export function mapCustomProduct(product: ProductNode): Product {
-  const customProduct = mapProduct(product);
-  const validCustomVariants = customProduct.variants?.filter((variant) => {
+export function mapCustomProduct(
+  product: ProductNode
+): ProductWithCustomization {
+  const { variants, ...customProduct } = mapProduct(product);
+  const metafields =
+    product.metafields &&
+    mapMetafields<ProductMetafield, ProductMetafields>(product.metafields);
+  const validCustomVariants = variants?.filter((variant) => {
     const hasImage = Boolean(variant.image || variant.media);
     const hasMetafields = Boolean(variant.metafields);
     const hasValidMetafiels = Boolean(
@@ -157,16 +158,18 @@ export function mapCustomProduct(product: ProductNode): Product {
     );
     return hasImage && hasMetafields && hasValidMetafiels;
   });
-  return { ...customProduct, variants: validCustomVariants };
+  return { ...customProduct, metafields, customVariants: validCustomVariants };
 }
 
 export const mergeCustomProduct = (
   product: Product,
-  customProduct?: Product
+  customProduct?: ProductWithCustomization
 ): ProductWithCustomization => {
+  const customVariants = customProduct?.variants;
   return {
     ...product,
-    customProduct,
+    customVariants,
+    metafields: customProduct?.metafields,
   };
 };
 

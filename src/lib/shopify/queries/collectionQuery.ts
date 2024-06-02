@@ -1,11 +1,13 @@
 import { Collection, Edge, Edges, ProductNode } from "@/lib/types/shopify";
+import { PRODUCT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
+import { getMetafieldsFragment } from "../fragments";
 
 export type CollectionPayload = Pick<
   Collection,
   "id" | "title" | "handle" | "updatedAt"
 > & {
-  products: Edges<Edge<Pick<ProductNode, "id">>>;
+  products: Edges<Edge<Pick<ProductNode, "id" | "metafields">>>;
 };
 interface CollectionResponse {
   collectionByHandle?: CollectionPayload;
@@ -22,6 +24,7 @@ export const collectionByHandleQuery = /* GraphQL */ `
           cursor
           node {
             id
+            ${getMetafieldsFragment(PRODUCT_METADATA_NAMESPACE)}
           }
         }
       }
@@ -29,7 +32,7 @@ export const collectionByHandleQuery = /* GraphQL */ `
   }
 `;
 
-export function fetchCollection(handle: string, first = 20) {
+export function fetchCollection(handle: string, first = 99) {
   return adminClient.request<CollectionResponse>(collectionByHandleQuery, {
     variables: {
       handle,
