@@ -1,5 +1,10 @@
 import { toFloat } from "./parsers";
-import { Product, ProductVariant, ProductVariantOption } from "./types";
+import {
+  Product,
+  ProductVariant,
+  ProductVariantOption,
+  ProductWithCustomization,
+} from "./types";
 import {
   isDefined,
   isEmptyObject,
@@ -83,12 +88,21 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
 interface CustomProductIdProps {
   userId: string;
   productId: string;
-  variantTitle: string;
 }
 export const getCustomProductId = (product: CustomProductIdProps) => {
-  return `${product.userId}-${product.productId}-${product.variantTitle}`;
+  return `${product.userId}-${product.productId}`;
 };
 
+export const getCustomProductByOriginProductId = <
+  T extends Pick<ProductWithCustomization, "metafields">,
+>(
+  products: T[] | undefined,
+  originProductId: string
+) => {
+  return products?.find(
+    ({ metafields }) => metafields?.origin_product?.value === originProductId
+  );
+};
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                               Error Getters                                  ║
