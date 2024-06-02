@@ -126,7 +126,11 @@ describe("ImageGallery", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: jest.fn(),
-          selectedVariant: productWithMoreImages.variants[1],
+          selectedVariant: {
+            ...productWithMoreImages.variants[1],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ImageGallery product={productWithMoreImages} />
