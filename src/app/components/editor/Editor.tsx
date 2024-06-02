@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Area } from "react-easy-crop";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
@@ -75,6 +76,7 @@ const validatePreviewFormData = (formData: FormData) => {
 };
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
+  const router = useRouter();
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const { status, statusMessage, updateStatus } = useEditorStatus();
   const [isCropActive, setIsCropActive] = useState(false);
@@ -312,13 +314,22 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           />
         </div>
       </div>
-      <div className="md:flex flex-1 items-center justify-center mt-4">
+      <div className="flex w-full flex-1 flex-col sm:flex-row items-center justify-end my-10">
         <Button
           color="primary"
           onClick={handleFinishEdit}
           disabled={status === "loading"}
+          className="w-full sm:w-6/12 lg:w-3/12 md:w-4/12"
         >
           {BUTTON_TEXT.finishEdit}
+        </Button>
+        <Button
+          outline
+          onClick={() => router.back()}
+          disabled={status === "loading"}
+          className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
+        >
+          {BUTTON_TEXT.back}
         </Button>
       </div>
     </>

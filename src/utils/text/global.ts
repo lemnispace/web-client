@@ -15,6 +15,7 @@ export const BUTTON_TEXT = {
   generate: "Generate",
   cancel: "Cancel",
   crop: "Crop",
+  back: "Back",
   finishEdit: "Craft Your Masterpiece",
 } as const;
 

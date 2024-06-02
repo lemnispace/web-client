@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/button";
 import { BUTTON_TEXT } from "@/utils/text";
-import { Product, ProductVariant } from "@/utils/types";
+import { Product } from "@/utils/types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useContext } from "react";
