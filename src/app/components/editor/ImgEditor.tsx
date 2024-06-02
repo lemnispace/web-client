@@ -1,9 +1,11 @@
 "use client";
 
 import { CustomProductResponse } from "@/app/api/products/route";
+import { Button } from "@/components/button";
 import { getDimensionsFromVariant } from "@/utils/getters";
-import { IMAGE_EDITOR_TEXT } from "@/utils/text";
+import { BUTTON_TEXT, IMAGE_EDITOR_TEXT } from "@/utils/text";
 import { ClientResponse, Product, ProductVariant } from "@/utils/types";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -50,6 +52,7 @@ export default function ImgEditor({
   product,
   ...props
 }: ImgUploaderProps) {
+  const router = useRouter();
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dimensions = getDimensionsFromVariant(productVariant);
@@ -114,6 +117,17 @@ export default function ImgEditor({
         inputRef={inputRef}
         className={uploadedImg ? "hidden" : ""}
       />
+      {!uploadedImg && (
+        <div className="flex w-full flex-1 flex-col sm:flex-row items-center justify-end my-10">
+          <Button
+            outline
+            onClick={() => router.back()}
+            className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
+          >
+            {BUTTON_TEXT.back}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
