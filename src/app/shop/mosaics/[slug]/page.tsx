@@ -1,20 +1,14 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
-import { fetchCollection } from "@/lib/shopify/queries/collectionQuery";
-import {
-  fetchCustomProduct,
-  fetchProduct,
-} from "@/lib/shopify/queries/productQuery";
-import { ProductMetafield } from "@/lib/types/shopify";
+import { fetchProduct } from "@/lib/shopify/queries/productQuery";
 import { TEMP_USER_ID } from "@/utils/constants";
 import {
-  mapCustomProduct,
-  mapMetafields,
-  mapProduct,
-  mergeCustomProduct,
-} from "@/utils/mappers";
-import { parseClientResponse, tryParseClientResponse } from "@/utils/parsers";
-import { ProductMetafields } from "@/utils/types";
+  fetchCustomProductData,
+  fetchCustomProductsFromUserCollection,
+} from "@/utils/fetchers";
+import { getCustomProductByOriginProductId } from "@/utils/getters";
+import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
+import { parseClientResponse } from "@/utils/parsers";
 import { redirect } from "next/navigation";
 
 interface MosaicProps {
@@ -22,18 +16,6 @@ interface MosaicProps {
     slug: string;
   };
 }
-
-const fetchCustomProducts = async () => {
-  const collectionResponse = await fetchCollection(TEMP_USER_ID);
-  const collection = tryParseClientResponse(collectionResponse);
-
-  return collection?.collectionByHandle?.products?.edges?.map((e) => ({
-    ...e.node,
-    metafields:
-      e.node.metafields &&
-      mapMetafields<ProductMetafield, ProductMetafields>(e.node.metafields),
-  }));
-};
 
 const fetchProductData = async (handle: string) => {
   const productResponse = await fetchProduct({ handle });
@@ -46,22 +28,9 @@ const fetchProductData = async (handle: string) => {
   );
 };
 
-const fetchCustomProductData = async (customProductId: string | undefined) => {
-  if (!customProductId) return undefined;
-
-  const customProductResponse = await fetchCustomProduct(customProductId);
-  const parsedCustomProductResponse = tryParseClientResponse(
-    customProductResponse
-  );
-  return (
-    parsedCustomProductResponse?.product &&
-    mapCustomProduct(parsedCustomProductResponse.product)
-  );
-};
-
 export default async function Mosaic(props: MosaicProps) {
   const [customProducts, product] = await Promise.all([
-    fetchCustomProducts(),
+    fetchCustomProductsFromUserCollection(TEMP_USER_ID),
     fetchProductData(props.params.slug),
   ]);
 
@@ -70,8 +39,9 @@ export default async function Mosaic(props: MosaicProps) {
     redirect("/not-found");
   }
 
-  const customProductId = customProducts?.find(
-    ({ metafields }) => metafields?.origin_product?.value === product.id
+  const customProductId = getCustomProductByOriginProductId(
+    customProducts,
+    product.id
   )?.id;
 
   const customProduct = await fetchCustomProductData(customProductId);

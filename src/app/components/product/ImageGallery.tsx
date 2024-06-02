@@ -2,7 +2,12 @@
 
 import { ProductVariantOptionType } from "@/lib/types/shopify";
 import { getVariantById } from "@/utils/getters";
-import { Product, ProductImg } from "@/utils/types";
+import {
+  Product,
+  ProductImg,
+  ProductVariant,
+  ProductWithCustomization,
+} from "@/utils/types";
 import { isDefined } from "@/utils/validators";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
@@ -20,18 +25,29 @@ interface ImageVariant extends ProductImg {
 }
 
 const getImagesByVariant = (
-  product: Product,
+  product: ProductWithCustomization,
   variantType: ProductVariantOptionType,
   value: string
 ): ImageVariant[] => {
   if (!product.variants) {
     return [];
   }
+  const customVariantsByOriginVariantId = new Map<string, ProductVariant>();
+  product.customVariants?.forEach((variant) => {
+    if (variant.metafields?.origin_product_variant?.value) {
+      customVariantsByOriginVariantId.set(
+        variant.metafields?.origin_product_variant?.value,
+        variant
+      );
+    }
+  });
   return product.variants
     .filter((variant) => variant[variantType] === value)
-    .map(
-      (variant) => variant.image && { variantId: variant.id, ...variant.image }
-    )
+    .map((variant) => {
+      const customVariant = customVariantsByOriginVariantId.get(variant.id);
+      const image = customVariant?.image ?? variant.image;
+      return image && { variantId: variant.id, ...image };
+    })
     .filter(isDefined);
 };
 
