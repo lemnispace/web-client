@@ -103,6 +103,30 @@ export const getCustomProductByOriginProductId = <
     ({ metafields }) => metafields?.origin_product?.value === originProductId
   );
 };
+
+export const getCustomProductByOriginProductHandle = <
+  T extends Pick<ProductWithCustomization, "metafields">,
+>(
+  products: T[] | undefined,
+  originProductHandle: string
+) => {
+  return products?.find(
+    ({ metafields }) =>
+      metafields?.origin_product?.reference?.handle === originProductHandle
+  );
+};
+
+export const getCustomVariantByOriginVariantId = <
+  T extends Pick<ProductWithCustomization, "customVariants">,
+>(
+  product: T,
+  originVariantId: string
+) => {
+  return product.customVariants?.find(
+    (variant) =>
+      variant.metafields?.origin_product_variant?.value === originVariantId
+  );
+};
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                               Error Getters                                  ║

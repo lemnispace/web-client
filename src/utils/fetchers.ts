@@ -1,10 +1,38 @@
 import { fetchCollection } from "@/lib/shopify/queries/collectionQuery";
-import { fetchCustomProduct } from "@/lib/shopify/queries/productQuery";
+import {
+  ProductVariables,
+  fetchCustomProduct,
+  fetchProduct,
+} from "@/lib/shopify/queries/productQuery";
 import { ProductMetafield } from "@/lib/types/shopify";
-import { getCustomProductByOriginProductId } from "./getters";
-import { mapCustomProduct, mapMetafields } from "./mappers";
-import { tryParseClientResponse } from "./parsers";
+import {
+  getCustomProductByOriginProductHandle,
+  getCustomProductByOriginProductId,
+} from "./getters";
+import { mapCustomProduct, mapMetafields, mapProduct } from "./mappers";
+import { parseClientResponse, tryParseClientResponse } from "./parsers";
 import { ProductMetafields } from "./types";
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                  Products                                    ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export const fetchProductData = async (params: ProductVariables) => {
+  const productResponse = await fetchProduct(params);
+  const { product } = parseClientResponse(
+    productResponse,
+    "Error getting product"
+  );
+  return product && mapProduct(product);
+};
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Custom Products                              ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
 
 export const fetchCustomProductsFromUserCollection = async (userId: string) => {
   const collectionResponse = await fetchCollection(userId);
@@ -35,16 +63,31 @@ export const fetchCustomProductData = async (
   return customProduct && mapCustomProduct(customProduct);
 };
 
-export const fetchCustomProductByOriginProductId = async (
-  originProductId: string,
-  userId: string
+type CustomProductByOriginProductProps =
+  | {
+      originProductId: string;
+      userId: string;
+    }
+  | {
+      originProductHandle: string;
+      userId: string;
+    };
+export const fetchCustomProductByOriginProduct = async (
+  params: CustomProductByOriginProductProps
 ) => {
   const customProductsFromCollection =
-    await fetchCustomProductsFromUserCollection(userId);
-  const customProductId = getCustomProductByOriginProductId(
-    customProductsFromCollection,
-    originProductId
-  )?.id;
-
+    await fetchCustomProductsFromUserCollection(params.userId);
+  let customProductId: string | undefined = undefined;
+  if ("originProductHandle" in params) {
+    customProductId = getCustomProductByOriginProductHandle(
+      customProductsFromCollection,
+      params.originProductHandle
+    )?.id;
+  } else {
+    customProductId = getCustomProductByOriginProductId(
+      customProductsFromCollection,
+      params.originProductId
+    )?.id;
+  }
   return tryFetchCustomProduct(customProductId);
 };

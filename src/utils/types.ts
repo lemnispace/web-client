@@ -57,6 +57,7 @@ export interface Product extends ProductItem {
 export interface ProductWithCustomization extends Product {
   customVariants?: ProductVariant[];
   metafields?: ProductMetafields;
+  customProductId?: string;
 }
 
 export interface BaseResponse {
