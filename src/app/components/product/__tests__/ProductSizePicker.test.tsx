@@ -65,7 +65,11 @@ describe("ProductSizePicker", () => {
     const { getAllByRole, getByRole } = render(
       <ProductVariantContext.Provider
         value={{
-          selectedVariant: product.variants[0],
+          selectedVariant: {
+            ...product.variants[0],
+            hasCustomization: false,
+            customization: undefined,
+          },
           setSelectedVariant: mockSetSelectedVariant,
         }}
       >

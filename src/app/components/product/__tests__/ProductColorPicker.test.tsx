@@ -65,7 +65,11 @@ describe("ProductColorPicker", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: jest.fn(),
-          selectedVariant: mockProduct.variants[1],
+          selectedVariant: {
+            ...mockProduct.variants[1],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ProductColorPicker product={mockProduct} />
@@ -95,7 +99,11 @@ describe("ProductColorPicker", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: mockOnColorChange,
-          selectedVariant: mockProduct.variants[1],
+          selectedVariant: {
+            ...mockProduct.variants[1],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ProductColorPicker product={mockProduct} />
@@ -117,7 +125,11 @@ describe("ProductColorPicker", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: mockOnColorChange,
-          selectedVariant: mockProduct.variants[0],
+          selectedVariant: {
+            ...mockProduct.variants[0],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ProductColorPicker product={mockProduct} />
@@ -138,7 +150,11 @@ describe("ProductColorPicker", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: jest.fn(),
-          selectedVariant: mockProduct.variants[0],
+          selectedVariant: {
+            ...mockProduct.variants[0],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ProductColorPicker product={mockProduct} />

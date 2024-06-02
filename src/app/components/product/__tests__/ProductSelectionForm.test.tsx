@@ -50,7 +50,11 @@ describe("ProductSelectionForm", () => {
       <ProductVariantContext.Provider
         value={{
           setSelectedVariant: jest.fn(),
-          selectedVariant: mockProduct.variants[1],
+          selectedVariant: {
+            ...mockProduct.variants[1],
+            hasCustomization: false,
+            customization: undefined,
+          },
         }}
       >
         <ProductSelectionForm onSubmit={mockOnSubmit} product={mockProduct} />
