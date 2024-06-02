@@ -20,7 +20,7 @@ jobs:
       LEMNISPACE_PRODUCTS_API_KEY: ${{ secrets.LEMNISPACE_PRODUCTS_API_KEY }}
       LEMNISPACE_PRODUCTS_API_SECRET_KEY: ${{ secrets.LEMNISPACE_PRODUCTS_API_SECRET_KEY }}
       LEMNISPACE_SHOP_NAME: ${{ vars.LEMNISPACE_SHOP_NAME }}
-      NODE_ENV: production
+      NODE_ENV: development
 
     steps:
       - name: Checkout code
