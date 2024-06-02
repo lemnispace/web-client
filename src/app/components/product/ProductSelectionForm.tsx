@@ -8,7 +8,10 @@ import clsx from "clsx";
 import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
-import { ProductVariantContext } from "./ProductView";
+import {
+  ProductVariantContext,
+  ProductVariantWithCustomization,
+} from "./ProductView";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
@@ -25,7 +28,7 @@ type ProductFormData = ColorFormValue & {
   size?: string;
 };
 
-const variantToQueryParams = (variant: ProductVariant) => {
+const variantToQueryParams = (variant: ProductVariantWithCustomization) => {
   const params = new URLSearchParams();
   // we need to add the variant id to the query params in the create page
   params.set("variant", variant.id);
@@ -34,7 +37,7 @@ const variantToQueryParams = (variant: ProductVariant) => {
 
 const getVariantCreateUrl = (
   baseUrl: string,
-  variant: ProductVariant | undefined | null
+  variant: ProductVariantWithCustomization | undefined | null
 ) => {
   const url = `${baseUrl}/create`;
   const params = variant && variantToQueryParams(variant);

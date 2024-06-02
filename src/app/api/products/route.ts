@@ -20,7 +20,7 @@ import {
   VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
   VARIANT_METADATA_USER_ID_KEY,
 } from "@/utils/constants";
-import { fetchCustomProductByOriginProductId } from "@/utils/fetchers";
+import { fetchCustomProductByOriginProduct } from "@/utils/fetchers";
 import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapCustomProduct, mapProduct } from "@/utils/mappers";
 import { parseApiResponse, parseClientResponse } from "@/utils/parsers";
@@ -226,10 +226,10 @@ const fetchOrCreateCustomProduct = async (
   originProductId: string,
   userId: string
 ) => {
-  const customProduct = await fetchCustomProductByOriginProductId(
+  const customProduct = await fetchCustomProductByOriginProduct({
     originProductId,
-    userId
-  );
+    userId,
+  });
   if (customProduct) {
     return customProduct;
   }

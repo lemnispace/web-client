@@ -167,6 +167,7 @@ export const mergeCustomProduct = (
     ...product,
     customVariants: customProduct?.variants ?? customProduct?.customVariants,
     metafields: customProduct?.metafields,
+    customProductId: customProduct?.id,
   };
 };
 

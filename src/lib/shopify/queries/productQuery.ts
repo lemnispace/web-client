@@ -98,7 +98,7 @@ export interface ProductResponse {
   product?: ProductNode;
 }
 
-type ProductVariables =
+export type ProductVariables =
   | {
       handle: string;
     }

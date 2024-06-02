@@ -18,8 +18,10 @@ interface ProductViewProps {
   product: ProductWithCustomization;
 }
 
-interface ProductVariantWithCustomization extends ProductVariant {
+export interface ProductVariantWithCustomization extends ProductVariant {
   hasCustomization: boolean;
+  customization: ProductVariant | undefined;
+  customProductId?: string;
 }
 
 interface ProductVariantContextProps {
@@ -61,9 +63,15 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
       selectedVariant && {
         ...selectedVariant,
         hasCustomization: Boolean(selectedCustomVariant),
+        customization: selectedCustomVariant,
+        customProductId: product.customProductId,
       }
     );
-  }, [selectedVariant, customVariantsByOriginVariantId]);
+  }, [
+    selectedVariant,
+    product.customProductId,
+    customVariantsByOriginVariantId,
+  ]);
 
   return (
     <ProductVariantContext.Provider
