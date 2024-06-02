@@ -60,32 +60,50 @@ export default function ProductSelectionForm({
     <form {...props} onSubmit={handleSubmit}>
       <ProductColorPicker product={product} />
       <ProductSizePicker product={product} className="mt-8" />
-      <div className="mt-10 flex flex-col sm:flex-row sm:w-full">
-        <Button
-          type="submit"
-          color="primary"
-          disabled
-          className={clsx(
-            "flex max-w-xs flex-1 sm:w-full",
-            formState === "READY" && "cursor-pointer"
-          )}
-        >
-          {BUTTON_TEXT.addToCart}
-        </Button>
+      <div
+        className={clsx(
+          "mt-10 flex flex-col sm:w-full sm:flex-row",
+          !selectedVariant?.hasCustomization && "lg:flex-row-reverse"
+        )}
+      >
+        {selectedVariant?.hasCustomization && (
+          <Button
+            type="submit"
+            color="primary"
+            className={clsx(
+              "flex max-w-xs flex-1 sm:w-full",
+              formState === "READY" && "cursor-pointer"
+            )}
+          >
+            {BUTTON_TEXT.addToCart}
+          </Button>
+        )}
         <Button
           href={getVariantCreateUrl(product.href, selectedVariant)}
           disabled={!selectedVariant}
-          outline
+          {...(selectedVariant?.hasCustomization
+            ? { outline: true }
+            : { color: "secondary" })}
           className={clsx(
-            "mt-4 sm:ml-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full border-secondary-500",
+            selectedVariant?.hasCustomization && "sm:ml-4",
+            "mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full border-secondary-500",
             formState === "READY" && "cursor-pointer"
           )}
         >
-          <span className="text-secondary-500">
+          <span
+            className={clsx(
+              selectedVariant?.hasCustomization && "text-secondary-500"
+            )}
+          >
             {BUTTON_TEXT.goToCustomize}
           </span>
           <PencilSquareIcon
-            className="h-6 w-6 flex-shrink-0 stroke-secondary-500"
+            className={clsx(
+              "h-6 w-6 flex-shrink-0",
+              selectedVariant?.hasCustomization
+                ? "stroke-secondary-500"
+                : "stroke-white"
+            )}
             aria-hidden="true"
           />
         </Button>
