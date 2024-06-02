@@ -208,8 +208,15 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
     }
     if (fCanvas) {
       try {
+        updateStatus({
+          status: "loading",
+          message: IMAGE_EDITOR_STATUS_TEXT.createCustomProduct.progress,
+        });
         const file = await canvasToFile(fCanvas);
         await props.onEditComplete(file);
+        updateStatus({
+          status: "idle",
+        });
       } catch (error) {
         console.error(error);
         updateStatus({
@@ -305,8 +312,12 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           />
         </div>
       </div>
-      <div className="md:flex flex-1 items-center justify-center">
-        <Button color="primary" onClick={handleFinishEdit}>
+      <div className="md:flex flex-1 items-center justify-center mt-4">
+        <Button
+          color="primary"
+          onClick={handleFinishEdit}
+          disabled={status === "loading"}
+        >
           {BUTTON_TEXT.finishEdit}
         </Button>
       </div>
