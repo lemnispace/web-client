@@ -41,7 +41,7 @@ export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
  * PRODUCT METADATA
  * */
 
-export const PRODUCT_METADATA_NAMESPACE = VARIANT_METADATA_NAMESPACE;
+export const PRODUCT_METADATA_NAMESPACE = "custom";
 export const PRODUCT_METADATA_ORIGIN_PRODUCT_KEY = "origin_product";
 export type ProductMetadataKey = typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY;
 /*

@@ -20,6 +20,7 @@ import {
   VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
   VARIANT_METADATA_USER_ID_KEY,
 } from "@/utils/constants";
+import { fetchCustomProductByOriginProductId } from "@/utils/fetchers";
 import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapCustomProduct, mapProduct } from "@/utils/mappers";
 import { parseApiResponse, parseClientResponse } from "@/utils/parsers";
@@ -123,7 +124,7 @@ const addProductToCollection = async (
     metafields: [
       {
         type: "product_reference",
-        id: product.metafields?.[VARIANT_METADATA_ORIGIN_PRODUCT_KEY]?.id,
+        id: product.metafields?.[PRODUCT_METADATA_ORIGIN_PRODUCT_KEY]?.id,
         namespace: PRODUCT_METADATA_NAMESPACE,
         key: PRODUCT_METADATA_ORIGIN_PRODUCT_KEY,
         value: referenceProductId,
@@ -221,9 +222,34 @@ const updateCustomProductVariantWithImage = async ({
   return updatedCustomVariant;
 };
 
-const createCustomProduct = async (
-  formData: FormData
-): Promise<CreateCustomProductResponse> => {
+const fetchOrCreateCustomProduct = async (
+  originProductId: string,
+  userId: string
+) => {
+  const customProduct = await fetchCustomProductByOriginProductId(
+    originProductId,
+    userId
+  );
+  if (customProduct) {
+    return customProduct;
+  }
+  // If no custom product exists, duplicate the origin product
+  const duplicateProductResponse = await duplicateProduct({
+    newStatus: "DRAFT",
+    productId: originProductId,
+    newTitle: getCustomProductId({
+      userId: userId,
+      productId: originProductId,
+    }),
+  });
+  const duplicateProductData = parseClientResponse(
+    duplicateProductResponse,
+    "Error duplicating product"
+  );
+  return duplicateProductData.productDuplicate.newProduct;
+};
+
+const validateFormData = (formData: FormData) => {
   const validatedFields = schema.safeParse({
     file: formData.get("file"),
     productId: formData.get("productId"),
@@ -236,59 +262,50 @@ const createCustomProduct = async (
       validatedFields.error.flatten().fieldErrors
     );
     return {
-      data: undefined,
-      status: 400,
       errors: validatedFields.error.flatten().fieldErrors,
     };
   }
-  try {
-    const [stagedImageUploadResponse, duplicateProductResponse] =
-      await Promise.all([
-        stageImageForUpload(
-          validatedFields.data.file,
-          getCustomProductId({
-            productId: validatedFields.data.productId,
-            variantTitle: validatedFields.data.variantTitle,
-            userId: TEMP_USER_ID,
-          })
-        ),
-        duplicateProduct({
-          newStatus: "DRAFT",
-          productId: validatedFields.data.productId,
-          newTitle: getCustomProductId({
-            userId: TEMP_USER_ID,
-            productId: validatedFields.data.productId,
-            variantTitle: validatedFields.data.variantTitle,
-          }),
-        }),
-      ]);
+  return { data: validatedFields.data };
+};
 
-    const duplicateProductData = parseClientResponse(
-      duplicateProductResponse,
-      "Error duplicating product"
-    );
+interface CreateCustomProductParams {
+  productId: string;
+  variantId: string;
+  variantTitle: string;
+  file: File;
+}
+const createCustomProduct = async (
+  params: CreateCustomProductParams
+): Promise<CreateCustomProductResponse> => {
+  try {
+    const [stagedImageUploadResponse, customProduct] = await Promise.all([
+      stageImageForUpload(
+        params.file,
+        getCustomProductId({
+          productId: params.productId,
+          userId: TEMP_USER_ID,
+        })
+      ),
+      fetchOrCreateCustomProduct(params.productId, TEMP_USER_ID),
+    ]);
 
     const [updatedCustomVariant, collection] = await Promise.all([
       updateCustomProductVariantWithImage({
-        customProduct: duplicateProductData.productDuplicate.newProduct,
-        originProductId: validatedFields.data.productId,
-        originProductVariantId: validatedFields.data.variantId,
+        customProduct,
+        originProductId: params.productId,
+        originProductVariantId: params.variantId,
         userId: TEMP_USER_ID,
         resourceUrl: stagedImageUploadResponse.resourceUrl,
-        variantTitle: validatedFields.data.variantTitle,
+        variantTitle: params.variantTitle,
       }),
-      addProductToCollection(
-        TEMP_USER_ID,
-        duplicateProductData.productDuplicate.newProduct,
-        validatedFields.data.productId
-      ),
+      addProductToCollection(TEMP_USER_ID, customProduct, params.productId),
     ]);
 
     return {
       status: 200,
       data: {
-        productId: duplicateProductData.productDuplicate.newProduct.id,
-        productHandle: duplicateProductData.productDuplicate.newProduct.handle,
+        productId: customProduct.id,
+        productHandle: customProduct.handle,
         variantId: updatedCustomVariant.id,
         collection: {
           id: collection.id,
@@ -311,7 +328,16 @@ export const POST = async (
 ): Promise<ServerApiResponse<CustomProductResponse>> => {
   try {
     const formData = await req.formData();
-    const createCustomProductResponse = await createCustomProduct(formData);
+    const validatedFields = validateFormData(formData);
+    if (validatedFields.errors) {
+      return NextResponse.json(
+        { errors: validatedFields.errors, data: undefined },
+        { status: 400 }
+      );
+    }
+    const createCustomProductResponse = await createCustomProduct(
+      validatedFields.data
+    );
     const result = await parseApiResponse(
       createCustomProductResponse,
       "Error creating custom product"

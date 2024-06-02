@@ -141,9 +141,7 @@ export function mapProduct(product: ProductNode): Product {
   };
 }
 
-export function mapCustomProduct(
-  product: ProductNode
-): ProductWithCustomization {
+export function mapCustomProduct(product: ProductNode) {
   const { variants, ...customProduct } = mapProduct(product);
   const metafields =
     product.metafields &&
@@ -158,17 +156,16 @@ export function mapCustomProduct(
     );
     return hasImage && hasMetafields && hasValidMetafiels;
   });
-  return { ...customProduct, metafields, customVariants: validCustomVariants };
+  return { ...customProduct, metafields, variants: validCustomVariants };
 }
 
 export const mergeCustomProduct = (
   product: Product,
   customProduct?: ProductWithCustomization
 ): ProductWithCustomization => {
-  const customVariants = customProduct?.variants;
   return {
     ...product,
-    customVariants,
+    customVariants: customProduct?.variants ?? customProduct?.customVariants,
     metafields: customProduct?.metafields,
   };
 };
