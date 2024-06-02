@@ -1,11 +1,12 @@
 import {
+  ProductMetafield,
   ProductPriceRange,
   ProductVariantMetafield,
   ProductVariantNode,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
 import { NextResponse } from "next/server";
-import { VariantMetadataKey } from "./constants";
+import { ProductMetadataKey, VariantMetadataKey } from "./constants";
 
 export interface ProductImg {
   src: string;
@@ -23,6 +24,11 @@ export type ProductVariantMetafieldValue = Omit<ProductVariantMetafield, "key">;
 
 export type ProductVariantMetafields = {
   [K in VariantMetadataKey]?: ProductVariantMetafieldValue;
+};
+
+export type ProductMetafieldValue = Omit<ProductMetafield, "key">;
+export type ProductMetafields = {
+  [K in ProductMetadataKey]?: ProductMetafieldValue;
 };
 export interface ProductVariant
   extends ProductVariantOption,
@@ -49,7 +55,8 @@ export interface Product extends ProductItem {
 }
 
 export interface ProductWithCustomization extends Product {
-  customProduct?: Product;
+  customVariants?: ProductVariant[];
+  metafields?: ProductMetafields;
 }
 
 export interface BaseResponse {

@@ -15,6 +15,10 @@ export const MAX_IMG_FILE_SIZE = MAX_IMG_FILE_SIZE_MB * 1024 * 1024; // 10MB in 
  *                                                                         *
  ***************************************************************************
  */
+
+/**
+ * VARIANT METADATA
+ */
 export const VARIANT_METADATA_NAMESPACE = "custom";
 export const VARIANT_METADATA_PREVIEW_IMAGE_KEY = "preview_image";
 export const VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY =
@@ -32,3 +36,19 @@ export type VariantMetadataKey =
   | typeof VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY;
 
 export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
+
+/**
+ * PRODUCT METADATA
+ * */
+
+export const PRODUCT_METADATA_NAMESPACE = VARIANT_METADATA_NAMESPACE;
+export const PRODUCT_METADATA_ORIGIN_PRODUCT_KEY = "origin_product";
+export type ProductMetadataKey = typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY;
+/*
+ ***************************************************************************
+ *                                                                         *
+ *                    Temporary Constants                                  *
+ *                                                                         *
+ ***************************************************************************
+ */
+export const TEMP_USER_ID = "bda86db3-d3c0-4983-99ec-87d4da67d874"; // replace with user id from session;

@@ -1,7 +1,11 @@
 import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
-import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
+import {
+  PRODUCT_METADATA_NAMESPACE,
+  VARIANT_METADATA_NAMESPACE,
+} from "@/utils/constants";
 import adminClient from "../adminClient";
 import {
+  getMetafieldsFragment,
   getVariantEdgesFragment,
   getVariantEdgesWithMetafieldsFragment,
   imageFragment,
@@ -70,6 +74,7 @@ query getProductWithMetafields($id: ID!) {
       maxVariantPrice ${moneyFragment}
       minVariantPrice ${moneyFragment}
     }
+    ${getMetafieldsFragment(PRODUCT_METADATA_NAMESPACE)}
     variants(first: 99) ${getVariantEdgesWithMetafieldsFragment(
       VARIANT_METADATA_NAMESPACE
     )}

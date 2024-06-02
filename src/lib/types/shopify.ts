@@ -23,6 +23,7 @@ export type MediaEdge = Edge<MediaNode>;
 export type ImageEdge = Edge<Image>;
 export type ProductEdge = Edge<ProductNode>;
 export type ProductVariantMetafieldEdge = Edge<ProductVariantMetafield>;
+export type ProductMetafieldEdge = Edge<ProductMetafield>;
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -180,31 +181,6 @@ export interface ProductPriceRange {
 
 export type ProductVariantOptionType = "Color" | "Size" | "Material" | "Style";
 
-export interface ProductVariantMetafield {
-  key: string;
-  id: string;
-  value: string;
-  namespace: string;
-  reference?: {
-    /**
-     * The unique ID of the reference.
-     */
-    id: string;
-    /**
-     * The image associated with the reference if the reference is an image.
-     */
-    image?: Image;
-    /**
-     * The title of the product variant if the reference is a product variant.
-     */
-    title?: string;
-    /**
-     * The handle of the product if the reference is a product.
-     */
-    handle?: string;
-  };
-}
-
 export interface ProductVariantNode {
   id: string;
   title: string;
@@ -233,6 +209,7 @@ export interface ProductNode {
   images?: Edges<ImageEdge>;
   tags: string[];
   variants?: Edges<ProductVariantEdge>;
+  metafields?: Edges<ProductMetafieldEdge>;
 }
 
 export type ProductStatus = "ACTIVE" | "ARCHIVED" | "DRAFT";
@@ -577,6 +554,48 @@ export interface MetafieldDefinitionValidation {
    * The validation value.
    */
   value?: string;
+}
+
+export interface ProductVariantMetafield {
+  key: string;
+  id: string;
+  value: string;
+  namespace: string;
+  reference?: {
+    /**
+     * The unique ID of the reference.
+     */
+    id: string;
+    /**
+     * The image associated with the reference if the reference is an image.
+     */
+    image?: Image;
+    /**
+     * The title of the product variant if the reference is a product variant.
+     */
+    title?: string;
+    /**
+     * The handle of the product if the reference is a product.
+     */
+    handle?: string;
+  };
+}
+
+export interface ProductMetafield {
+  key: string;
+  id: string;
+  value: string;
+  namespace: string;
+  reference?: {
+    /**
+     * The unique ID of the reference.
+     */
+    id: string;
+    /**
+     * The handle of the product if the reference is a product.
+     */
+    handle?: string;
+  };
 }
 
 /*
