@@ -67,6 +67,7 @@ export const getVariantFragment = (options: VariantFragmentOptions = {}) => {
       title
       ${options.includeQuantityAvailable ? "quantityAvailable" : ""}
       ${options.includePrice ? `price ${moneyFragment}` : ""}
+      sku
       selectedOptions {
         name
         value
