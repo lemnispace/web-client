@@ -190,6 +190,7 @@ export interface ProductVariantNode {
   image?: Image;
   metafields?: Edges<ProductVariantMetafieldEdge>;
   media?: Edges<MediaEdge>;
+  sku?: string;
 }
 
 /*
