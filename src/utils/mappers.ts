@@ -99,6 +99,7 @@ export const mapProductVariantNodeToProductVariant = (
     const variant: ProductVariant = {
       id: node.id,
       title: node.title,
+      sku: node.sku,
       quantityAvailable: node.quantityAvailable,
       price: node.price,
       image: node.image && {
