@@ -135,12 +135,17 @@ describe("getErrorMessage", () => {
   });
 
   it("should return the error message from response data for a Response error", async () => {
-    const error = new Response(
-      JSON.stringify({ message: "Validation failed" }),
+    let error = new Response(JSON.stringify({ message: "Validation failed" }), {
+      status: 400,
+    });
+    let message = await getErrorMessage(error);
+    expect(message).toBe("Validation failed");
+    error = new Response(
+      JSON.stringify({ error: { message: "nested error" } }),
       { status: 400 }
     );
-    const message = await getErrorMessage(error);
-    expect(message).toBe("Validation failed");
+    message = await getErrorMessage(error);
+    expect(message).toBe("nested error");
   });
   it("should return the error message from response data with an 'error' property", async () => {
     const error = new Response(JSON.stringify({ error: "API error" }), {

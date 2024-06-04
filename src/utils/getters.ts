@@ -166,6 +166,9 @@ const getResponseErrorMessage = async (
       if (isString(errorData.error)) {
         return errorData.error;
       }
+      if (isObject(errorData.error)) {
+        return getObjectErrorMessage(errorData.error, defaultMessage);
+      }
     }
     if (
       isString(errorText) &&
