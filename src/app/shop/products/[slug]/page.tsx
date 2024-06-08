@@ -11,7 +11,7 @@ import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
 import { parseClientResponse } from "@/utils/parsers";
 import { redirect } from "next/navigation";
 
-interface MosaicProps {
+interface ProductDetailsProps {
   params: {
     slug: string;
   };
@@ -28,7 +28,7 @@ const fetchProductData = async (handle: string) => {
   );
 };
 
-export default async function Mosaic(props: MosaicProps) {
+export default async function ProductDetails(props: ProductDetailsProps) {
   const [customProducts, product] = await Promise.all([
     fetchCustomProductsFromUserCollection(TEMP_USER_ID),
     fetchProductData(props.params.slug),

@@ -1,5 +1,6 @@
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import clsx from "clsx";
 import { Logo } from "./Logo";
 import MobileNavigation from "./MobileNavigation";
@@ -12,7 +13,7 @@ interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
 export function Header({ navLinks, className, ...props }: HeaderProps) {
   const separatedNavLinks: NavLinkProps[] = [
     {
-      href: "/cart",
+      href: NAVIGATION_LINKS.cart,
       children: <ShoppingCart description="items in cart, view bag" />,
     },
   ];
@@ -24,7 +25,7 @@ export function Header({ navLinks, className, ...props }: HeaderProps) {
           data-testid="main-header-nav"
         >
           <div className="flex items-center md:gap-x-12">
-            <Button href="/" aria-label="Home" plain>
+            <Button href={NAVIGATION_LINKS.home} aria-label="Home" plain>
               <Logo className="h-8 w-auto" />
             </Button>
             <div className="hidden md:flex md:gap-x-6">

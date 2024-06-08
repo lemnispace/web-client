@@ -7,7 +7,7 @@
  */
 export const MAX_IMG_FILE_SIZE_MB = 10;
 export const MAX_IMG_FILE_SIZE = MAX_IMG_FILE_SIZE_MB * 1024 * 1024; // 10MB in bytes
-
+export const DEFAULT_CURRENCY_CODE = "USD";
 /*
  ***************************************************************************
  *                                                                         *
@@ -27,13 +27,19 @@ export const VARIANT_METADATA_ORIGIN_PRODUCT_KEY = "origin_product";
 export const VARIANT_METADATA_USER_ID_KEY = "user_id";
 export const VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY =
   "customization_timestamp";
+export const VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY =
+  "printful_catalog_product_id";
+export const VARIANT_METADATA_PRINTFUL_CATALOG_VARIANT_ID_KEY =
+  "printful_catalog_variant_id";
 
 export type VariantMetadataKey =
   | typeof VARIANT_METADATA_PREVIEW_IMAGE_KEY
   | typeof VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY
   | typeof VARIANT_METADATA_ORIGIN_PRODUCT_KEY
   | typeof VARIANT_METADATA_USER_ID_KEY
-  | typeof VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY;
+  | typeof VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY
+  | typeof VARIANT_METADATA_PRINTFUL_CATALOG_VARIANT_ID_KEY
+  | typeof VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY;
 
 export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
 
@@ -43,7 +49,10 @@ export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
 
 export const PRODUCT_METADATA_NAMESPACE = "custom";
 export const PRODUCT_METADATA_ORIGIN_PRODUCT_KEY = "origin_product";
-export type ProductMetadataKey = typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY;
+export const PRODUCT_METADATA_ORIENTATION_KEY = "orientation";
+export type ProductMetadataKey =
+  | typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY
+  | typeof PRODUCT_METADATA_ORIENTATION_KEY;
 /*
  ***************************************************************************
  *                                                                         *

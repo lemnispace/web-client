@@ -1,5 +1,6 @@
 import Section from "@/components/section";
 import mosaicImg from "@/images/mosaic/mosaic-2.jpg";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import { BUTTON_TEXT, COLLECTION_TEXT } from "@/utils/text";
 import SingleCollection from "../collection/SingleCollection";
 
@@ -14,7 +15,7 @@ export default function MosaicCollection() {
       <SingleCollection
         desc={COLLECTION_TEXT.textMosaic.description}
         title={COLLECTION_TEXT.textMosaic.title}
-        href="/shop/mosaics"
+        href={NAVIGATION_LINKS.shop}
         imgSrc={mosaicImg.src}
         imgAlt="Text mosaic portrait of a loving couple"
         cta={BUTTON_TEXT.goToProduct}

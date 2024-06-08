@@ -1,14 +1,18 @@
+import { ProductsResponse } from "@/lib/shopify/queries/productQuery";
 import {
   Edge,
   Edges,
+  Image,
   ProductMetafield,
   ProductNode,
   ProductVariantEdge,
   ProductVariantOptionType,
 } from "@/lib/types/shopify";
 import { sanitizeHtml } from "./formatters";
+import { NAVIGATION_LINKS } from "./links";
 import {
   Product,
+  ProductItem,
   ProductMetafields,
   ProductVariant,
   ProductWithCustomization,
@@ -28,6 +32,37 @@ export const mapMetafields = <DATA extends { key: string }, RESPONSE>(
     return [key, node];
   });
   return Object.fromEntries(metafieldEntries);
+};
+
+export const mapProducts = (productList?: ProductsResponse): ProductItem[] => {
+  if (!productList?.products?.edges) {
+    return [];
+  }
+  return productList.products.edges.map((e) => {
+    const img = e.node.images?.edges[0]?.node as Image | undefined;
+    return {
+      id: e.node.id,
+      name: e.node.title,
+      description: e.node.description,
+      descriptionHtml: sanitizeHtml(e.node.descriptionHtml),
+      tags: e.node.tags,
+      priceRange: e.node.priceRange,
+      type: e.node.productType,
+      href: NAVIGATION_LINKS.product(e.node.handle),
+      img: img
+        ? {
+            alt: img.altText ?? e.node.title,
+            src: img.url,
+            width: img.width,
+            height: img.height,
+            id: img.id,
+          }
+        : undefined,
+      variants:
+        e.node.variants &&
+        mapProductVariantNodeToProductVariant(e.node.variants),
+    };
+  });
 };
 
 /**
@@ -111,7 +146,7 @@ export const mapProductVariantNodeToProductVariant = (
       },
       metafields: node.metafields && mapMetafields(node.metafields),
     };
-    node.selectedOptions.forEach((option) => {
+    node.selectedOptions?.forEach((option) => {
       variant[option.name as ProductVariantOptionType] = option.value;
     });
     return variant;
@@ -134,8 +169,9 @@ export function mapProduct(product: ProductNode): Product {
     tags: product.tags,
     priceRange: product.priceRange,
     type: product.productType,
-    href: `/shop/mosaics/${product.handle}`,
+    href: NAVIGATION_LINKS.product(product.handle),
     images,
+    metafields: product.metafields && mapMetafields(product.metafields),
     variants:
       product.variants &&
       mapProductVariantNodeToProductVariant(product.variants),

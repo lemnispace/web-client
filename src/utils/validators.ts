@@ -1,4 +1,5 @@
 import { ProductVariantOptionType } from "@/lib/types/shopify";
+import { RequireFields } from "./genericTypes";
 import {
   ApiResponse,
   Product,
@@ -15,6 +16,12 @@ import {
 export const isDefined = <T>(value: T | undefined | null): value is T => {
   return value !== undefined && value !== null;
 };
+
+export const isFieldDefined =
+  <T, K extends keyof T>(field: K) =>
+  (item: T): item is RequireFields<T, K> => {
+    return isDefined(item?.[field]);
+  };
 
 /**
  * Represents a product with a variant of a specific type.
@@ -107,6 +114,8 @@ export const isStringEmpty = (value: string): boolean =>
  */
 export const isEmptyObject = (value: unknown): value is Record<string, never> =>
   isObject(value) && Object.keys(value).length === 0;
+
+export const isEmptyArray = <T>(value: T[]): value is [] => value.filter(isDefined).length === 0;
 
 export const isServerErrorResponse = <SERVER_ERROR>(
   response: ApiResponse<unknown, SERVER_ERROR, unknown>

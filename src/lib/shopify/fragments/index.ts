@@ -58,6 +58,7 @@ interface VariantFragmentOptions {
   metafields?: string;
   includeQuantityAvailable?: boolean;
   includePrice?: boolean;
+  includePriceWithoutSubfields?: boolean;
 }
 
 export const getVariantFragment = (options: VariantFragmentOptions = {}) => {
@@ -67,6 +68,7 @@ export const getVariantFragment = (options: VariantFragmentOptions = {}) => {
       title
       ${options.includeQuantityAvailable ? "quantityAvailable" : ""}
       ${options.includePrice ? `price ${moneyFragment}` : ""}
+      ${options.includePriceWithoutSubfields ? `price` : ""}
       sku
       selectedOptions {
         name

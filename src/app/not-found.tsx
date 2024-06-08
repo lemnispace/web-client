@@ -1,4 +1,5 @@
 import { Button } from "@/components/button";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import { BUTTON_TEXT, ERROR_TEXTS } from "@/utils/text";
 import { SlimLayout } from "./components/SlimLayout";
 
@@ -14,7 +15,7 @@ export default function NotFound() {
       <p className="mt-3 text-sm text-gray-700">
         {ERROR_TEXTS.page[404].description}
       </p>
-      <Button href="/" className="mt-10">
+      <Button href={NAVIGATION_LINKS.home} className="mt-10">
         {BUTTON_TEXT.goBackHome}
       </Button>
     </SlimLayout>

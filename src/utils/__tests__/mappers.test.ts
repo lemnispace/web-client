@@ -99,10 +99,29 @@ describe("mapProductVariantNodeToProductVariant", () => {
         },
       },
     ] satisfies ProductVariant[];
-
     const productVariants = mapProductVariantNodeToProductVariant(variants);
-
     expect(productVariants).toEqual(expectedProductVariants);
+  });
+  it("should handle partial data", () => {
+    let variants: Edges<ProductVariantEdge> = {
+      edges: [],
+    };
+    expect(mapProductVariantNodeToProductVariant(variants)).toEqual([]);
+    variants.edges = [
+      {
+        cursor: "1",
+        node: {} as any,
+      },
+    ];
+    expect(mapProductVariantNodeToProductVariant(variants)).toEqual([
+      {
+        id: undefined,
+        title: undefined,
+        quantityAvailable: undefined,
+        price: undefined,
+        image: undefined,
+      },
+    ]);
   });
 });
 describe("mapProduct", () => {
@@ -195,7 +214,7 @@ describe("mapProduct", () => {
         },
       },
       type: "test product",
-      href: "/shop/mosaics/product-1",
+      href: "/shop/products/product-1",
       images: [
         {
           src: "image1.jpg",
@@ -368,7 +387,6 @@ describe("filterObject", () => {
     });
   });
 });
-
 describe("mapCustomProduct", () => {
   it("should filter out custom variants without image or media", () => {
     const productNode = {
@@ -515,7 +533,7 @@ describe("mapCustomProduct", () => {
         },
       },
       type: "custom",
-      href: "/shop/mosaics/custom-product-2",
+      href: "/shop/products/custom-product-2",
       images: [],
       variants: [
         {
