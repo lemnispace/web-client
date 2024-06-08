@@ -1,7 +1,13 @@
 "use client";
 
+import { Price } from "@/lib/types/shopify";
+import { DEFAULT_CURRENCY_CODE } from "@/utils/constants";
 import { formatPrice } from "@/utils/formatters";
-import { ProductVariant, ProductWithCustomization } from "@/utils/types";
+import {
+  ProductVariant,
+  ProductVariantWithCustomization,
+  ProductWithCustomization,
+} from "@/utils/types";
 import React, {
   Dispatch,
   SetStateAction,
@@ -18,12 +24,6 @@ interface ProductViewProps {
   product: ProductWithCustomization;
 }
 
-export interface ProductVariantWithCustomization extends ProductVariant {
-  hasCustomization: boolean;
-  customization: ProductVariant | undefined;
-  customProductId?: string;
-}
-
 interface ProductVariantContextProps {
   selectedVariant: ProductVariantWithCustomization | null | undefined;
   setSelectedVariant: Dispatch<
@@ -35,6 +35,28 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
   selectedVariant: null,
   setSelectedVariant: null,
 });
+
+const getPrice = (
+  variant: ProductVariant | undefined,
+  product: ProductWithCustomization
+): Price => {
+  if (variant?.price) {
+    if (typeof variant.price === "string") {
+      return {
+        amount: variant.price,
+        currencyCode: DEFAULT_CURRENCY_CODE,
+      };
+    }
+    return {
+      amount: variant.price.amount,
+      currencyCode: variant.price.currencyCode,
+    };
+  }
+  return {
+    amount: `${product.priceRange.minVariantPrice.amount}`,
+    currencyCode: product.priceRange.minVariantPrice.currencyCode,
+  };
+};
 
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
   const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0]);
@@ -50,11 +72,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
     });
     return variantMap;
   }, [product]);
-  const price =
-    selectedVariant?.price.amount ?? product.priceRange.minVariantPrice.amount;
-  const currencyCode =
-    selectedVariant?.price.currencyCode ??
-    product.priceRange.minVariantPrice.currencyCode;
+  const price = getPrice(selectedVariant, product);
   const selectedVariantWithCustomization = useMemo(() => {
     const selectedCustomVariant =
       selectedVariant &&
@@ -86,7 +104,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
         <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
           <ProductTitle
             name={product.name}
-            price={formatPrice(price, currencyCode)}
+            price={formatPrice(price.amount, price.currencyCode)}
           />
           {/* <ProductRating rating={4} outOf={4} className="mt-3" /> */}
           <div className="flex flex-col-reverse">

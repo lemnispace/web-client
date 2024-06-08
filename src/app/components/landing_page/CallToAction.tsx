@@ -1,6 +1,7 @@
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
 import backgroundImage from "@/images/bg-orange.png";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import { BUTTON_TEXT, CTA_TEXT } from "@/utils/text";
 import Image from "next/image";
 
@@ -26,7 +27,7 @@ export function CallToAction() {
           <p className="mt-4 text-lg tracking-tight text-white">
             {CTA_TEXT.description}
           </p>
-          <Button href="/shop" color="white" className="mt-10">
+          <Button href={NAVIGATION_LINKS.shop} color="white" className="mt-10">
             {BUTTON_TEXT.landing.cta}
           </Button>
         </div>

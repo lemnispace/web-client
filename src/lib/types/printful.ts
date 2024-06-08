@@ -54,6 +54,29 @@ export interface SyncProductsResponse {
   paging: Paging;
 }
 
+export interface CatalogVariant {
+  id: number;
+  catalog_product_id: number;
+  color: string;
+  color_code: string;
+  color_code2: string | null;
+  image: string;
+  name: string;
+  size: string;
+  _links: {
+    self: Link;
+    product_details: Link;
+    product_variants: Link;
+    variants_availability: Link;
+    variant_images: Link;
+    variant_prices: Link;
+  };
+}
+
+export interface CatalogVariantResponse {
+  data: CatalogVariant;
+}
+
 export interface SyncProduct {
   id: number;
   external_id: string;
@@ -99,7 +122,7 @@ export interface SyncVariant {
   sync_product_id: number;
   name: string;
   status: string;
-  catalog_variant_id: number;
+  catalog_variant_id: number | null;
   warehouse_product_variant_id: number | null;
   retail_price: string;
   sku: string;

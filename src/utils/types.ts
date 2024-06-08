@@ -52,11 +52,17 @@ export interface ProductItem {
 
 export interface Product extends ProductItem {
   images?: ProductImg[];
+  metafields?: ProductMetafields;
 }
 
 export interface ProductWithCustomization extends Product {
   customVariants?: ProductVariant[];
-  metafields?: ProductMetafields;
+  customProductId?: string;
+}
+
+export interface ProductVariantWithCustomization extends ProductVariant {
+  hasCustomization: boolean;
+  customization: ProductVariant | undefined;
   customProductId?: string;
 }
 

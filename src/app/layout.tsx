@@ -1,4 +1,5 @@
 import "@/styles/tailwind.css";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import { LAYOUT_TEXT, NAVIGATION_TEXT } from "@/utils/text";
 import clsx from "clsx";
 import { type Metadata } from "next";
@@ -32,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const navLinks: NavLinkProps[] = [
-    { href: "/shop/mosaics", children: NAVIGATION_TEXT.mosaics },
+    { href: NAVIGATION_LINKS.shop, children: NAVIGATION_TEXT.collections },
   ];
   return (
     <html

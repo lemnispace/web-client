@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/button";
+import { getVariantCustomizeUrl } from "@/utils/links";
 import { BUTTON_TEXT } from "@/utils/text";
 import { Product } from "@/utils/types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
@@ -8,10 +9,7 @@ import clsx from "clsx";
 import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
-import {
-  ProductVariantContext,
-  ProductVariantWithCustomization,
-} from "./ProductView";
+import { ProductVariantContext } from "./ProductView";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
@@ -26,22 +24,6 @@ type ColorFormValue = {
 type FormState = "READY" | "BUSY" | "LOADING";
 type ProductFormData = ColorFormValue & {
   size?: string;
-};
-
-const variantToQueryParams = (variant: ProductVariantWithCustomization) => {
-  const params = new URLSearchParams();
-  // we need to add the variant id to the query params in the create page
-  params.set("variant", variant.id);
-  return params.toString();
-};
-
-const getVariantCreateUrl = (
-  baseUrl: string,
-  variant: ProductVariantWithCustomization | undefined | null
-) => {
-  const url = `${baseUrl}/create`;
-  const params = variant && variantToQueryParams(variant);
-  return params ? `${url}?${params}` : baseUrl;
 };
 
 export default function ProductSelectionForm({
@@ -82,7 +64,7 @@ export default function ProductSelectionForm({
           </Button>
         )}
         <Button
-          href={getVariantCreateUrl(product.href, selectedVariant)}
+          href={getVariantCustomizeUrl(product.href, selectedVariant)}
           disabled={!selectedVariant}
           {...(selectedVariant?.hasCustomization
             ? { outline: true }

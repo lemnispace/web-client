@@ -36,6 +36,16 @@ export const productsQuery = /* GraphQL */ `
               node ${imageFragment}
             }
           }
+          variants(first: 99) {
+            edges {
+              cursor
+              node {
+                id
+                title
+                sku
+              }
+            }
+          }
         }
       }
     }
@@ -62,9 +72,13 @@ query getProduct(${by === "handle" ? "$handle: String!" : "$id: ID!"}) {
 }
 `;
 
-export const productWithMetafieldsQuery = /* GraphQL */ `
-query getProductWithMetafields($id: ID!) {
-  product(id: $id) {
+export const productWithMetafieldsQuery = (
+  by: "handle" | "id"
+) => /* GraphQL */ `
+query getProductWithMetafields(${
+  by === "handle" ? "$handle: String!" : "$id: ID!"
+}) {
+  product${by === "handle" ? "ByHandle(handle: $handle)" : "(id: $id)"} {
     id
     title
     description
@@ -76,7 +90,10 @@ query getProductWithMetafields($id: ID!) {
     }
     ${getMetafieldsFragment(PRODUCT_METADATA_NAMESPACE)}
     variants(first: 99) ${getVariantEdgesWithMetafieldsFragment(
-      VARIANT_METADATA_NAMESPACE
+      VARIANT_METADATA_NAMESPACE,
+      {
+        includePriceWithoutSubfields: true,
+      }
     )}
   }
 }
@@ -97,6 +114,13 @@ export function fetchProductList(firstNProducts: number) {
 export interface ProductResponse {
   product?: ProductNode;
 }
+
+interface ProductByHandleResponse {
+  productByHandle?: ProductNode;
+}
+
+type ProductWithMetafieldsResponse<BY extends "handle" | "id"> =
+  BY extends "handle" ? ProductByHandleResponse : ProductResponse;
 
 export type ProductVariables =
   | {
@@ -124,10 +148,18 @@ export function fetchProduct(variables: ProductVariables) {
   });
 }
 
-export function fetchCustomProduct(id: string) {
-  return adminClient.request<ProductResponse>(productWithMetafieldsQuery, {
-    variables: {
-      id,
-    },
-  });
+export async function fetchProductWithMetafields<BY extends "handle" | "id">(
+  identifier: string,
+  by: BY
+) {
+  const input = by === "handle" ? { handle: identifier } : { id: identifier };
+  const response = await adminClient.request<ProductWithMetafieldsResponse<BY>>(
+    productWithMetafieldsQuery(by),
+    {
+      variables: {
+        ...input,
+      },
+    }
+  );
+  return response;
 }

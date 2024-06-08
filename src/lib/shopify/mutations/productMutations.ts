@@ -5,6 +5,7 @@ import {
   ProductUpdateInput,
   ProductVariantInput,
   ProductVariantNode,
+  ProductVariantsBulkInput,
   UserError,
 } from "@/lib/types/shopify";
 import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
@@ -38,6 +39,14 @@ export interface ProductVariantUpdateResponse {
 export interface ProductUpdateResponse {
   productUpdate: {
     product: Pick<ProductNode, "id"> | null;
+    userErrors: UserError[];
+  };
+}
+
+export interface ProductVariantsBulkUpdateResponse {
+  productVariantsBulkUpdate: {
+    product: Pick<ProductNode, "id"> | null;
+    productVariants: Pick<ProductVariantNode, "id">[];
     userErrors: UserError[];
   };
 }
@@ -116,6 +125,26 @@ export const productUpdateMutation = /* GraphQL */ `
   }
 `;
 
+export const productVariantsBulkUpdateMutation = /* GraphQL */ `
+  mutation productVariantsBulkUpdate(
+    $productId: ID!
+    $variants: [ProductVariantsBulkInput!]!
+  ) {
+    productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+      product {
+        id
+      }
+      productVariants {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 export async function duplicateProduct(input: ProductDuplicateInput) {
   const response = await adminClient.request<ProductDuplicateResponse>(
     productDuplicateMutation,
@@ -148,4 +177,19 @@ export async function productUpdate(input: ProductUpdateInput) {
       input,
     },
   });
+}
+
+export async function productVariantsBulkUpdate(
+  productId: string,
+  variants: ProductVariantsBulkInput[]
+) {
+  return adminClient.request<ProductVariantsBulkUpdateResponse>(
+    productVariantsBulkUpdateMutation,
+    {
+      variables: {
+        productId,
+        variants,
+      },
+    }
+  );
 }

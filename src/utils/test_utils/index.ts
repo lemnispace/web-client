@@ -1,3 +1,4 @@
+import { ProductVariantNode } from "@/lib/types/shopify";
 import { Product } from "@/utils/types";
 import { within } from "@testing-library/react";
 import { FabricImage } from "fabric";
@@ -73,3 +74,25 @@ export const getMockProduct = () =>
       },
     ],
   }) satisfies Product;
+
+export const getMockVariantNode = () =>
+  ({
+    id: "1",
+    title: "Variant 1",
+    quantityAvailable: 10,
+    price: {
+      amount: "9.99",
+      currencyCode: "USD",
+    },
+    image: {
+      url: "variant1.jpg",
+      height: 640,
+      width: 640,
+      id: "image-1",
+      altText: "Variant 1",
+    },
+    selectedOptions: [
+      { name: "Color", value: "red" },
+      { name: "Size", value: "small" },
+    ],
+  }) satisfies ProductVariantNode;

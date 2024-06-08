@@ -1,8 +1,8 @@
 import { fetchCollection } from "@/lib/shopify/queries/collectionQuery";
 import {
   ProductVariables,
-  fetchCustomProduct,
   fetchProduct,
+  fetchProductWithMetafields,
 } from "@/lib/shopify/queries/productQuery";
 import { ProductMetafield } from "@/lib/types/shopify";
 import {
@@ -28,6 +28,15 @@ export const fetchProductData = async (params: ProductVariables) => {
   return product && mapProduct(product);
 };
 
+export const fetchProductDataWithMetafields = async (handle: string) => {
+  const productResponse = await fetchProductWithMetafields(handle, "handle");
+  const { productByHandle } = parseClientResponse(
+    productResponse,
+    "Error getting product with metafields"
+  );
+  return productByHandle && mapProduct(productByHandle);
+};
+
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                                 Custom Products                              ║
@@ -50,7 +59,10 @@ export const tryFetchCustomProduct = async (
   customProductId: string | undefined
 ) => {
   if (!customProductId) return undefined;
-  const customProductResponse = await fetchCustomProduct(customProductId);
+  const customProductResponse = await fetchProductWithMetafields(
+    customProductId,
+    "id"
+  );
   const parsedCustomProductResponse = tryParseClientResponse(
     customProductResponse
   );

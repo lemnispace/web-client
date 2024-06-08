@@ -21,7 +21,7 @@ export const BUTTON_TEXT = {
 
 export const NAVIGATION_TEXT = {
   home: "Home",
-  mosaics: "Mosaics",
+  collections: "Collections",
   comingSoon: "Coming Soon",
 } as const;
 

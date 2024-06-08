@@ -8,6 +8,7 @@ import {
   VariantMetadataKey,
   VariantMetadataNamespace,
 } from "@/utils/constants";
+import { RequireFields } from "@/utils/genericTypes";
 
 export type Edge<T> = {
   cursor: string;
@@ -185,7 +186,7 @@ export interface ProductVariantNode {
   id: string;
   title: string;
   quantityAvailable?: number;
-  price: Price;
+  price: Price | string;
   selectedOptions: Array<{ name: ProductVariantOptionType; value: string }>;
   image?: Image;
   metafields?: Edges<ProductVariantMetafieldEdge>;
@@ -922,6 +923,19 @@ export interface ProductVariantInput {
   productId?: string;
 }
 
+export interface ProductVariantsBulkInput {
+  barcode?: string;
+  compareAtPrice?: string;
+  id: string;
+  inventoryPolicy?: "CONTINUE" | "DENY";
+  metafields?: MetafieldInput[];
+  mediaSrc?: string[];
+  mediaId?: string;
+  price?: Money;
+  taxCode?: string;
+  taxable?: boolean;
+}
+
 export interface ProductUpdateInput {
   /**
    * The IDs of the collections that this product will be added to.
@@ -1206,12 +1220,3 @@ export interface UserError {
   field?: string[];
   message: string;
 }
-
-/*
- *  ╔══════════════════════════════════════════════════════════════════════════════╗
- *  ║                                 Utility Types                                ║
- *  ╚══════════════════════════════════════════════════════════════════════════════╝
- */
-
-export type RequireFields<T, K extends keyof T> = Omit<T, K> &
-  Required<Pick<T, K>>;

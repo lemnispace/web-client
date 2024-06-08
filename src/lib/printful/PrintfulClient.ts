@@ -1,11 +1,15 @@
 import { getErrorMessage } from "@/utils/getters";
-import { isDefined } from "@/utils/validators";
+import { isDefined, isFieldDefined } from "@/utils/validators";
 import {
+  CatalogVariant,
   CatalogVariantImagesResponse,
+  CatalogVariantResponse,
   Orientation,
   PrintfileInfo,
   ProductTemplateResponse,
+  SyncProduct,
   SyncProductsResponse,
+  SyncVariant,
   SyncVariantsResponse,
 } from "../types/printful";
 import printfulConfig, { PrintfulConfig } from "./printfulConfig";
@@ -17,6 +21,14 @@ interface requestParams {
   name: string;
 }
 
+export interface SyncVariantWithSyncProduct extends SyncVariant {
+  syncProduct: SyncProduct;
+}
+
+export interface SyncVariantWithCatalogVariant
+  extends SyncVariantWithSyncProduct {
+  catalogVariant?: CatalogVariant;
+}
 class PrintfulAPI {
   private static instance: PrintfulAPI;
   private readonly baseUrl: string;
@@ -181,6 +193,45 @@ class PrintfulAPI {
     });
   }
 
+  async getCatalogVariant(
+    catalogVariantId: number
+  ): Promise<CatalogVariantResponse> {
+    return this.request<CatalogVariantResponse>({
+      url: `v2/catalog-variants/${catalogVariantId}`,
+      name: `getCatalogVariant with catalogVariantId: ${catalogVariantId}`,
+    });
+  }
+
+  async getAllCatalogVariants(): Promise<SyncVariantWithCatalogVariant[]> {
+    const syncProductsResponse = await this.getSyncProducts();
+    const syncVariantsResponse: SyncVariantWithSyncProduct[][] =
+      await Promise.all(
+        syncProductsResponse.data.map(async (syncProduct) => {
+          const syncVariants = await this.getAllSyncVariants(syncProduct.id);
+          return syncVariants.data.map((syncVariant) => ({
+            ...syncVariant,
+            syncProduct,
+          }));
+        })
+      );
+    const allSyncVariants = syncVariantsResponse
+      .flat()
+      .filter(isFieldDefined("catalog_variant_id"));
+    const catalogVariants = (
+      await Promise.all(
+        allSyncVariants.map((v) => this.getCatalogVariant(v.catalog_variant_id))
+      )
+    ).map((response) => response.data);
+    // Combine the sync variants with the catalog variants
+    const allCatalogVariants = allSyncVariants.map((syncVariant) => {
+      const catalogVariant = catalogVariants.find(
+        (v) => v.id === syncVariant.catalog_variant_id
+      );
+      return { ...syncVariant, catalogVariant };
+    });
+    return allCatalogVariants;
+  }
+
   async getVariantData(
     productId: number,
     variantId: number,
@@ -197,7 +248,6 @@ class PrintfulAPI {
         orientation
       );
       const variantImages = await this.getCatalogVariantImages(variantId);
-
       return { printfileInfo, variantImages };
     } catch (error) {
       console.error("Error in getVariantData:", error);

@@ -1,5 +1,6 @@
 import { Button } from "@/components/button";
 import { Container } from "@/components/container";
+import { NAVIGATION_LINKS } from "@/utils/links";
 import { BUTTON_TEXT, HERO_TEXT } from "@/utils/text";
 import clsx from "clsx";
 
@@ -69,7 +70,9 @@ export function Hero() {
         {HERO_TEXT.description}
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
-        <Button href="/shop">{BUTTON_TEXT.landing.heroCta}</Button>
+        <Button href={NAVIGATION_LINKS.shop}>
+          {BUTTON_TEXT.landing.heroCta}
+        </Button>
       </div>
     </Container>
   );
