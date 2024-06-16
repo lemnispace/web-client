@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/button";
+import LinearGradientIcon from "@/components/icons/LinearGradientIcon";
 import { getVariantCustomizeUrl } from "@/utils/links";
 import { BUTTON_TEXT } from "@/utils/text";
 import { Product } from "@/utils/types";
@@ -66,31 +67,26 @@ export default function ProductSelectionForm({
         <Button
           href={getVariantCustomizeUrl(product.href, selectedVariant)}
           disabled={!selectedVariant}
-          {...(selectedVariant?.hasCustomization
-            ? { outline: true }
-            : { color: "secondary" })}
+          outline
           className={clsx(
             selectedVariant?.hasCustomization && "sm:ml-4",
-            "mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full border-secondary-500",
+            "mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full custom-gradient-border",
             formState === "READY" && "cursor-pointer"
           )}
         >
-          <span
-            className={clsx(
-              selectedVariant?.hasCustomization && "text-secondary-500"
-            )}
-          >
+          <span className="custom-gradient-text">
             {BUTTON_TEXT.goToCustomize}
           </span>
-          <PencilSquareIcon
-            className={clsx(
-              "h-6 w-6 flex-shrink-0",
-              selectedVariant?.hasCustomization
-                ? "stroke-secondary-500"
-                : "stroke-white"
-            )}
-            aria-hidden="true"
-          />
+          <LinearGradientIcon
+            fromColor="#3aa1f5"
+            toColor="#f55679"
+            direction="right"
+          >
+            <PencilSquareIcon
+              className="h-6 w-6 flex-shrink-0"
+              aria-hidden="true"
+            />
+          </LinearGradientIcon>
         </Button>
         {/* <Button
           type="button"

@@ -9,4 +9,21 @@
   .lemni-focus {
     @apply data-[focus]:outline-none focus:outline-none focus:ring-primary-500;
   }
+  .custom-gradient-bg {
+    @apply bg-gradient-to-r from-[#3aa1f5] to-[#f55679];
+  }
+  .custom-gradient-text {
+    @apply custom-gradient-bg text-transparent bg-clip-text;
+  }
+  .custom-gradient-border {
+    @apply relative border-none before:bg-origin-border before:absolute before:inset-0 before:border-2 before:border-transparent before:rounded-lg before:bg-gradient-to-r before:from-[#3aa1f5] before:to-[#f55679];
+  }
+  .custom-gradient-border::before {
+    content: "";
+    box-sizing: border-box;
+    mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
 }
