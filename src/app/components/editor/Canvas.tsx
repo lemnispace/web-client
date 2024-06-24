@@ -78,25 +78,22 @@ export const resizeCanvas = (
   wrapper: HTMLDivElement | null,
   img: FabricImage | null
 ) => {
-  if (canvas) {
-    if (wrapper) {
-      const bounds = wrapper.getBoundingClientRect();
-      const computedStyle = getComputedStyle(wrapper);
-      const paddingTop = toFloat(computedStyle.paddingTop) || 0;
-      const paddingBottom = toFloat(computedStyle.paddingBottom) || 0;
-      const paddingLeft = toFloat(computedStyle.paddingLeft) || 0;
-      const paddingRight = toFloat(computedStyle.paddingRight) || 0;
-
-      const canvasWidth = bounds.width - paddingLeft - paddingRight;
-      const canvasHeight = bounds.height - paddingTop - paddingBottom;
-      canvas.setDimensions({
-        width: canvasWidth,
-        height: canvasHeight,
-      });
-      if (img) {
-        // resize image to fit the canvas but keep it in the same relative position
-        scaleImgToCanvas(img, canvas);
-      }
+  if (canvas && wrapper) {
+    const bounds = wrapper.getBoundingClientRect();
+    const computedStyle = getComputedStyle(wrapper);
+    const paddingTop = toFloat(computedStyle.paddingTop) || 0;
+    const paddingBottom = toFloat(computedStyle.paddingBottom) || 0;
+    const paddingLeft = toFloat(computedStyle.paddingLeft) || 0;
+    const paddingRight = toFloat(computedStyle.paddingRight) || 0;
+    const canvasWidth = bounds.width - paddingLeft - paddingRight;
+    const canvasHeight = bounds.height - paddingTop - paddingBottom;
+    canvas.setDimensions({
+      width: canvasWidth,
+      height: canvasHeight,
+    });
+    if (img) {
+      // resize image to fit the canvas but keep it in the same relative position
+      scaleImgToCanvas(img, canvas);
     }
   }
 };
@@ -173,7 +170,7 @@ export default function Canvas({
        * The canvas is wrapped in an additional div to allow for resizing the canvas without ruining the aspect ratio
        */}
       <div ref={wrapperRef} className="h-full w-full">
-        <canvas {...props} ref={setCanvasEl} />
+        <canvas {...props} ref={setCanvasEl} style={style} />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { ProductsResponse } from "@/lib/shopify/queries/productQuery";
+import { Template } from "@/lib/types/printful";
 import {
   Edge,
   Edges,
@@ -16,6 +17,7 @@ import {
   ProductMetafields,
   ProductVariant,
   ProductWithCustomization,
+  VariantTemplate,
 } from "./types";
 import { isDefined } from "./validators";
 
@@ -222,6 +224,34 @@ export const getAllProductVariantOptions = (
   return Array.from(new Set(variants.map((variant) => variant[type]))).filter(
     isDefined
   );
+};
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Printful Templates                             ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export const mapPrintfulTemplates = (
+  templates: Template[]
+): VariantTemplate[] => {
+  return templates.map((t) => ({
+    // convert snake_case to camelCase
+    templateId: t.template_id,
+    imageUrl: t.image_url,
+    backgroundUrl: t.background_url,
+    backgroundColor: t.background_color,
+    printfileId: t.printfile_id,
+    templateWidth: t.template_width,
+    templateHeight: t.template_height,
+    printAreaWidth: t.print_area_width,
+    printAreaHeight: t.print_area_height,
+    printAreaTop: t.print_area_top,
+    printAreaLeft: t.print_area_left,
+    isTemplateOnFront: t.is_template_on_front,
+    orientation: t.orientation,
+    conflictingPlacements: t.conflicting_placements,
+  }));
 };
 
 /*
