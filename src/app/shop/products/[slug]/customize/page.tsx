@@ -4,6 +4,7 @@ import { Container } from "@/components/container";
 import PrintfulClient from "@/lib/printful/PrintfulClient";
 import { Orientation } from "@/lib/types/printful";
 import { fetchProductDataWithMetafields } from "@/utils/fetchers";
+import { mapPrintfulTemplates } from "@/utils/mappers";
 import { toInt } from "@/utils/parsers";
 import { PRODUCTS_CREATE_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { ProductVariant } from "@/utils/types";
@@ -89,7 +90,7 @@ export default async function CustomizeProduct(props: MosaicProps) {
             title={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title}
             description={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.description}
           />
-          <ImgEditor productVariant={variant} product={product} />
+          <ImgEditor productVariant={variant} product={product} template={mapPrintfulTemplates(variantTemplates)[0]} />
         </Container>
       </main>
     );

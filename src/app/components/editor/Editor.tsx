@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/button";
 import { CropIcon } from "@/components/icons/crop";
-import { filterObject } from "@/utils/mappers";
+import useMediaQuery from "@/utils/hooks/useMediaQuery";
 import {
   BUTTON_TEXT,
   ERROR_TEXTS,
@@ -9,7 +9,9 @@ import {
   IMAGE_EDITOR_MENU_TEXT,
   IMAGE_EDITOR_STATUS_TEXT,
 } from "@/utils/text";
+import { VariantTemplate } from "@/utils/types";
 import {
+  ArrowLeftIcon,
   ArrowPathIcon,
   ArrowsPointingInIcon,
   CloudArrowUpIcon,
@@ -19,12 +21,14 @@ import {
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Area } from "react-easy-crop";
+import { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
 import Canvas, { centerImgOnCanvas, resetImgState } from "./Canvas";
 import Crop from "./Crop";
 import { EditorLoader } from "./EditorLoader";
 import EditorMenu, { EditorControlItemProps } from "./EditorMenu";
+import PanZoom from "./PanZoom";
 import TextInputDialog from "./TextInputDialog";
 import { fetchMosaic } from "./fetchMosaic";
 import useEditorStatus from "./useEditorStatus";
@@ -44,6 +48,7 @@ interface EditorProps {
   dimensions?: { width: number; height: number };
   onUploadImage: () => void;
   onEditComplete: (file: File) => Promise<void>;
+  template: VariantTemplate;
 }
 
 interface PreviewFormData {
@@ -77,6 +82,7 @@ const validatePreviewFormData = (formData: FormData) => {
 
 export default function Editor({ dimensions, ...props }: EditorProps) {
   const router = useRouter();
+  const panZoomControlsRef = useRef<ReactZoomPanPinchContentRef | null>(null);
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const { status, statusMessage, updateStatus } = useEditorStatus();
   const [isCropActive, setIsCropActive] = useState(false);
@@ -116,6 +122,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && resetImgState(img, fCanvas);
     }
+    if (panZoomControlsRef.current) {
+      panZoomControlsRef.current.resetTransform();
+    }
   };
 
   const handleCenter = () => {
@@ -126,6 +135,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
       const img = findCanvasImgObj(fCanvas, (o) => o.visible);
       img && centerImgOnCanvas(img, fCanvas);
       fCanvas.requestRenderAll();
+    }
+    if (panZoomControlsRef.current) {
+      panZoomControlsRef.current.centerView();
     }
   };
 
@@ -264,7 +276,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   return (
     <>
-      <div className="mt-4 relative flex flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-300 overflow-hidden">
+      <div className="mt-4 relative flex flex-1 flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-900 overflow-hidden">
         <EditorMenu
           actions={actions}
           disabled={status === "loading" || !fCanvas || isCropActive}
@@ -272,7 +284,7 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
         />
         <div
           className={clsx(
-            "flex flex-1 px-4 py-4 md:mx-auto md:max-w-2xl lg:max-w-3xl md:px-8 overflow-auto items-center relative",
+            "flex flex-1 w-full h-auto overflow-auto items-center relative",
             isCropActive && "bg-neutral-900"
           )}
         >
@@ -299,27 +311,29 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
               canvas={fCanvas}
             />
           )}
-          <Canvas
-            className={clsx(
-              "w-full bg-neutral-600 rounded-lg border-dashed border-2 border-white",
-              isCropActive && "hidden"
-            )}
-            style={filterObject({
-              aspectRatio:
-                dimensions && `${dimensions.width}/${dimensions.height}`,
-            })}
-            imgSrc={imgSources.src}
-            canvas={fCanvas}
-            loadCanvas={setFcanvas}
-          />
+          <PanZoom controlsRef={panZoomControlsRef}>
+            <Canvas
+              className={clsx(
+                "bg-neutral-600 rounded-lg border-dashed border-2 border-white",
+                isCropActive && "hidden"
+              )}
+              style={{
+                height: props.template.templateHeight,
+                width: props.template.templateWidth,
+              }}
+              imgSrc={imgSources.src}
+              canvas={fCanvas}
+              loadCanvas={setFcanvas}
+            />
+          </PanZoom>
         </div>
       </div>
-      <div className="flex w-full flex-1 flex-col sm:flex-row items-center justify-end my-10">
+      <div className="flex w-full flex-1 flex-row items-center justify-end my-10">
         <Button
           color="primary"
           onClick={handleFinishEdit}
           disabled={status === "loading"}
-          className="w-full sm:w-6/12 lg:w-3/12 md:w-4/12"
+          className="w-full max-w-80 min-w-fit sm:w-6/12 lg:w-3/12 md:w-4/12"
         >
           {BUTTON_TEXT.finishEdit}
         </Button>
@@ -327,8 +341,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           outline
           onClick={() => router.back()}
           disabled={status === "loading"}
-          className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
+          className="ml-4 max-w-40 min-w-fit w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
         >
+          <ArrowLeftIcon className="h-6 w-6 stroke-neutral-800" />
           {BUTTON_TEXT.back}
         </Button>
       </div>

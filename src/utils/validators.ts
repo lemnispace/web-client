@@ -115,7 +115,8 @@ export const isStringEmpty = (value: string): boolean =>
 export const isEmptyObject = (value: unknown): value is Record<string, never> =>
   isObject(value) && Object.keys(value).length === 0;
 
-export const isEmptyArray = <T>(value: T[]): value is [] => value.filter(isDefined).length === 0;
+export const isEmptyArray = <T>(value: T[]): value is [] =>
+  value.filter(isDefined).length === 0;
 
 export const isServerErrorResponse = <SERVER_ERROR>(
   response: ApiResponse<unknown, SERVER_ERROR, unknown>

@@ -7,6 +7,7 @@ import {
 } from "@/lib/types/shopify";
 import { NextResponse } from "next/server";
 import { ProductMetadataKey, VariantMetadataKey } from "./constants";
+import { TemplatePlacementConflict } from "@/lib/types/printful";
 
 export interface ProductImg {
   src: string;
@@ -64,6 +65,23 @@ export interface ProductVariantWithCustomization extends ProductVariant {
   hasCustomization: boolean;
   customization: ProductVariant | undefined;
   customProductId?: string;
+}
+
+export interface VariantTemplate {
+  templateId: number;
+  imageUrl: string;
+  backgroundUrl: string | null;
+  backgroundColor: number | null;
+  printfileId: number;
+  templateWidth: number;
+  templateHeight: number;
+  printAreaWidth: number;
+  printAreaHeight: number;
+  printAreaTop: number;
+  printAreaLeft: number;
+  isTemplateOnFront: boolean;
+  orientation: "horizontal" | "vertical" | "any";
+  conflictingPlacements: TemplatePlacementConflict[];
 }
 
 export interface BaseResponse {

@@ -4,7 +4,14 @@ import { CustomProductResponse } from "@/app/api/products/route";
 import { Button } from "@/components/button";
 import { getDimensionsFromVariant } from "@/utils/getters";
 import { BUTTON_TEXT, IMAGE_EDITOR_TEXT } from "@/utils/text";
-import { ClientResponse, Product, ProductVariant } from "@/utils/types";
+import {
+  ClientResponse,
+  Product,
+  ProductVariant,
+  VariantTemplate,
+} from "@/utils/types";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
@@ -15,6 +22,7 @@ interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   onUploadComplete?: () => void;
   productVariant: ProductVariant;
   product: Product;
+  template?: VariantTemplate;
 }
 
 interface CreateCustomProductRequest {
@@ -50,12 +58,12 @@ export default function ImgEditor({
   className,
   productVariant,
   product,
+  template,
   ...props
 }: ImgUploaderProps) {
   const router = useRouter();
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const dimensions = getDimensionsFromVariant(productVariant);
 
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -83,15 +91,18 @@ export default function ImgEditor({
   };
 
   return (
-    <div className={className} {...props}>
+    <div
+      className={clsx("flex flex-col h-full min-h-svh md:max-h-svh", className)}
+      {...props}
+    >
       <h2 className="text-xl font-display text-gray-600">
         {IMAGE_EDITOR_TEXT.title}
       </h2>
-      {uploadedImg && (
+      {uploadedImg && template && (
         <Editor
           imgSrc={uploadedImg.data}
           imgName={uploadedImg.fileName}
-          dimensions={dimensions}
+          template={template}
           onUploadImage={() => {
             inputRef.current?.click();
           }}
@@ -118,12 +129,13 @@ export default function ImgEditor({
         className={uploadedImg ? "hidden" : ""}
       />
       {!uploadedImg && (
-        <div className="flex w-full flex-1 flex-col sm:flex-row items-center justify-end my-10">
+        <div className="flex w-full flex-row items-center justify-end my-10">
           <Button
             outline
             onClick={() => router.back()}
-            className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
+            className="ml-4 w-full max-w-40 min-w-fit sm:w-4/12 lg:w-2/12 md:w-2/12"
           >
+            <ArrowLeftIcon className="h-6 w-6 stroke-neutral-800 stroke-2" />
             {BUTTON_TEXT.back}
           </Button>
         </div>
