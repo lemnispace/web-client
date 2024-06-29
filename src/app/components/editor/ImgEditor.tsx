@@ -2,7 +2,6 @@
 
 import { CustomProductResponse } from "@/app/api/products/route";
 import { Button } from "@/components/button";
-import { getDimensionsFromVariant } from "@/utils/getters";
 import { BUTTON_TEXT, IMAGE_EDITOR_TEXT } from "@/utils/text";
 import {
   ClientResponse,

@@ -1,3 +1,4 @@
+import { TemplatePlacementConflict } from "@/lib/types/printful";
 import {
   ProductMetafield,
   ProductPriceRange,
@@ -7,8 +8,6 @@ import {
 } from "@/lib/types/shopify";
 import { NextResponse } from "next/server";
 import { ProductMetadataKey, VariantMetadataKey } from "./constants";
-import { TemplatePlacementConflict } from "@/lib/types/printful";
-
 export interface ProductImg {
   src: string;
   alt?: string;
@@ -71,7 +70,7 @@ export interface VariantTemplate {
   templateId: number;
   imageUrl: string;
   backgroundUrl: string | null;
-  backgroundColor: number | null;
+  backgroundColor: string | null;
   printfileId: number;
   templateWidth: number;
   templateHeight: number;
@@ -119,3 +118,5 @@ export type ClientResponse<DATA> = {
   data?: DATA;
   errors?: string;
 };
+
+export type Nullable<T> = T | null;

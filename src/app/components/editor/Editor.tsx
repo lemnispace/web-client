@@ -10,6 +10,7 @@ import {
   IMAGE_EDITOR_STATUS_TEXT,
 } from "@/utils/text";
 import { VariantTemplate } from "@/utils/types";
+import { isDefined } from "@/utils/validators";
 import {
   ArrowLeftIcon,
   ArrowPathIcon,
@@ -45,7 +46,6 @@ interface EditorProps {
   imgSrc: ImgSource;
   imgName?: string;
   customActions?: EditorControlItemProps[];
-  dimensions?: { width: number; height: number };
   onUploadImage: () => void;
   onEditComplete: (file: File) => Promise<void>;
   template: VariantTemplate;
@@ -80,7 +80,7 @@ const validatePreviewFormData = (formData: FormData) => {
   return undefined;
 };
 
-export default function Editor({ dimensions, ...props }: EditorProps) {
+export default function Editor(props: EditorProps) {
   const router = useRouter();
   const panZoomControlsRef = useRef<ReactZoomPanPinchContentRef | null>(null);
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
@@ -276,7 +276,14 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
 
   return (
     <>
-      <div className="mt-4 relative flex flex-1 flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg bg-neutral-900 overflow-hidden">
+      <div
+        className={clsx(
+          "mt-4 relative flex flex-1 flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg overflow-hidden",
+          isDefined(props.template.backgroundColor)
+            ? `bg-[${props.template.backgroundColor}]`
+            : "bg-neutral-900"
+        )}
+      >
         <EditorMenu
           actions={actions}
           disabled={status === "loading" || !fCanvas || isCropActive}
@@ -304,7 +311,9 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           {isCropActive && (
             <Crop
               imgSrc={imgSources.originalImgSrc}
-              aspectRatio={dimensions && dimensions.width / dimensions.height}
+              aspectRatio={
+                props.template.printAreaWidth / props.template.printAreaHeight
+              }
               className="dark bg-transparent rounded-lg p-2 md:p-4"
               onCropComplete={handleCropComplete}
               onCancel={() => setIsCropActive(false)}
@@ -313,17 +322,11 @@ export default function Editor({ dimensions, ...props }: EditorProps) {
           )}
           <PanZoom controlsRef={panZoomControlsRef}>
             <Canvas
-              className={clsx(
-                "bg-neutral-600 rounded-lg border-dashed border-2 border-white",
-                isCropActive && "hidden"
-              )}
-              style={{
-                height: props.template.templateHeight,
-                width: props.template.templateWidth,
-              }}
+              className={clsx("rounded-lg", isCropActive && "hidden")}
               imgSrc={imgSources.src}
               canvas={fCanvas}
               loadCanvas={setFcanvas}
+              template={props.template}
             />
           </PanZoom>
         </div>

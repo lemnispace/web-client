@@ -14,6 +14,12 @@ const nextConfig = {
         port: "",
         pathname: "/s/*/**",
       },
+      {
+        protocol: "https",
+        hostname: "files.cdn.printful.com",
+        port: "",
+        pathname: "/o/upload/*/**",
+      },
     ],
   },
   webpack: (config) => {
