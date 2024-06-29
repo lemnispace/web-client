@@ -1,5 +1,5 @@
 import { IMAGE_EDITOR_STATUS_TEXT } from "@/utils/text";
-import imglyRemoveBackground from "@imgly/background-removal";
+import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
 import { Canvas, FabricImage, ImageProps } from "fabric";
 import { Area } from "react-easy-crop";
 
@@ -199,7 +199,7 @@ export const removeBackground = async (
         handleProgress(statusMessage, progress);
       }
     },
-    model: "medium",
+    model: "isnet",
   });
   return blob;
 };
