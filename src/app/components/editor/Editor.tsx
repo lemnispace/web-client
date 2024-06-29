@@ -21,7 +21,6 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Canvas as FabricCanvas } from "fabric";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { Area } from "react-easy-crop";
 import { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
@@ -49,6 +48,7 @@ interface EditorProps {
   onUploadImage: () => void;
   onEditComplete: (file: File) => Promise<void>;
   template: VariantTemplate;
+  backHref: string;
 }
 
 interface PreviewFormData {
@@ -81,7 +81,6 @@ const validatePreviewFormData = (formData: FormData) => {
 };
 
 export default function Editor(props: EditorProps) {
-  const router = useRouter();
   const panZoomControlsRef = useRef<ReactZoomPanPinchContentRef | null>(null);
   const [fCanvas, setFcanvas] = useState<FabricCanvas | null>(null);
   const { status, statusMessage, updateStatus } = useEditorStatus();
@@ -342,7 +341,7 @@ export default function Editor(props: EditorProps) {
         </Button>
         <Button
           outline
-          onClick={() => router.back()}
+          href={props.backHref}
           disabled={status === "loading"}
           className="ml-4 max-w-40 min-w-fit w-full sm:w-4/12 lg:w-2/12 md:w-2/12"
         >
