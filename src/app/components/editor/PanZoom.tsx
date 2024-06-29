@@ -1,6 +1,7 @@
 "use client";
+import { debounce } from "@/utils/debounce";
 import useMediaQuery from "@/utils/hooks/useMediaQuery";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   ReactZoomPanPinchContentRef,
   ReactZoomPanPinchProps,
@@ -26,7 +27,7 @@ const getInitialScale = (
   const wrapperBounds = wrapper.getBoundingClientRect();
   const scaleX = (wrapperBounds.width - PADDING) / childBounds.width;
   const scaleY = (wrapperBounds.height - PADDING) / childBounds.height;
-  // ensures no negative scale
+  // ensures no negative scale and a maximum of scale 1
   return Math.min(scaleX, scaleY, defaultScale);
 };
 
@@ -45,19 +46,25 @@ const PanZoom: React.FC<PanZoomProps> = ({
 }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const childRef = useRef<HTMLElement | null>(null);
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+
+  const calculateAndApplyScale = useCallback(() => {
+    if (childRef.current && transformRef.current?.instance.wrapperComponent) {
+      const scale = getInitialScale(
+        transformRef.current.instance.wrapperComponent,
+        childRef.current
+      );
+
+      transformRef.current.zoomToElement(childRef.current, scale, 0);
+    }
+  }, []);
 
   const handleInit = (ref: ReactZoomPanPinchRef) => {
+    transformRef.current = ref;
     if (controlsRef) {
       controlsRef.current = ref;
     }
-
-    if (childRef.current && ref.instance.wrapperComponent) {
-      const scale = getInitialScale(
-        ref.instance.wrapperComponent,
-        childRef.current
-      );
-      ref.zoomToElement(childRef.current, scale, 0);
-    }
+    calculateAndApplyScale();
   };
 
   useEffect(() => {
@@ -65,6 +72,17 @@ const PanZoom: React.FC<PanZoomProps> = ({
       controlsRef.current.resetTransform();
     }
   }, [isMobile, controlsRef]);
+
+  useEffect(() => {
+    const debouncedHandleResize = debounce(() => {
+      calculateAndApplyScale();
+    }, 100);
+
+    window.addEventListener("resize", debouncedHandleResize);
+    return () => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  }, [calculateAndApplyScale]);
 
   // Clone the child element and pass the ref
   const childWithRef =
@@ -74,9 +92,9 @@ const PanZoom: React.FC<PanZoomProps> = ({
     <TransformWrapper
       centerOnInit
       limitToBounds
+      initialScale={1}
       minScale={0.25}
       maxScale={3}
-      initialScale={1}
       disabled={isMobile || disabled}
       {...props}
       onInit={handleInit}
@@ -116,6 +134,7 @@ const PanZoom: React.FC<PanZoomProps> = ({
           overflow: isMobile ? "auto" : "hidden",
           ...wrapperStyle,
         }}
+        contentClass="flex items-center justify-center"
       >
         {childWithRef}
       </TransformComponent>
