@@ -137,7 +137,7 @@ export default function Editor(props: EditorProps) {
       fCanvas.requestRenderAll();
     }
     if (panZoomControlsRef.current) {
-      panZoomControlsRef.current.centerView();
+      panZoomControlsRef.current.resetTransform();
     }
   };
 
