@@ -1,6 +1,5 @@
 "use client";
 import { debounce } from "@/utils/debounce";
-import useMediaQuery from "@/utils/hooks/useMediaQuery";
 import React, { useCallback, useEffect, useRef } from "react";
 import {
   ReactZoomPanPinchContentRef,
@@ -40,11 +39,9 @@ const PanZoom: React.FC<PanZoomProps> = ({
   alignmentAnimation,
   velocityAnimation,
   wrapperStyle,
-  disabled,
   controlsRef,
   ...props
 }) => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const childRef = useRef<HTMLElement | null>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
@@ -68,12 +65,6 @@ const PanZoom: React.FC<PanZoomProps> = ({
   };
 
   useEffect(() => {
-    if (isMobile && controlsRef?.current) {
-      controlsRef.current.resetTransform();
-    }
-  }, [isMobile, controlsRef]);
-
-  useEffect(() => {
     const debouncedHandleResize = debounce(() => {
       calculateAndApplyScale();
     }, 100);
@@ -95,21 +86,17 @@ const PanZoom: React.FC<PanZoomProps> = ({
       initialScale={1}
       minScale={0.25}
       maxScale={3}
-      disabled={isMobile || disabled}
       {...props}
       onInit={handleInit}
       wheel={{
         step: 0.1,
         smoothStep: 0.002,
-        activationKeys: ["Control", "Alt", "Meta", "Shift"],
         ...wheel,
       }}
       panning={{
         velocityDisabled: true,
-        activationKeys: ["Control", "Alt", "Meta", "Shift"],
         ...panning,
       }}
-      pinch={{ disabled: true }}
       doubleClick={{ disabled: true, ...doubleClick }}
       zoomAnimation={{
         disabled: false,
@@ -131,7 +118,7 @@ const PanZoom: React.FC<PanZoomProps> = ({
           width: "100%",
           height: "100%",
           maxHeight: "100%",
-          overflow: isMobile ? "auto" : "hidden",
+          overflow: "hidden",
           ...wrapperStyle,
         }}
         contentClass="flex items-center justify-center"
