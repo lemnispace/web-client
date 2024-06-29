@@ -12,7 +12,7 @@ export const EditorLoader = ({ status, statusMessage }: EditorLoaderProps) => {
     return null;
   }
   return (
-    <div className="-ml-4 md:-ml-8 h-full w-full bg-gray-900/75 flex flex-col items-center justify-center absolute cursor-wait z-50">
+    <div className="h-full w-full bg-gray-900/75 flex flex-col items-center justify-center absolute cursor-wait z-50">
       <Loader
         status={status}
         className="fill-secondary-500 w-10 h-10"
