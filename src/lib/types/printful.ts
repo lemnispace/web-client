@@ -261,7 +261,7 @@ export interface Template {
   /**
    * HEX color code that should be used as a background color.
    */
-  background_color: number | null;
+  background_color: string | null;
 
   /**
    * Printfile ID that should be generated for this template.

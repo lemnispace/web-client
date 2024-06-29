@@ -1,6 +1,9 @@
 "use client";
 
 import { toFloat } from "@/utils/parsers";
+import { setRef } from "@/utils/setters";
+import { VariantTemplate } from "@/utils/types";
+import clsx from "clsx";
 import {
   CanvasOptions,
   Canvas as FabricCanvas,
@@ -8,7 +11,8 @@ import {
   FabricObject,
   ImageProps,
 } from "fabric";
-import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import useClearSelection from "./useClearSelection";
 import { getNewFabricImgFromSrc } from "./utils";
 
@@ -20,7 +24,7 @@ export const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
       selectionColor: "#FDD66B45",
       preserveObjectStacking: true,
       centeredRotation: true,
-      centeredScaling: true,
+      centeredScaling: false,
       ...options,
     });
     callbackFn(c);
@@ -30,6 +34,7 @@ interface CanvasProps extends React.HTMLAttributes<HTMLCanvasElement> {
   imgSrc?: string;
   canvas: FabricCanvas | null;
   loadCanvas: (c: FabricCanvas | null) => void;
+  template: VariantTemplate;
 }
 
 interface InitCanvasOptions {
@@ -115,15 +120,19 @@ const destroyCanvas = (canvas: FabricCanvas | null) => {
   return canvas?.dispose();
 };
 
-export default function Canvas({
-  imgSrc,
-  className,
-  canvas,
-  loadCanvas,
-  style,
-  ...props
-}: CanvasProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
+function Canvas(
+  {
+    imgSrc,
+    className,
+    canvas,
+    loadCanvas,
+    style,
+    template,
+    ...props
+  }: CanvasProps,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const fImgRef = useRef<FabricImage | null>(null);
   useClearSelection(canvas, canvasEl);
@@ -165,13 +174,53 @@ export default function Canvas({
   }, [canvas]);
 
   return (
-    <div className={className} style={style}>
+    <div
+      className={clsx("relative", className)}
+      style={{
+        width: template.templateWidth,
+        height: template.templateHeight,
+      }}
+    >
+      {template?.imageUrl && (
+        <Image
+          src={template.imageUrl}
+          alt="template background image"
+          className="absolute z-0 top-0 left-0 w-full h-full"
+          width={template.templateWidth}
+          height={template.templateHeight}
+          priority
+        />
+      )}
       {/**
        * The canvas is wrapped in an additional div to allow for resizing the canvas without ruining the aspect ratio
        */}
-      <div ref={wrapperRef} className="h-full w-full">
-        <canvas {...props} ref={setCanvasEl} style={style} />
+      <div
+        ref={(divRef) => {
+          wrapperRef.current = divRef;
+          setRef(ref, divRef);
+        }}
+        className="relative"
+        style={{
+          width: template.printAreaWidth,
+          height: template.printAreaHeight,
+          top: template.printAreaTop,
+          left: template.printAreaLeft,
+        }}
+      >
+        <canvas
+          {...props}
+          ref={setCanvasEl}
+          style={{
+            ...style,
+            width: template.printAreaWidth,
+            height: template.printAreaHeight,
+            top: template.printAreaTop,
+            left: template.printAreaLeft,
+          }}
+        />
       </div>
     </div>
   );
 }
+
+export default forwardRef<HTMLDivElement, CanvasProps>(Canvas);
