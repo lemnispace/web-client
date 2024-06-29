@@ -11,7 +11,6 @@ import {
 } from "@/utils/types";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -60,7 +59,6 @@ export default function ImgEditor({
   template,
   ...props
 }: ImgUploaderProps) {
-  const router = useRouter();
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
