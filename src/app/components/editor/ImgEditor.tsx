@@ -99,6 +99,7 @@ export default function ImgEditor({
       </h2>
       {uploadedImg && template && (
         <Editor
+          backHref={product.href}
           imgSrc={uploadedImg.data}
           imgName={uploadedImg.fileName}
           template={template}
@@ -131,7 +132,7 @@ export default function ImgEditor({
         <div className="flex w-full flex-row items-center justify-end my-10">
           <Button
             outline
-            onClick={() => router.back()}
+            href={product.href}
             className="ml-4 w-full max-w-40 min-w-fit sm:w-4/12 lg:w-2/12 md:w-2/12"
           >
             <ArrowLeftIcon className="h-6 w-6 stroke-neutral-800 stroke-2" />
