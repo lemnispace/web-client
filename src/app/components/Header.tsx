@@ -26,7 +26,7 @@ export function Header({ navLinks, className, ...props }: HeaderProps) {
         >
           <div className="flex items-center md:gap-x-12">
             <Button href={NAVIGATION_LINKS.home} aria-label="Home" plain>
-              <Logo className="h-8 w-auto" />
+              <Logo className="h-8 w-auto max-w-full" />
             </Button>
             <div className="hidden md:flex md:gap-x-6">
               {navLinks.map((link) => (
