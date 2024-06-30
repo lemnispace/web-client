@@ -1,31 +1,31 @@
 export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
-  title: "Browse Our Collections",
-  shortDescription: "Browse our collections of customizable products",
+  title: "Discover Your Perfect Canvas",
+  shortDescription: "Explore our customizable collections",
   description:
-    "Explore our collections of customizable products. Our unique service allows users to create custom text mosaics with more great products coming soon.",
+    "Dive into a world of endless possibilities. From text mosaics to upcoming surprises, find the perfect backdrop for your creativity.",
 } as const;
 
 export const PRODUCTS_CREATE_MESSAGE_SECTION_TEXT = {
-  title: "Make It Yours",
-  shortDescription: "Customizable products",
+  title: "Your Vision, Our Canvas",
+  shortDescription: "Personalization at its finest",
   description:
-    "The best way to buy the products you love is to personalize them.",
+    "Why settle for ordinary when you can own extraordinary? Make each product uniquely yours.",
 } as const;
 
 export const PRODUCT_DETAIL_SECTION_TEXT = {
   grid: {
-    title: "Products",
+    title: "Your Creative Playground",
   },
 } as const;
 
 export const PRODUCT_SECTION_TEXT = {
-  title: "Product Information",
-  shortDescription: "Product information",
-  description: "Product information",
+  title: "The Nitty-Gritty",
+  shortDescription: "All about your soon-to-be favorite item",
+  description: "Everything you need to know about this creative canvas",
 } as const;
 
 export const PRODUCT_RATING_TEXT = {
-  title: "Reviews",
+  title: "What Artists Like You Say",
   getShortDescription(
     rating: number,
     total: number
@@ -35,13 +35,13 @@ export const PRODUCT_RATING_TEXT = {
 } as const;
 
 export const PRODUCT_COLOR_PICKER_TEXT = {
-  title: "Color",
-  shortDescription: "Choose a color",
-  description: "Choose a color",
+  title: "Pick Your Palette",
+  shortDescription: "Choose your perfect hue",
+  description: "Select the color that speaks to you",
 } as const;
 
 export const PRODUCT_SIZE_PICKER_TEXT = {
-  title: "Size",
-  shortDescription: "Choose a size",
-  description: "Choose a size",
+  title: "Size It Up",
+  shortDescription: "Find your perfect fit",
+  description: "Choose the size that suits your style",
 } as const;

@@ -190,7 +190,7 @@ export const removeBackground = async (
             IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.modelFetch;
         } else if (stage.startsWith("fetch:/onnxruntime-web/")) {
           statusMessage =
-            IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.modelCompute;
+            IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.modelPrep;
         } else if (stage.startsWith("compute:inference")) {
           statusMessage =
             IMAGE_EDITOR_STATUS_TEXT.removeBackground.progress.inferenceCompute;
