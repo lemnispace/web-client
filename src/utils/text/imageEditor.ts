@@ -17,10 +17,32 @@ export const IMAGE_EDITOR_INPUT_TEXT = {
 } as const;
 
 export const IMAGE_EDITOR_MENU_TEXT = {
-  reset: "Reset",
-  backgroundRemove: "BG Remove",
-  centerImg: "Center",
-  cropImg: "Crop",
-  previewImgEffect: "Preview",
-  reuploadImg: "Re-upload",
+  reset: {
+    label: "Reset",
+    description: "Reset the image and editor to its original state.",
+  },
+  backgroundRemove: {
+    label: "BG Remove",
+    description: "Remove the background from the image.",
+  },
+  centerImg: {
+    label: "Center",
+    description: "Center the image in the editor.",
+  },
+  cropImg: {
+    label: "Crop",
+    description: "Open the crop tool to crop the image.",
+  },
+  textMosaicEffect: {
+    label: "Text Mosaic",
+    description: "Turn your image into a text mosaic.",
+  },
+  reuploadImg: {
+    label: "Re-upload",
+    description: "Change the image by re-uploading a new one.",
+  },
+  panZoom: {
+    label: "Pan/Zoom",
+    description: "Allow panning and zooming of the editor by dragging, scrolling, and pinching.",
+  },
 } as const;
