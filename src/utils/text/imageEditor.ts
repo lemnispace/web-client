@@ -22,6 +22,10 @@ export const IMAGE_EDITOR_MENU_TEXT = {
     label: "Reset",
     description: "Start fresh with your original image.",
   },
+  finishEdit: {
+    label: "Finish",
+    description: "Wrap up your masterpiece and prepare it for ordering.",
+  },
   backgroundRemove: {
     label: "BG Remove",
     description: "Poof! Make the background disappear.",
