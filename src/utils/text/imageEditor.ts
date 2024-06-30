@@ -47,8 +47,8 @@ export const IMAGE_EDITOR_MENU_TEXT = {
     description: "Swap in a fresh image to customize.",
   },
   panZoom: {
-    label: "Adjust",
+    label: "Adjust Editor",
     description:
-      "Move and resize your image with ease. Simply drag, scroll, or pinch in the editor.",
+      "Move and resize your image editor with ease. Simply drag, scroll, or pinch in the editor itself.",
   },
 } as const;

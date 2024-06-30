@@ -20,8 +20,8 @@ export const initCanvas = ({ el, callbackFn, options }: InitCanvasOptions) => {
   if (el) {
     const c = new FabricCanvas(el, {
       uniScaleKey: null,
-      selectionBorderColor: "#FDD66B",
-      selectionColor: "#FDD66B45",
+      selectionBorderColor: "#3aa1f5",
+      selectionColor: "#3aa1f545",
       preserveObjectStacking: true,
       centeredRotation: true,
       centeredScaling: false,

@@ -57,7 +57,7 @@ export default function EditorMenu(props: EditorMenuProps) {
   return (
     <ul
       className={clsx(
-        "bg-zinc-800 text-white w-auto flex whitespace-nowrap dark overflow-auto no-scrollbar",
+        "bg-zinc-800 text-white w-auto md:min-w-fit flex whitespace-nowrap dark overflow-auto no-scrollbar",
         props.className
       )}
     >
@@ -67,7 +67,7 @@ export default function EditorMenu(props: EditorMenuProps) {
           <li
             key={a.label}
             className={clsx(
-              "w-full py-2",
+              "w-full py-2 min-w-fit",
               active && !disabled && "bg-zinc-600/90",
               wrapperClassName
             )}
