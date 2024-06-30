@@ -41,7 +41,7 @@ export default function Editor(props: EditorProps) {
   return (
     <div
       className={clsx(
-        "mt-4 relative flex flex-1 flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg overflow-hidden",
+        "mt-4 mb-10 relative flex flex-1 flex-col-reverse md:flex-row items-stretch justify-between border-2 border-neutral-800 rounded-lg overflow-hidden",
         isDefined(props.template.backgroundColor)
           ? `bg-[${props.template.backgroundColor}]`
           : "bg-neutral-900"
