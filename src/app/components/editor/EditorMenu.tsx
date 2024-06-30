@@ -13,17 +13,27 @@ export interface EditorControlItemProps extends HTMLButtonProps {
   href?: string;
   download?: boolean;
   active?: boolean;
+  wrapperClassName?: string;
+  labelClassName?: string;
+  variant?: "plain" | "outline";
 }
+
+type EditorControlButtonProps = Omit<
+  EditorControlItemProps,
+  "active" | "wrapperClassName"
+>;
 
 export function EditorControlItem({
   className,
   icon,
   label,
+  variant,
+  labelClassName,
   ...props
-}: EditorControlItemProps) {
+}: EditorControlButtonProps) {
   return (
     <Button
-      plain
+      {...(variant === "outline" ? { outline: true } : { plain: true })}
       className={clsx(
         "flex flex-col r w-full",
         props.disabled ? "cursor-not-allowed" : "cursor-pointer",
@@ -32,7 +42,7 @@ export function EditorControlItem({
       {...props}
     >
       {icon}
-      <span className="text-sm">{label}</span>
+      <span className={clsx("text-sm", labelClassName)}>{label}</span>
     </Button>
   );
 }
@@ -47,18 +57,19 @@ export default function EditorMenu(props: EditorMenuProps) {
   return (
     <ul
       className={clsx(
-        "bg-zinc-800 text-white w-auto flex whitespace-nowrap dark overflow-auto",
+        "bg-zinc-800 text-white w-auto flex whitespace-nowrap dark overflow-auto no-scrollbar",
         props.className
       )}
     >
-      {props.actions.map(({ active, ...a }) => {
+      {props.actions.map(({ active, wrapperClassName, ...a }) => {
         const disabled = props.disabled || a.disabled;
         return (
           <li
             key={a.label}
             className={clsx(
               "w-full py-2",
-              active && !disabled && "bg-zinc-600/90"
+              active && !disabled && "bg-zinc-600/90",
+              wrapperClassName
             )}
           >
             <EditorControlItem {...a} disabled={disabled} />
