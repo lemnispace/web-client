@@ -95,6 +95,7 @@ export default function Editor(props: EditorProps) {
             canvas={fCanvas}
             loadCanvas={setFCanvas}
             template={props.template}
+            disabled={isPanZoomActive}
           />
         </PanZoom>
       </div>
