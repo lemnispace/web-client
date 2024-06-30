@@ -44,7 +44,7 @@ export default function RootLayout({
         lexend.variable
       )}
     >
-      <body className="flex h-full flex-col">
+      <body className="flex h-auto flex-col">
         <Header navLinks={navLinks} />
         {children}
         <Footer navLinks={navLinks} />
