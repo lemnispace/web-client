@@ -3,26 +3,26 @@ export const GLOBAL_APP_TEXT = {
 } as const;
 
 export const BUTTON_TEXT = {
-  goBackHome: "Go Back Home",
+  goBackHome: "Home",
   landing: {
-    cta: "Start Crafting Now",
-    heroCta: "Craft Your Personal Masterpiece",
+    cta: "Start Creating",
+    heroCta: "Craft Your Masterpiece",
   },
-  goToProduct: "Craft Your Own",
-  goToCustomize: "Customize",
+  goToProduct: "Customize Now",
+  goToCustomize: "Personalize",
   addToCart: "Add to Cart",
-  addToFavorites: "Add to Favorites",
-  generate: "Generate",
+  addToFavorites: "Favorite",
+  generate: "Create",
   cancel: "Cancel",
   crop: "Crop",
   back: "Back",
-  finishEdit: "Craft Your Masterpiece",
+  finishEdit: "Finish Masterpiece",
 } as const;
 
 export const NAVIGATION_TEXT = {
   home: "Home",
   collections: "Collections",
-  comingSoon: "Coming Soon",
+  comingSoon: "Sneak Peek",
 } as const;
 
 export const ERROR_TEXTS = {
@@ -34,9 +34,9 @@ export const ERROR_TEXTS = {
      * 404 Not Found Page
      */
     404: {
-      title: "Page Not Found",
+      title: "Oops! Page Not Found",
       code: "404",
-      description: "Sorry, the page you're looking for doesn't exist.",
+      description: "This page seems to have vanished into thin air!",
       shortDescription: "Page not found",
     },
   },
@@ -44,17 +44,17 @@ export const ERROR_TEXTS = {
    * Error messages for the image editor
    */
   imageEditor: {
-    backgroundRemoval: "Oops! Background removal hit a snag.",
-    mosaicGeneration: "Mosaic creation encountered a glitch. Let's try again!",
-    missingText: "Please add some text to make the mosaic truly unique!",
-    noImage: "No image found. Please upload an image to get started.",
+    backgroundRemoval: "Whoops! Our magic eraser hit a snag.",
+    mosaicGeneration: "Uh-oh! Our mosaic maker needs a quick reset.",
+    missingText: "Oops! We need your words to weave some magic.",
+    noImage: "Hold up! We need an image to start the fun.",
   },
   /**
    * General error messages
    */
   general: {
-    default: "Oops! Something went wrong. Please try again.",
-    notFound: "Sorry, we couldn't find what you're looking for.",
-    missingData: "Oops! Please fill in all the required fields.",
+    default: "Oops! We hit a bump. Let's try that again.",
+    notFound: "We've looked high and low, but couldn't find that.",
+    missingData: "Almost there! Just fill in the blanks.",
   },
 } as const;

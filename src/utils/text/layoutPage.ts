@@ -3,43 +3,41 @@ import { GLOBAL_APP_TEXT } from "./global";
 export const LAYOUT_TEXT = {
   root: {
     name: GLOBAL_APP_TEXT.name,
-    title: "Customizable E-commerce Platform",
-    shortDescription: "Customizable E-commerce Platform",
-    description: `Explore ${GLOBAL_APP_TEXT.name}, the innovative e-commerce platform specializing in personalized products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.`,
+    title: "Where Creativity Meets Commerce",
+    shortDescription: "Your Personal E-Commerce Canvas",
+    description: `Welcome to ${GLOBAL_APP_TEXT.name}, where shopping becomes an art form. Create custom text mosaics and unique products that speak to your soul. Perfect for gifting or treating yourself to something truly special.`,
   },
   shop: {
     name: "Shop",
-    description: `Shop ${GLOBAL_APP_TEXT.name}’s collection of customizable products. Our unique service allows users to create custom text mosaics and other tailor-made items, offering an interactive and creative shopping experience. Ideal for those seeking one-of-a-kind gifts or personal keepsakes.`,
+    description: `Dive into ${GLOBAL_APP_TEXT.name}'s world of customizable wonders. From text mosaics to personalized treasures, every item is a canvas for your imagination. Find the perfect gift or create a keepsake that's uniquely you.`,
   },
 } as const;
 
-// *** Call To Action Text ***
 export const CTA_TEXT = {
-  title: "Begin Your Creative Journey",
-  shortDescription: "Begin Your Creative Journey",
-  description: `Embark on a path of personal expression with ${GLOBAL_APP_TEXT.name}. Unleash your creativity and transform your vision into bespoke art pieces that tell your unique story.`,
+  title: "Unleash Your Inner Artist",
+  shortDescription: "Start Your Creative Adventure",
+  description: `${GLOBAL_APP_TEXT.name} is your playground for personal expression. Turn your ideas into tangible art that tells your story.`,
 } as const;
 
 export const COMING_SOON_TEXT = {
-  title: "More Great Products Coming Soon",
-  shortDescription: "More products coming soon",
+  title: "More Creativity in the Works!",
+  shortDescription: "New treasures coming soon",
   description:
-    "We are working hard to bring you more great products. Please check back soon.",
+    "Our creative elves are hard at work. Check back soon for more delightful surprises!",
 } as const;
 
 export const HERO_TEXT = {
-  // break up title into array of strings to allow for styling
-  title: ["Crafting", "your visions", "into artistic treasures"],
-  shortDescription: "Crafting your visions into artistic treasures",
+  title: ["Transform", "your ideas", "into art"],
+  shortDescription: "Where imagination becomes reality",
   description:
-    "Every product is a canvas for your imagination, transforming your ideas into art that celebrates your individuality.",
+    "Every product is a blank canvas, waiting for your touch to become a masterpiece that celebrates you.",
 } as const;
 
 export const COLLECTION_TEXT = {
   textMosaic: {
-    title: "Text Mosaic",
-    shortDescription: "Text Mosaic",
+    title: "Text Mosaic Magic",
+    shortDescription: "Words paint a thousand pictures",
     description:
-      "Create a personalized text mosaic portrait with your own words and messages. Perfect as a gift or a stunning piece of art for your home or office.",
+      "Weave your words into a stunning portrait. It's not just art; it's your story, beautifully told.",
   },
 } as const;

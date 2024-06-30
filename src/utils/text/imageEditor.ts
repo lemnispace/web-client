@@ -1,48 +1,50 @@
 export const IMAGE_EDITOR_TEXT = {
-  title: "Customize Your Image",
-  shortDescription: "Customize your image",
-  description: "Customize your image",
+  title: "Make It Yours",
+  shortDescription: "Personalize your image",
+  description: "Transform your image into a unique masterpiece",
 } as const;
 
 export const IMAGE_EDITOR_FILE_DROP_ZONE_TEXT = {
   description: {
-    emphasis: "Click to upload",
-    text: "or drag and drop your image here",
+    emphasis: "Drop your image here",
+    text: "or click to upload",
   },
 } as const;
+
 export const IMAGE_EDITOR_INPUT_TEXT = {
-  title: "Generate Text Mosaic",
-  description: "Provide the text you want to use to create the mosaic.",
-  label: "Enter Text",
+  title: "Text Mosaic Magic",
+  description: "What words will bring your image to life?",
+  label: "Your Words Here",
 } as const;
 
 export const IMAGE_EDITOR_MENU_TEXT = {
   reset: {
     label: "Reset",
-    description: "Reset the image and editor to its original state.",
+    description: "Start fresh with your original image.",
   },
   backgroundRemove: {
     label: "BG Remove",
-    description: "Remove the background from the image.",
+    description: "Poof! Make the background disappear.",
   },
   centerImg: {
     label: "Center",
-    description: "Center the image in the editor.",
+    description: "Put your image in the spotlight by centering it.",
   },
   cropImg: {
     label: "Crop",
-    description: "Open the crop tool to crop the image.",
+    description: "Trim your image to perfection.",
   },
   textMosaicEffect: {
     label: "Text Mosaic",
-    description: "Turn your image into a text mosaic.",
+    description: "Transform your image into a tapestry of words.",
   },
   reuploadImg: {
-    label: "Re-upload",
-    description: "Change the image by re-uploading a new one.",
+    label: "New Image",
+    description: "Swap in a fresh image to customize.",
   },
   panZoom: {
-    label: "Pan/Zoom",
-    description: "Allow panning and zooming of the editor by dragging, scrolling, and pinching.",
+    label: "Adjust",
+    description:
+      "Move and resize your image with ease. Simply drag, scroll, or pinch in the editor.",
   },
 } as const;
