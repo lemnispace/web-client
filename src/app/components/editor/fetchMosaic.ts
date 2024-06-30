@@ -1,3 +1,5 @@
+import { getErrorMessage } from "@/utils/getters";
+
 export const fetchMosaic = async (formData: FormData) => {
   try {
     if (!formData.get("text")) {
@@ -13,8 +15,16 @@ export const fetchMosaic = async (formData: FormData) => {
         Accept: "image/png",
       },
     });
+    if (!response.ok) {
+      const errorMessage = await getErrorMessage(
+        response,
+        "Failed to generate mosaic"
+      );
+      throw new Error(errorMessage);
+    }
     return response.blob();
   } catch (e) {
-    console.error("Error generating mosaic:", e);
+    console.error("Error fetching mosaic", e);
+    throw e;
   }
 };
