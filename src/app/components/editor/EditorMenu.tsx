@@ -19,7 +19,6 @@ export function EditorControlItem({
   className,
   icon,
   label,
-  active,
   ...props
 }: EditorControlItemProps) {
   return (
@@ -28,7 +27,6 @@ export function EditorControlItem({
       className={clsx(
         "flex flex-col r w-full",
         props.disabled ? "cursor-not-allowed" : "cursor-pointer",
-        active && !props.disabled && "bg-zinc-600/90",
         className
       )}
       {...props}
@@ -49,15 +47,24 @@ export default function EditorMenu(props: EditorMenuProps) {
   return (
     <ul
       className={clsx(
-        "bg-zinc-800 text-white w-auto flex py-2 whitespace-nowrap dark overflow-auto",
+        "bg-zinc-800 text-white w-auto flex whitespace-nowrap dark overflow-auto",
         props.className
       )}
     >
-      {props.actions.map((a) => (
-        <li key={a.label} className="w-full py-0 md:py-2">
-          <EditorControlItem {...a} disabled={props.disabled || a.disabled} />
-        </li>
-      ))}
+      {props.actions.map(({ active, ...a }) => {
+        const disabled = props.disabled || a.disabled;
+        return (
+          <li
+            key={a.label}
+            className={clsx(
+              "w-full py-2",
+              active && !disabled && "bg-zinc-600/90"
+            )}
+          >
+            <EditorControlItem {...a} disabled={disabled} />
+          </li>
+        );
+      })}
     </ul>
   );
 }
