@@ -61,8 +61,8 @@ export const getNewFabricImgFromSrc = async (
     snapAngle: 5,
     lockSkewingX: true,
     lockSkewingY: true,
-    cornerColor: "#FCC325",
-    borderColor: "#FCC325",
+    cornerColor: "#3aa1f5",
+    borderColor: "#3aa1f5",
     lockScalingFlip: true,
     ...options,
   });
