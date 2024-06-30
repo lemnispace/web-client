@@ -12,12 +12,14 @@ export interface EditorControlItemProps extends HTMLButtonProps {
   label: string;
   href?: string;
   download?: boolean;
+  active?: boolean;
 }
 
 export function EditorControlItem({
   className,
   icon,
   label,
+  active,
   ...props
 }: EditorControlItemProps) {
   return (
@@ -26,6 +28,7 @@ export function EditorControlItem({
       className={clsx(
         "flex flex-col r w-full",
         props.disabled ? "cursor-not-allowed" : "cursor-pointer",
+        active && !props.disabled && "bg-zinc-600/90",
         className
       )}
       {...props}
