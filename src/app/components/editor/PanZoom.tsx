@@ -1,6 +1,7 @@
 "use client";
 import { debounce } from "@/utils/debounce";
-import React, { useCallback, useEffect, useRef } from "react";
+import { CursorCSSValues } from "@/utils/types";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ReactZoomPanPinchContentRef,
   ReactZoomPanPinchProps,
@@ -44,6 +45,11 @@ const PanZoom: React.FC<PanZoomProps> = ({
 }) => {
   const childRef = useRef<HTMLElement | null>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const [cursor, setCursor] = useState<CursorCSSValues | undefined>(undefined);
+
+  useEffect(() => {
+    props.disabled ? setCursor(undefined) : setCursor("grab");
+  }, [props.disabled]);
 
   const calculateAndApplyScale = useCallback(() => {
     if (childRef.current && transformRef.current?.instance.wrapperComponent) {
@@ -93,6 +99,10 @@ const PanZoom: React.FC<PanZoomProps> = ({
         smoothStep: 0.002,
         ...wheel,
       }}
+      onPanningStart={() => setCursor("grabbing")}
+      onPanningStop={() => setCursor("grab")}
+      onZoomStart={() => setCursor("ns-resize")}
+      onZoomStop={() => setCursor("grab")}
       panning={{
         velocityDisabled: true,
         ...panning,
@@ -120,6 +130,7 @@ const PanZoom: React.FC<PanZoomProps> = ({
           maxHeight: "100%",
           overflow: "hidden",
           ...wrapperStyle,
+          cursor: props.disabled ? undefined : cursor,
         }}
         contentClass="flex items-center justify-center"
       >

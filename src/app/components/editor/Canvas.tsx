@@ -35,6 +35,7 @@ interface CanvasProps extends React.HTMLAttributes<HTMLCanvasElement> {
   canvas: FabricCanvas | null;
   loadCanvas: (c: FabricCanvas | null) => void;
   template: VariantTemplate;
+  disabled?: boolean;
 }
 
 interface InitCanvasOptions {
@@ -128,6 +129,7 @@ function Canvas(
     loadCanvas,
     style,
     template,
+    disabled,
     ...props
   }: CanvasProps,
   ref: React.ForwardedRef<HTMLDivElement>
@@ -198,6 +200,13 @@ function Canvas(
           height: template.printAreaHeight,
           top: template.printAreaTop,
           left: template.printAreaLeft,
+          ...(disabled
+            ? {
+                pointerEvents: "none",
+                userSelect: "none",
+                opacity: 0.5,
+              }
+            : undefined),
         }}
       >
         <canvas
