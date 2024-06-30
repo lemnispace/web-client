@@ -46,31 +46,33 @@ export default function ProductSelectionForm({
     <form {...props} onSubmit={handleSubmit}>
       <ProductColorPicker product={product} />
       <ProductSizePicker product={product} className="mt-8" />
-      <div
-        className={clsx(
-          "mt-10 flex flex-col sm:w-full sm:flex-row",
-          !selectedVariant?.hasCustomization && "lg:flex-row-reverse"
-        )}
-      >
-        {selectedVariant?.hasCustomization && (
-          <Button
-            type="submit"
-            color="primary"
-            className={clsx(
-              "flex max-w-xs flex-1 sm:w-full",
-              formState === "READY" && "cursor-pointer"
-            )}
-          >
-            {BUTTON_TEXT.addToCart}
-          </Button>
-        )}
+      <div className={clsx("mt-10 flex flex-col sm:w-full sm:flex-row")}>
+        <Button
+          type="submit"
+          color={selectedVariant?.hasCustomization ? "primary" : "zinc"}
+          className={clsx(
+            "flex max-w-xs flex-1 sm:w-full",
+            formState === "READY"
+              ? selectedVariant?.hasCustomization
+                ? "cursor-pointer"
+                : "cursor-not-allowed"
+              : undefined
+          )}
+          disabled={!selectedVariant?.hasCustomization}
+          title={
+            !selectedVariant?.hasCustomization
+              ? "Customization required"
+              : undefined
+          }
+        >
+          {BUTTON_TEXT.addToCart}
+        </Button>
         <Button
           href={getVariantCustomizeUrl(product.href, selectedVariant)}
           disabled={!selectedVariant}
           outline
           className={clsx(
-            selectedVariant?.hasCustomization && "sm:ml-4",
-            "mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full custom-gradient-border",
+            "sm:ml-4 mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full custom-gradient-border",
             formState === "READY" && "cursor-pointer"
           )}
         >
