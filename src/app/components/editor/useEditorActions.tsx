@@ -199,17 +199,20 @@ const useEditorActions = (props: EditorProps) => {
   const actions: EditorControlItemProps[] = [
     {
       label: IMAGE_EDITOR_MENU_TEXT.reset.label,
+      title: IMAGE_EDITOR_MENU_TEXT.reset.description,
       icon: <ArrowPathIcon className="h-6 w-6 stroke-white" />,
       onClick: handleReset,
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.panZoom.label,
+      title: IMAGE_EDITOR_MENU_TEXT.panZoom.description,
       icon: <ArrowsPointingOutIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsPanZoomActive((prev) => !prev),
       active: isPanZoomActive,
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.backgroundRemove.label,
+      title: IMAGE_EDITOR_MENU_TEXT.backgroundRemove.description,
       icon: <PhotoIcon className="h-6 w-6 stroke-white" />,
       onClick: handleRemoveBackground,
       active: isBackgroundRemoved,
@@ -217,23 +220,27 @@ const useEditorActions = (props: EditorProps) => {
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.centerImg.label,
+      title: IMAGE_EDITOR_MENU_TEXT.centerImg.description,
       icon: <ArrowsPointingInIcon className="h-6 w-6 stroke-white" />,
       onClick: handleCenter,
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.cropImg.label,
+      title: IMAGE_EDITOR_MENU_TEXT.cropImg.description,
       icon: <CropIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsCropActive(true),
       active: isCropActive,
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.textMosaicEffect.label,
+      title: IMAGE_EDITOR_MENU_TEXT.textMosaicEffect.description,
       icon: <PaintBrushIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsPreviewOpen(true),
       active: isPreviewOpen,
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.reuploadImg.label,
+      title: IMAGE_EDITOR_MENU_TEXT.reuploadImg.description,
       icon: <CloudArrowUpIcon className="h-6 w-6 stroke-white" />,
       onClick: props.onUploadImage,
     },
