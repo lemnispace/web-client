@@ -60,8 +60,7 @@ export default function Editor(props: EditorProps) {
         />
         <div
           className={clsx(
-            "flex-1 w-full h-auto items-center relative",
-            isCropActive ? "block overflow-hidden" : "flex overflow-auto",
+            "flex flex-col flex-1 w-full h-auto items-center relative",
             isCropActive && "bg-neutral-900"
           )}
         >
@@ -83,13 +82,19 @@ export default function Editor(props: EditorProps) {
               aspectRatio={
                 props.template.printAreaWidth / props.template.printAreaHeight
               }
-              className="dark bg-transparent rounded-lg p-2 md:p-4"
+              className="dark bg-transparent rounded-lg p-2 md:p-4 flex-1"
               onCropComplete={handleCropComplete}
               onCancel={() => setIsCropActive(false)}
               canvas={fCanvas}
             />
           )}
-          <PanZoom controlsRef={panZoomControlsRef} disabled={!isPanZoomActive}>
+          <PanZoom
+            controlsRef={panZoomControlsRef}
+            disabled={!isPanZoomActive}
+            wrapperStyle={{
+              display: isCropActive ? "none" : undefined,
+            }}
+          >
             <Canvas
               className={clsx("rounded-lg", isCropActive && "hidden")}
               imgSrc={imgSources.src}
@@ -100,7 +105,7 @@ export default function Editor(props: EditorProps) {
           </PanZoom>
         </div>
       </div>
-      <div className="flex w-full flex-1 flex-row items-center justify-end my-10">
+      <div className="flex w-full flex-row items-center justify-end my-10">
         <Button
           color="primary"
           onClick={handleFinishEdit}

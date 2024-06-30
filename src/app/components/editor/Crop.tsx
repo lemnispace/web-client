@@ -46,10 +46,10 @@ const Crop = ({
   }, []);
   return (
     <div
-      className={clsx(className, "flex flex-col w-full min-h-96 h-[80vh]")}
+      className={clsx(className, "flex flex-col w-full h-full min-h-96")}
       {...props}
     >
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full flex-1">
         <Cropper
           image={imgSrc}
           crop={crop}

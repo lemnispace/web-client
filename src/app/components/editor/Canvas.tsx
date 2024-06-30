@@ -159,18 +159,11 @@ function Canvas(
     }
   }, [canvas, imgSrc]);
 
-  // update the canvas size when the window is resized
+  // update the canvas size when the canvas is loaded
   useEffect(() => {
-    let resizeObserver: ResizeObserver | null = null;
     if (wrapperRef.current) {
-      resizeObserver = new ResizeObserver(() => {
-        resizeCanvas(canvas, wrapperRef.current, fImgRef.current);
-      });
-      resizeObserver.observe(wrapperRef.current);
+      resizeCanvas(canvas, wrapperRef.current, fImgRef.current);
     }
-    return () => {
-      resizeObserver?.disconnect();
-    };
   }, [canvas]);
 
   return (
