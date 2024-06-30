@@ -35,7 +35,7 @@ export function EditorControlItem({
     <Button
       {...(variant === "outline" ? { outline: true } : { plain: true })}
       className={clsx(
-        "flex flex-col r w-full",
+        "flex flex-col w-full h-full py-3",
         props.disabled ? "cursor-not-allowed" : "cursor-pointer",
         className
       )}
@@ -67,7 +67,7 @@ export default function EditorMenu(props: EditorMenuProps) {
           <li
             key={a.label}
             className={clsx(
-              "w-full py-2 min-w-fit",
+              "w-36 min-w-36 max-w-36 md:w-full md:min-w-full h-full md:min-h-20",
               active && !disabled && "bg-zinc-600/90",
               wrapperClassName
             )}

@@ -96,7 +96,7 @@ export default function ImgEditor({
 
   return (
     <div
-      className={clsx("flex flex-col h-full min-h-svh md:max-h-svh", className)}
+      className={clsx("flex flex-col h-full min-h-72 md:max-h-svh", className)}
       {...props}
     >
       <div className="flex w-full flex-row items-center justify-between">
