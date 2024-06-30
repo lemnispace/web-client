@@ -6,12 +6,12 @@ import {
   IMAGE_EDITOR_MENU_TEXT,
   IMAGE_EDITOR_STATUS_TEXT,
 } from "@/utils/text";
-import { VariantTemplate } from "@/utils/types";
 import {
   ArrowPathIcon,
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   CloudArrowUpIcon,
+  FlagIcon,
   PaintBrushIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
@@ -34,12 +34,8 @@ import {
 
 interface EditorProps {
   imgSrc: ImgSource;
-  imgName?: string;
-  customActions?: EditorControlItemProps[];
   onUploadImage: () => void;
   onEditComplete: (file: File) => Promise<void>;
-  template: VariantTemplate;
-  backHref: string;
 }
 
 const useImgSourcesState = (imgSrc: ImgSource) => {
@@ -197,6 +193,13 @@ const useEditorActions = (props: EditorProps) => {
   );
 
   const actions: EditorControlItemProps[] = [
+    {
+      label: IMAGE_EDITOR_MENU_TEXT.finishEdit.label,
+      title: IMAGE_EDITOR_MENU_TEXT.finishEdit.description,
+      icon: <FlagIcon className="h-6 w-6 stroke-primary-400" />,
+      onClick: handleFinishEdit,
+      labelClassName: "text-primary-400",
+    },
     {
       label: IMAGE_EDITOR_MENU_TEXT.reset.label,
       title: IMAGE_EDITOR_MENU_TEXT.reset.description,

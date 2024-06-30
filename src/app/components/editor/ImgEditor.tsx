@@ -11,6 +11,7 @@ import {
 } from "@/utils/types";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Editor from "./Editor";
 import FileDropZone from "./FileDropZone";
@@ -61,6 +62,7 @@ export default function ImgEditor({
 }: ImgUploaderProps) {
   const [uploadedImg, setUploadeImg] = useState<ImgData | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const handleOnChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -75,6 +77,11 @@ export default function ImgEditor({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleBack = () => {
+    const canGoBack = window.history.length > 1;
+    canGoBack ? router.back() : router.push(product.href);
   };
 
   const handleOnDrop = async (e: DragEvent<HTMLInputElement>) => {
@@ -92,14 +99,18 @@ export default function ImgEditor({
       className={clsx("flex flex-col h-full min-h-svh md:max-h-svh", className)}
       {...props}
     >
-      <h2 className="text-xl font-display text-gray-600">
-        {IMAGE_EDITOR_TEXT.title}
-      </h2>
+      <div className="flex w-full flex-row items-center justify-between">
+        <h2 className="text-xl font-display text-gray-600">
+          {IMAGE_EDITOR_TEXT.title}
+        </h2>
+        <Button plain onClick={handleBack} className="w-auto min-w-fit">
+          <ArrowLeftIcon className="h-6 w-6 stroke-neutral-800 stroke-2" />
+          {BUTTON_TEXT.back}
+        </Button>
+      </div>
       {uploadedImg && template && (
         <Editor
-          backHref={product.href}
           imgSrc={uploadedImg.data}
-          imgName={uploadedImg.fileName}
           template={template}
           onUploadImage={() => {
             inputRef.current?.click();
@@ -126,18 +137,6 @@ export default function ImgEditor({
         inputRef={inputRef}
         className={uploadedImg ? "hidden" : ""}
       />
-      {!uploadedImg && (
-        <div className="flex w-full flex-row items-center justify-end my-10">
-          <Button
-            outline
-            href={product.href}
-            className="ml-4 w-full max-w-40 min-w-fit sm:w-4/12 lg:w-2/12 md:w-2/12"
-          >
-            <ArrowLeftIcon className="h-6 w-6 stroke-neutral-800 stroke-2" />
-            {BUTTON_TEXT.back}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
