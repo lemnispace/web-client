@@ -3,6 +3,7 @@ import { RequireFields } from "./genericTypes";
 import {
   ApiResponse,
   Product,
+  ProductWithCustomization,
   ServerErrorResponse,
   ValidationErrorResponse,
 } from "./types";
@@ -43,6 +44,23 @@ export const hasVariant = <T extends ProductVariantOptionType>(
   type: T
 ): product is Product & ProductWithVariant<T> =>
   product.variants?.some((variant) => type in variant) ?? false;
+
+  
+/**
+ * Checks if a custom variant ID is valid for a given product.
+ * @param product - The product with customization options.
+ * @param customVariantId - The ID of the custom variant to check.
+ * @returns A boolean indicating whether the custom variant ID is valid.
+ */
+export const isValidCustomVariantId = (
+  product: ProductWithCustomization,
+  customVariantId: string
+) => {
+  if (!product.customVariants) return false;
+  return product.customVariants.some(
+    (variant) => variant.id === customVariantId
+  );
+};
 
 /**
  * Checks if a value is a number.
