@@ -6,7 +6,7 @@ export const PRODUCTS_MAIN_MESSAGE_SECTION_TEXT = {
 } as const;
 
 export const PRODUCTS_CREATE_MESSAGE_SECTION_TEXT = {
-  title: ["Your Vision", "Our Canvas"],
+  title: ["Your Vision,", "Our Canvas"],
   shortDescription: "Personalization at its finest",
   description:
     "Why settle for ordinary when you can own extraordinary? Make each product uniquely yours.",
