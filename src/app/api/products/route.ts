@@ -297,17 +297,19 @@ const createCustomProduct = async (
       fetchOrCreateCustomProduct(params.productId, params.userId),
     ]);
 
-    const [updatedCustomVariant, collection] = await Promise.all([
-      updateCustomProductVariantWithImage({
-        customProduct,
-        originProductId: params.productId,
-        originProductVariantId: params.variantId,
-        userId: params.userId,
-        resourceUrl: stagedImageUploadResponse.resourceUrl,
-        variantTitle: params.variantTitle,
-      }),
-      addProductToCollection(params.userId, customProduct, params.productId),
-    ]);
+    const updatedCustomVariant = await updateCustomProductVariantWithImage({
+      customProduct,
+      originProductId: params.productId,
+      originProductVariantId: params.variantId,
+      userId: params.userId,
+      resourceUrl: stagedImageUploadResponse.resourceUrl,
+      variantTitle: params.variantTitle,
+    });
+    const collection = await addProductToCollection(
+      params.userId,
+      customProduct,
+      params.productId
+    );
 
     return {
       status: 200,
