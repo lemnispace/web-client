@@ -87,10 +87,20 @@ export default async function CustomizeProduct(props: MosaicProps) {
       <main className="bg-white flex-1">
         <Container>
           <ProductsMainMessageSection
-            title={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title}
+            headingProps={{
+              highlightedLine: PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title[0],
+              lastLine: PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.title[1],
+              highlightedProps: {
+                icon: "loop",
+              },
+            }}
             description={PRODUCTS_CREATE_MESSAGE_SECTION_TEXT.description}
           />
-          <ImgEditor productVariant={variant} product={product} template={mapPrintfulTemplates(variantTemplates)[0]} />
+          <ImgEditor
+            productVariant={variant}
+            product={product}
+            template={mapPrintfulTemplates(variantTemplates)[0]}
+          />
         </Container>
       </main>
     );
