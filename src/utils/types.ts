@@ -119,8 +119,6 @@ export type ClientResponse<DATA> = {
   errors?: string;
 };
 
-export type Nullable<T> = T | null;
-
 export type CursorCSSValues =
   | "auto"
   | "default"

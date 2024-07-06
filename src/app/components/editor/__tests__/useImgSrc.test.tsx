@@ -120,7 +120,7 @@ describe("useImgSrc", () => {
   it("should be able to handle ImageData data", () => {
     class MockImageData {
       data: any;
-      constructor(data: any, data2?: any) {
+      constructor(data: any) {
         this.data = data;
       }
     }

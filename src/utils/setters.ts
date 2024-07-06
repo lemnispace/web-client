@@ -1,5 +1,5 @@
 import { ForwardedRef } from "react";
-import { Nullable } from "./types";
+import { Nullable } from "./genericTypes";
 
 /**
  * Sets the value of a ref, either by calling a function ref or by assigning the value directly to the ref's current property.
