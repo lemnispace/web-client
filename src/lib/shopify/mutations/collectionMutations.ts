@@ -1,9 +1,5 @@
-import {
-  Collection,
-  CollectionInput,
-  RequireFields,
-  UserError,
-} from "@/lib/types/shopify";
+import { Collection, CollectionInput, UserError } from "@/lib/types/shopify";
+import { RequireFields } from "@/utils/genericTypes";
 import adminClient from "../adminClient";
 
 /**

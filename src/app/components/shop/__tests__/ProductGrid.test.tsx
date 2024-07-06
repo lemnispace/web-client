@@ -1,7 +1,7 @@
 import { getImgWithinElement } from "@/utils/test_utils";
 import { ProductItem } from "@/utils/types";
 import "@testing-library/jest-dom";
-import { render, within } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 import { ProductGridSection } from "../ProductGrid";
 

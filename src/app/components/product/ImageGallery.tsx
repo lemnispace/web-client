@@ -54,7 +54,6 @@ const getImagesByVariant = (
 export default function ImageGallery({
   product,
   className,
-  ...props
 }: ImageGalleryProps) {
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
