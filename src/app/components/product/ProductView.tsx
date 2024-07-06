@@ -3,6 +3,7 @@
 import { Price } from "@/lib/types/shopify";
 import { DEFAULT_CURRENCY_CODE } from "@/utils/constants";
 import { formatPrice } from "@/utils/formatters";
+import { getProductVariantByCustomVariantId } from "@/utils/getters";
 import {
   ProductVariant,
   ProductVariantWithCustomization,
@@ -22,6 +23,7 @@ import ProductTitle from "./ProductTitle";
 
 interface ProductViewProps {
   product: ProductWithCustomization;
+  selectedCustomVariantId?: string;
 }
 
 interface ProductVariantContextProps {
@@ -59,7 +61,14 @@ const getPrice = (
 };
 
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
-  const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0]);
+  const [selectedVariant, setSelectedVariant] = useState(
+    props.selectedCustomVariantId
+      ? getProductVariantByCustomVariantId(
+          product,
+          props.selectedCustomVariantId
+        )
+      : product.variants?.[0]
+  );
   const customVariantsByOriginVariantId = useMemo(() => {
     const variantMap = new Map<string, ProductVariant>();
     product.customVariants?.forEach((variant) => {

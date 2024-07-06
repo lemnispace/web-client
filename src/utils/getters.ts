@@ -127,6 +127,16 @@ export const getCustomVariantByOriginVariantId = <
       variant.metafields?.origin_product_variant?.value === originVariantId
   );
 };
+
+export const getProductVariantByCustomVariantId = (
+  product: ProductWithCustomization,
+  customVariantId: string
+) => {
+  const originVariantId = product.customVariants?.find(
+    (variant) => variant.id === customVariantId
+  )?.metafields?.origin_product_variant?.value;
+  return product.variants?.find((variant) => variant.id === originVariantId);
+};
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                               Error Getters                                  ║

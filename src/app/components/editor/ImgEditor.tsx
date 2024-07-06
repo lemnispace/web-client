@@ -125,7 +125,7 @@ export default function ImgEditor({
             if (response) {
               // redirect to the product details page:
               window.location.replace(
-                `${product.href}?customProductId=${response.productId}`
+                `${product.href}?selectedVariantId=${response.variantId}`
               );
             }
           }}

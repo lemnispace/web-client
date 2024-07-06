@@ -15,6 +15,7 @@ interface ProductDetailsProps {
   params: {
     slug: string;
   };
+  searchParams: { selectedVariantId?: string };
 }
 
 const fetchProductData = async (handle: string) => {
@@ -53,7 +54,10 @@ export default async function ProductDetails(props: ProductDetailsProps) {
         className="py-16 sm:py-24 max-w-2xl lg:max-w-7xl"
         overrideMaxWidth
       >
-        <ProductView product={productWithCustomVariant} />
+        <ProductView
+          product={productWithCustomVariant}
+          selectedCustomVariantId={props.searchParams.selectedVariantId}
+        />
       </Container>
     </main>
   );
