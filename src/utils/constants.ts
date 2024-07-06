@@ -53,11 +53,3 @@ export const PRODUCT_METADATA_ORIENTATION_KEY = "orientation";
 export type ProductMetadataKey =
   | typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY
   | typeof PRODUCT_METADATA_ORIENTATION_KEY;
-/*
- ***************************************************************************
- *                                                                         *
- *                    Temporary Constants                                  *
- *                                                                         *
- ***************************************************************************
- */
-export const TEMP_USER_ID = "bda86db3-d3c0-4983-99ec-87d4da67d874"; // replace with user id from session;

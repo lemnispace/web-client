@@ -13,7 +13,6 @@ import { Collection, ProductNode } from "@/lib/types/shopify";
 import {
   PRODUCT_METADATA_NAMESPACE,
   PRODUCT_METADATA_ORIGIN_PRODUCT_KEY,
-  TEMP_USER_ID,
   VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
   VARIANT_METADATA_NAMESPACE,
   VARIANT_METADATA_ORIGIN_PRODUCT_KEY,
@@ -30,6 +29,7 @@ import {
 } from "@/utils/schemaValidators";
 import { ApiResponse, ServerApiResponse } from "@/utils/types";
 import { isErrorResponse } from "@/utils/validators";
+import { getOrCreateVisitorId } from "@/utils/visitorId";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -84,6 +84,10 @@ const schema = z.object({
     description:
       "The variantTitle of the variant associated with the product to use for customizations",
   }),
+  userId: requiredStringSchema({
+    name: "UserId",
+    description: "The userId of the user creating the custom product",
+  }),
   file: requiredImageFileSchema(),
 });
 
@@ -108,15 +112,20 @@ const createCollection = async (userId: string, productIds: string[]) => {
   return createdCollection.collectionCreate.collection;
 };
 
+const getOrCreateCollection = async (userId: string, productIds: string[]) => {
+  const collection = await getCollection(userId);
+  if (!collection) {
+    return await createCollection(userId, productIds);
+  }
+  return collection;
+};
+
 const addProductToCollection = async (
   userId: string,
   productNode: ProductNode,
   referenceProductId: string
 ) => {
-  const collection = await getCollection(userId);
-  if (!collection) {
-    return await createCollection(userId, [productNode.id]);
-  }
+  const collection = await getOrCreateCollection(userId, [productNode.id]);
   const product = mapCustomProduct(productNode);
   const productUpdateResponse = await productUpdate({
     id: product.id,
@@ -237,10 +246,7 @@ const fetchOrCreateCustomProduct = async (
   const duplicateProductResponse = await duplicateProduct({
     newStatus: "DRAFT",
     productId: originProductId,
-    newTitle: getCustomProductId({
-      userId: userId,
-      productId: originProductId,
-    }),
+    newTitle: getCustomProductId({ userId, productId: originProductId }),
   });
   const duplicateProductData = parseClientResponse(
     duplicateProductResponse,
@@ -255,6 +261,7 @@ const validateFormData = (formData: FormData) => {
     productId: formData.get("productId"),
     variantTitle: formData.get("variantTitle"),
     variantId: formData.get("variantId"),
+    userId: formData.get("userId"),
   });
   if (!validatedFields.success) {
     console.error(
@@ -273,6 +280,7 @@ interface CreateCustomProductParams {
   variantId: string;
   variantTitle: string;
   file: File;
+  userId: string;
 }
 const createCustomProduct = async (
   params: CreateCustomProductParams
@@ -283,10 +291,10 @@ const createCustomProduct = async (
         params.file,
         getCustomProductId({
           productId: params.productId,
-          userId: TEMP_USER_ID,
+          userId: params.userId,
         })
       ),
-      fetchOrCreateCustomProduct(params.productId, TEMP_USER_ID),
+      fetchOrCreateCustomProduct(params.productId, params.userId),
     ]);
 
     const [updatedCustomVariant, collection] = await Promise.all([
@@ -294,11 +302,11 @@ const createCustomProduct = async (
         customProduct,
         originProductId: params.productId,
         originProductVariantId: params.variantId,
-        userId: TEMP_USER_ID,
+        userId: params.userId,
         resourceUrl: stagedImageUploadResponse.resourceUrl,
         variantTitle: params.variantTitle,
       }),
-      addProductToCollection(TEMP_USER_ID, customProduct, params.productId),
+      addProductToCollection(params.userId, customProduct, params.productId),
     ]);
 
     return {
@@ -327,7 +335,9 @@ export const POST = async (
   req: Request
 ): Promise<ServerApiResponse<CustomProductResponse>> => {
   try {
+    const visitorId = getOrCreateVisitorId();
     const formData = await req.formData();
+    formData.append("userId", visitorId);
     const validatedFields = validateFormData(formData);
     if (validatedFields.errors) {
       return NextResponse.json(
