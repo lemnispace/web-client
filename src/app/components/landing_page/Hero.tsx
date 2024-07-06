@@ -4,7 +4,7 @@ import { NAVIGATION_LINKS } from "@/utils/links";
 import { BUTTON_TEXT, HERO_TEXT } from "@/utils/text";
 import clsx from "clsx";
 
-interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   firstLine?: string;
   highlightedLine: string;
   lastLine?: string;
@@ -38,7 +38,7 @@ function HighlightedSpan({
   );
 }
 
-export function Title({
+export function Heading({
   className,
   firstLine,
   highlightedLine,
@@ -46,7 +46,7 @@ export function Title({
   as: Comp = "h1",
   highlightedProps,
   ...props
-}: TitleProps) {
+}: HeadingProps) {
   return (
     <Comp
       {...props}
@@ -65,7 +65,7 @@ export function Title({
 export function Hero() {
   return (
     <Container className="pb-16 pt-20 text-center lg:pt-32">
-      <Title
+      <Heading
         firstLine={HERO_TEXT.title[0]}
         highlightedLine={HERO_TEXT.title[1]}
         lastLine={HERO_TEXT.title[2]}
