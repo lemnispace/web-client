@@ -8,6 +8,8 @@ import {
 import { getCustomProductByOriginProductId } from "@/utils/getters";
 import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
 import { parseClientResponse } from "@/utils/parsers";
+import { ProductWithCustomization } from "@/utils/types";
+import { isValidCustomVariantId } from "@/utils/validators";
 import { getVisitorId } from "@/utils/visitorId";
 import { redirect } from "next/navigation";
 
@@ -17,6 +19,19 @@ interface ProductDetailsProps {
   };
   searchParams: { selectedVariantId?: string };
 }
+
+const getValidCustomVariantId = (
+  customProduct: ProductWithCustomization,
+  selectedCustomVariantId: string | undefined
+) => {
+  if (
+    selectedCustomVariantId &&
+    isValidCustomVariantId(customProduct, selectedCustomVariantId)
+  ) {
+    return selectedCustomVariantId;
+  }
+  return undefined;
+};
 
 const fetchProductData = async (handle: string) => {
   const productResponse = await fetchProduct({ handle });
@@ -48,6 +63,10 @@ export default async function ProductDetails(props: ProductDetailsProps) {
 
   const customProduct = await fetchCustomProductData(customProductId);
   const productWithCustomVariant = mergeCustomProduct(product, customProduct);
+  const selectedCustomVariantId = getValidCustomVariantId(
+    productWithCustomVariant,
+    props.searchParams.selectedVariantId
+  );
 
   return (
     <main className="bg-white flex-1">
@@ -57,7 +76,7 @@ export default async function ProductDetails(props: ProductDetailsProps) {
       >
         <ProductView
           product={productWithCustomVariant}
-          selectedCustomVariantId={props.searchParams.selectedVariantId}
+          selectedCustomVariantId={selectedCustomVariantId}
         />
       </Container>
     </main>
