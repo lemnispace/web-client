@@ -90,7 +90,7 @@ interface CustomProductIdProps {
   productId: string;
 }
 export const getCustomProductId = (product: CustomProductIdProps) => {
-  return `${product.userId}-${product.productId}`;
+  return `product-${product.userId}-${product.productId}`;
 };
 
 export const getCustomProductByOriginProductId = <

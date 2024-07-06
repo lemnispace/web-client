@@ -1,7 +1,6 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
 import { fetchProduct } from "@/lib/shopify/queries/productQuery";
-import { TEMP_USER_ID } from "@/utils/constants";
 import {
   fetchCustomProductData,
   fetchCustomProductsFromUserCollection,
@@ -9,6 +8,7 @@ import {
 import { getCustomProductByOriginProductId } from "@/utils/getters";
 import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
 import { parseClientResponse } from "@/utils/parsers";
+import { getVisitorId } from "@/utils/visitorId";
 import { redirect } from "next/navigation";
 
 interface ProductDetailsProps {
@@ -30,8 +30,9 @@ const fetchProductData = async (handle: string) => {
 };
 
 export default async function ProductDetails(props: ProductDetailsProps) {
+  const visitorId = getVisitorId();
   const [customProducts, product] = await Promise.all([
-    fetchCustomProductsFromUserCollection(TEMP_USER_ID),
+    fetchCustomProductsFromUserCollection(visitorId),
     fetchProductData(props.params.slug),
   ]);
 

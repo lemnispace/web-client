@@ -43,7 +43,11 @@ export const fetchProductDataWithMetafields = async (handle: string) => {
  *  ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
-export const fetchCustomProductsFromUserCollection = async (userId: string) => {
+export const fetchCustomProductsFromUserCollection = async (
+  userId: string | undefined
+) => {
+  if (!userId) return undefined;
+
   const collectionResponse = await fetchCollection(userId);
   const collection = tryParseClientResponse(collectionResponse);
 
