@@ -69,13 +69,13 @@ export default function FileDropZone({
           className="h-12 w-12 stroke-slate-600"
           aria-hidden="true"
         />
-        <Text className="text-sm text-slate-800">
+        <Text className="text-sm text-gray-800">
           <Strong>
             {IMAGE_EDITOR_FILE_DROP_ZONE_TEXT.description.emphasis}
           </Strong>{" "}
           {IMAGE_EDITOR_FILE_DROP_ZONE_TEXT.description.text}
         </Text>
-        <Text className="text-xs text-slate-600">
+        <Text className="text-xs text-gray-600">
           PNG, JPEG, PPM, GIF, TIFF, and BMP
         </Text>
         <input
