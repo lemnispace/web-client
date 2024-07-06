@@ -38,6 +38,20 @@ describe("Hero", () => {
     expect(titleElement).toHaveTextContent("first second");
   });
 
+  // test title doesn't render first line if not provided
+  it("renders the title without the firstl line", () => {
+    const { getByTestId } = render(
+      <Title
+        highlightedLine="second"
+        lastLine="last"
+        data-testid="test-title"
+      />
+    );
+    const titleElement = getByTestId("test-title");
+    expect(titleElement).toBeInTheDocument();
+    expect(titleElement).toHaveTextContent("second last");
+  });
+
   it("renders the description", () => {
     const { getByText } = render(<Hero />);
     const descriptionElement = getByText("Sample Description");

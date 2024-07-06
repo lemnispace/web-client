@@ -5,9 +5,11 @@ import { BUTTON_TEXT, HERO_TEXT } from "@/utils/text";
 import clsx from "clsx";
 
 interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  firstLine: string;
+  firstLine?: string;
   highlightedLine: string;
   lastLine?: string;
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  highlightedProps?: React.HTMLAttributes<HTMLSpanElement>;
 }
 interface HighlightedSpanProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: string;
@@ -41,19 +43,22 @@ export function Title({
   firstLine,
   highlightedLine,
   lastLine,
+  as: Comp = "h1",
+  highlightedProps,
   ...props
 }: TitleProps) {
   return (
-    <h1
+    <Comp
       {...props}
       className={clsx(
         "mx-auto max-w-4xl font-display text-5xl font-medium tracking-tight text-slate-900 sm:text-7xl",
         className
       )}
     >
-      {firstLine} <HighlightedSpan>{highlightedLine}</HighlightedSpan>
+      {firstLine ? `${firstLine} ` : null}
+      <HighlightedSpan {...highlightedProps}>{highlightedLine}</HighlightedSpan>
       {lastLine ? ` ${lastLine}` : null}
-    </h1>
+    </Comp>
   );
 }
 

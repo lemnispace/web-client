@@ -63,7 +63,7 @@ describe("ProductSelectionForm", () => {
     const customizeLink = getByRole("link", { name: "test customize" });
     expect(customizeLink).toHaveAttribute(
       "href",
-      "/product/test-product/create?variant=2"
+      "/product/test-product/customize?variant=2"
     );
   });
 });

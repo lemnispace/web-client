@@ -1,9 +1,9 @@
+import { getMockVariantTemplate } from "@/utils/test_utils";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import Canvas, {
   addImgToFabricCanvas,
   centerImgOnCanvas,
-  resetImgState,
   resizeCanvas,
   scaleImgToCanvas,
 } from "../Canvas";
@@ -55,6 +55,7 @@ describe("Canvas", () => {
         canvas={mockCanvas as any}
         loadCanvas={loadCanvas}
         data-testid="canvas-test"
+        template={getMockVariantTemplate()}
       />
     );
     const canvasElement = getByTestId("canvas-test");
@@ -66,6 +67,7 @@ describe("Canvas", () => {
         canvas={mockCanvas as any}
         loadCanvas={loadCanvas}
         data-testid="canvas-test"
+        template={getMockVariantTemplate()}
       />
     );
     expect(mockCanvas.clear).toHaveBeenCalledTimes(2);
@@ -79,11 +81,12 @@ describe("Canvas", () => {
         canvas={mockCanvas as any}
         loadCanvas={loadCanvas}
         data-testid="canvas-test"
+        template={getMockVariantTemplate()}
       />
     );
     const canvasElement = getByTestId("canvas-test");
     expect(canvasElement).toBeInTheDocument();
-    expect(global.ResizeObserver).toHaveBeenCalledTimes(1);
+    expect(global.ResizeObserver).toHaveBeenCalledTimes(0);
   });
   test("resizeCanvas", () => {
     resizeCanvas(mockCanvas as any, null, null);
@@ -177,18 +180,6 @@ describe("Canvas", () => {
     expect(fImg.fire).toHaveBeenCalledWith("moving");
   });
   test("addImgToFabricCanvas", () => {
-    const setCoords = jest.fn();
-    const fImg = {
-      width: 100,
-      height: 200,
-      scaleX: 0.5,
-      scaleY: 0.5,
-      set: jest.fn().mockReturnValue({
-        setCoords,
-      }),
-      setCoords,
-      fire: jest.fn(),
-    };
     const canvas = {
       getCenterPoint: jest.fn(() => ({ x: 50, y: 50 })),
       centerObject: jest.fn(),
