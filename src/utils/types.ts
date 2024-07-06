@@ -69,8 +69,8 @@ export interface ProductVariantWithCustomization extends ProductVariant {
 export interface VariantTemplate {
   templateId: number;
   imageUrl: string;
-  backgroundUrl: string | null;
-  backgroundColor: string | null;
+  backgroundUrl?: string | null;
+  backgroundColor?: string | null;
   printfileId: number;
   templateWidth: number;
   templateHeight: number;
