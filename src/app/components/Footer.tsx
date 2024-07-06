@@ -22,7 +22,7 @@ export function Footer({ navLinks, className, ...props }: FooterProps) {
           </nav>
         </div>
         <div className="flex flex-col items-center border-t border-slate-400/10 py-10 sm:flex-row-reverse sm:justify-between">
-          <p className="mt-6 text-sm text-slate-500 sm:mt-0 w-full text-center">
+          <p className="mt-6 text-sm text-gray-500 sm:mt-0 w-full text-center">
             Copyright &copy; {new Date().getFullYear()} {GLOBAL_APP_TEXT.name}.
             All rights reserved.
           </p>
