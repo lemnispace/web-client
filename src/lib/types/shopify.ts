@@ -9,6 +9,7 @@ import {
   VariantMetadataNamespace,
 } from "@/utils/constants";
 import { RequireFields } from "@/utils/genericTypes";
+import { CountryCode } from "./shopifyCountryCodes";
 
 export type Edge<T> = {
   cursor: string;
@@ -55,7 +56,7 @@ export type FilesErrorCode =
   | "UNACCEPTABLE_UNVERIFIED_TRIAL_ASSET"
   | "UNSUPPORTED_MEDIA_TYPE_FOR_FILENAME_UPDATE";
 
-interface BaseFileError {
+export interface BaseFileError {
   code: FilesErrorCode;
   message: string;
 }
@@ -505,6 +506,7 @@ export interface MetafieldDefinitionType {
   supportsDefinitionMigrations: boolean;
 
   /**
+   * @deprecated
    * The value type for a metafield created with this definition type. valueType is deprecated and name should be used for type information.
    */
   valueType: MetafieldValueType;
@@ -598,6 +600,49 @@ export interface ProductMetafield {
      */
     handle?: string;
   };
+}
+
+/**
+ * Metafields enable you to attach additional information to a Shopify resource, such as a Product or a Collection. For more information about where you can attach metafields refer to HasMetafields. Some examples of the data that metafields enable you to store are specifications, size charts, downloadable documents, release dates, images, or part numbers. Metafields are identified by an owner resource, namespace, and key. and store a value along with type information for that value.
+ */
+export interface Metafield {
+  /**
+   * The date and time when the metafield was created.
+   */
+  createdAt: string;
+  /**
+   * The description of the metafield.
+   */
+  description?: string;
+  /**
+   * A globally-unique ID.
+   */
+  id: string;
+  /**
+   * The unique identifier for the metafield within its namespace.
+   */
+  key: string;
+  /**
+   * The ID of the corresponding resource in the REST Admin API.
+   */
+  legacyResourceId: string;
+  /**
+   * The container for a group of metafields that the metafield is associated with.
+   */
+  namespace: string;
+  /**
+   * The type of resource that the metafield is attached to.
+   */
+  ownerType: MetafieldOwnerType;
+  /**
+   * The date and time when the metafield was updated.
+   */
+  updatedAt: string;
+  value: string;
+  /**
+   * The type of data that is stored in the metafield. Refer to the list of supported types.
+   */
+  type: MetafieldType;
 }
 
 /*
@@ -1162,7 +1207,7 @@ export interface SEOInput {
   title?: string;
 }
 
-interface BaseMetafieldInput {
+export interface BaseMetafieldInput {
   /**
    * The unique ID of the metafield. Required when updating.
    */
@@ -1192,6 +1237,423 @@ export type CreateMetafieldInput = RequireFields<
 >;
 export type MetafieldInput = UpdateMetafieldInput | CreateMetafieldInput;
 
+export interface CartInputMetafieldInput {
+  key: string;
+  value: string;
+  type: MetafieldType;
+}
+
+interface AttributeInput {
+  key: string;
+  value: string;
+}
+
+interface CartLineInput {
+  /**
+   * An array of key-value pairs that contains additional information about the merchandise line.
+   * The input must not contain more than 250 values.
+   */
+  attributes?: AttributeInput[];
+  /**
+   * The ID of the merchandise that the buyer intends to purchase.
+   */
+  merchandiseId: string;
+  /**
+   * The quantity of the merchandise.
+   * @default 1
+   */
+  quantity?: number;
+  sellingPlanId?: string;
+}
+
+export interface CartInput {
+  attributes?: AttributeInput[];
+  buyerIdentity?: CartBuyerIdentityInput;
+  discountCodes?: string[];
+  lines?: CartLineInput[];
+  metafields?: CartInputMetafieldInput[];
+  note?: string;
+}
+
+interface CartBuyerIdentityInput {
+  countryCode?: CountryCode;
+  customerAccessToken?: string;
+  deliveryAddressPreferences?: DeliveryAddressInput[];
+  email?: string;
+  phone?: string;
+}
+
+interface DeliveryAddressInput {
+  customerAddressId?: string;
+  deliveryAddress?: MailingAddressInput;
+}
+
+interface MailingAddressInput {
+  address1?: string;
+  address2?: string;
+  city?: string;
+  company?: string;
+  country?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  province?: string;
+  zip?: string;
+}
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Cart Types                                   ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+/**
+ * Represents a cart in Shopify, containing merchandise that a buyer intends to purchase.
+ */
+export interface Cart {
+  /**
+   * A globally-unique ID for the cart.
+   */
+  id: string;
+
+  /**
+   * The URL for the cart's checkout.
+   */
+  checkoutUrl: string;
+
+  /**
+   * The date and time when the cart was created.
+   */
+  createdAt: string;
+
+  /**
+   * The date and time when the cart was last updated.
+   */
+  updatedAt: string;
+
+  /**
+   * The total number of items in the cart.
+   */
+  totalQuantity: number;
+
+  /**
+   * A note associated with the cart, such as special instructions from the buyer.
+   */
+  note?: string;
+
+  /**
+   * An attribute associated with the cart.
+   */
+  attribute?: Attribute;
+
+  /**
+   * Attributes associated with the cart, represented as key-value pairs.
+   */
+  attributes: Attribute[];
+
+  /**
+   * Information about the buyer interacting with the cart.
+   */
+  buyerIdentity: CartBuyerIdentity;
+
+  /**
+   * The estimated costs the buyer will pay at checkout.
+   */
+  cost: CartCost;
+
+  /**
+   * Discount codes applied to the cart.
+   */
+  discountCodes: CartDiscountCode[];
+
+  /**
+   * Discounts applied to the entire cart.
+   */
+  discountAllocations: CartDiscountAllocation[];
+  /**
+   * A list of lines containing information about the items the customer intends to purchase.
+   */
+  lines: Edges<Edge<BaseCartLine>>;
+}
+
+/**
+ * The costs that the buyer will pay at checkout. The cart cost uses CartBuyerIdentity to determine international pricing.
+ */
+export interface CartCost {
+  /**
+   * The estimated amount, before taxes and discounts, for the customer to pay at checkout. The checkout charge amount doesn't include any deferred payments that'll be paid at a later date. If the cart has no deferred payments, then the checkout charge amount is equivalent to subtotalAmount.
+   */
+  checkoutChargeAmount: Money;
+  /**
+   * The amount, before taxes and cart-level discounts, for the customer to pay.
+   */
+  subtotalAmount: Money;
+  /**
+   * Whether the subtotal amount is estimated.
+   */
+  subtotalAmountEstimated: boolean;
+  /**
+   * The total amount for the customer to pay.
+   */
+  totalAmount: Money;
+  /**
+   * Whether the total amount is estimated.
+   */
+  totalAmountEstimated: boolean;
+  /**
+   * The duty amount for the customer to pay at checkout.
+   */
+  totalDutyAmount: Money;
+  /**
+   * Whether the total duty amount is estimated.
+   */
+  totalDutyAmountEstimated: boolean;
+  /**
+   * The tax amount for the customer to pay at checkout.
+   */
+  totalTaxAmount: Money;
+  /**
+   * Whether the total tax amount is estimated.
+   */
+  totalTaxAmountEstimated: boolean;
+}
+
+/**
+ * The cost of the merchandise line that the buyer will pay at checkout.
+ */
+export interface CartLineCost {
+  /**
+   * The amount of the merchandise line.
+   */
+  amountPerQuantity: Money;
+  /**
+   * The compare at amount of the merchandise line.
+   */
+  compareAtAmountPerQuantity?: Money;
+  /**
+   * The cost of the merchandise line before line-level discounts.
+   */
+  subtotalAmount: Money;
+  /**
+   * The total cost of the merchandise line.
+   */
+  totalAmount: Money;
+}
+
+/** The discount codes applied to the cart. */
+export interface CartDiscountCode {
+  /**
+   * Whether the discount code is applicable to the cart's current contents.
+   */
+  applicable: boolean;
+  /**
+   * The code for the discount
+   */
+  code: string;
+}
+
+export interface CartDiscountAllocation {
+  discountedAmount: Money;
+}
+
+export interface CartBuyerIdentity {
+  countryCode?: CountryCode;
+  customer?: Customer;
+  deliveryAddressPreferences: MailingAddress[];
+  email?: string;
+  phone?: string;
+}
+
+/**
+ * Represents a cart line common fields.
+ */
+export interface BaseCartLine {
+  /**
+   * An attribute associated with the cart line.
+   */
+  attribute?: Attribute;
+  /**
+   * The attributes associated with the cart line. Attributes are represented as key-value pairs.
+   */
+  attributes: Attribute[];
+  /**
+   * The cost of the merchandise that the buyer will pay for at checkout. The costs are subject to change and changes will be reflected at checkout.
+   */
+  cost: CartLineCost;
+  /** A globally-unique ID. */
+  id: string;
+  /**
+   * The merchandise that the buyer intends to purchase.
+   */
+  merchandise: ProductVariantNode;
+  /**
+   * The quantity of the merchandise that the customer intends to purchase.
+   */
+  quantity: number;
+}
+
+export interface CartTransform {
+  /**
+   * Whether a run failure will block cart and checkout operations.
+   */
+  blockOnFailure: boolean;
+  /**
+   * The ID for the Cart Transform function.
+   */
+  functionId: string;
+  /**
+   * A globally-unique ID.
+   */
+  id: string;
+  /**
+   * Returns a metafield by namespace and key that belongs to the resource.
+   */
+  metafield?: Metafield;
+}
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Customer Types                                 ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+/**
+ * Represents a customer account with the shop.
+ */
+export interface Customer {
+  /**
+   * A globally-unique ID for the customer.
+   */
+  id: string;
+
+  /**
+   * The customer's email address.
+   */
+  email?: string;
+
+  /**
+   * The customer's first name.
+   */
+  firstName?: string;
+
+  /**
+   * The customer's last name.
+   */
+  lastName?: string;
+
+  /**
+   * The customer's phone number.
+   */
+  phone?: string;
+
+  /**
+   * The date and time when the customer was created.
+   */
+  createdAt: string;
+
+  /**
+   * The date and time when the customer information was last updated.
+   */
+  updatedAt: string;
+
+  /**
+   * Indicates whether the customer has consented to receive marketing material via email.
+   */
+  acceptsMarketing: boolean;
+
+  /**
+   * The number of orders that the customer has made at the store in their lifetime.
+   */
+  numberOfOrders: number;
+
+  /**
+   * The customer's default address.
+   */
+  defaultAddress?: MailingAddress;
+
+  /**
+   * The customer's name, email or phone number.
+   */
+  displayName: string;
+
+  /**
+   * Tags that have been added to the customer.
+   */
+  tags: string[];
+}
+
+/**
+ * Represents a mailing address for customers and shipping.
+ */
+export interface MailingAddress {
+  /** The first line of the address. Typically the street address or PO Box number. */
+  address1: string;
+
+  /** The second line of the address. Typically the number of the apartment, suite, or unit. */
+  address2?: string;
+
+  /** The name of the city, district, village, or town. */
+  city: string;
+
+  /** The name of the customer's company or organization. */
+  company?: string;
+
+  /** The name of the country. */
+  country: string;
+
+  /**
+   * The two-letter code for the country of the address.
+   * For example, US.
+   */
+  countryCodeV2: CountryCode;
+
+  /** The first name of the customer. */
+  firstName?: string;
+
+  /**
+   * A formatted version of the address, customized by the provided arguments.
+   * @param withName Whether to include the customer's name in the formatted address.
+   * @param withCompany Whether to include the customer's company in the formatted address.
+   */
+  formatted(withName?: boolean, withCompany?: boolean): string[];
+
+  /** A comma-separated list of the values for city, province, and country. */
+  formattedArea: string;
+
+  /** A globally-unique ID. */
+  id: string;
+
+  /** The last name of the customer. */
+  lastName?: string;
+
+  /** The latitude coordinate of the customer address. */
+  latitude?: number;
+
+  /** The longitude coordinate of the customer address. */
+  longitude?: number;
+
+  /** The full name of the customer, based on firstName and lastName. */
+  name?: string;
+
+  /**
+   * A unique phone number for the customer.
+   * Formatted using E.164 standard. For example, +16135551111.
+   */
+  phone?: string;
+
+  /** The region of the address, such as the province, state, or district. */
+  province?: string;
+
+  /**
+   * The alphanumeric code for the region.
+   * For example, ON.
+   */
+  provinceCode?: string;
+
+  /** The zip or postal code of the address. */
+  zip?: string;
+}
+
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                                 Error Types                                  ║
@@ -1219,4 +1681,21 @@ export interface Error {
 export interface UserError {
   field?: string[];
   message: string;
+}
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 General Types                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export interface Attribute {
+  /**
+   * Key or name of the attribute.
+   */
+  key: string;
+  /**
+   * Value of the attribute.
+   */
+  value: string;
 }

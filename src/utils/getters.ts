@@ -1,3 +1,4 @@
+import { Price } from "@/lib/types/shopify";
 import { toFloat } from "./parsers";
 import {
   Product,
@@ -137,6 +138,14 @@ export const getProductVariantByCustomVariantId = (
   )?.metafields?.origin_product_variant?.value;
   return product.variants?.find((variant) => variant.id === originVariantId);
 };
+
+export const getProductPrice = (price: Price | string) => {
+  if (typeof price === "string") {
+    return price;
+  }
+  return price.amount;
+};
+
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
  *  ║                               Error Getters                                  ║

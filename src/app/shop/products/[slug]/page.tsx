@@ -1,6 +1,7 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
 import { fetchProduct } from "@/lib/shopify/queries/productQuery";
+import { getVisitorId } from "@/utils/cookies/visitorId";
 import {
   fetchCustomProductData,
   fetchCustomProductsFromUserCollection,
@@ -10,7 +11,6 @@ import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
 import { parseClientResponse } from "@/utils/parsers";
 import { ProductWithCustomization } from "@/utils/types";
 import { isValidCustomVariantId } from "@/utils/validators";
-import { getVisitorId } from "@/utils/visitorId";
 import { redirect } from "next/navigation";
 
 interface ProductDetailsProps {

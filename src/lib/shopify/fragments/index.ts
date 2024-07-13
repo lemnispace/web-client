@@ -112,3 +112,51 @@ export const getVariantEdgesWithMetafieldsFragment = (
   }
   return getVariantEdgesFragment(options);
 };
+
+export const cartFragment = /* GraphQL */ `
+  fragment CartFields on Cart {
+    id
+    checkoutUrl
+    totalQuantity
+    cost {
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+      totalAmount {
+        amount
+        currencyCode
+      }
+      totalTaxAmount {
+        amount
+        currencyCode
+      }
+    }
+    lines(first: 100) {
+      edges {
+        node {
+          id
+          quantity
+          merchandise {
+            ... on ProductVariant {
+              id
+              title
+              price {
+                amount
+                currencyCode
+              }
+              image {
+                url
+                altText
+              }
+              product {
+                title
+                handle
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;

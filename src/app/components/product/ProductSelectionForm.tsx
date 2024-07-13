@@ -11,19 +11,18 @@ import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
 import { ProductVariantContext } from "./ProductView";
+import { handleAddToCart } from "./actions/addToCart";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
   onAddToFavorites?: () => void;
-  onSubmit?: (data: ProductFormData) => void;
   product: Product;
 }
 type ColorFormValue = {
   [K in keyof ProductColor as `color[${K}]`]: string;
 };
 
-type FormState = "READY" | "BUSY" | "LOADING";
-type ProductFormData = ColorFormValue & {
+export type ProductSelectionFormData = ColorFormValue & {
   size?: string;
 };
 
@@ -32,18 +31,13 @@ export default function ProductSelectionForm({
   onAddToFavorites,
   ...props
 }: ProductSelectionFormProps) {
-  let formState: FormState = "READY";
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // get form data
-    const formData = new FormData(event.target as HTMLFormElement);
-    event.preventDefault();
-    // get data from form
-    const data = Object.fromEntries(formData.entries()) as ProductFormData;
-    props.onSubmit?.(data);
-  };
   const { selectedVariant } = useContext(ProductVariantContext);
+  const addToCartWithSelectedVariant = handleAddToCart.bind(null, {
+    variant: selectedVariant,
+    quantity: 1,
+  });
   return (
-    <form {...props} onSubmit={handleSubmit}>
+    <form {...props} action={addToCartWithSelectedVariant}>
       <ProductColorPicker product={product} />
       <ProductSizePicker product={product} className="mt-8" />
       <div className={clsx("mt-10 flex flex-col sm:w-full sm:flex-row")}>
@@ -52,11 +46,9 @@ export default function ProductSelectionForm({
           color={selectedVariant?.hasCustomization ? "primary" : "zinc"}
           className={clsx(
             "flex max-w-xs flex-1 sm:w-full",
-            formState === "READY"
-              ? selectedVariant?.hasCustomization
-                ? "cursor-pointer"
-                : "cursor-not-allowed"
-              : undefined
+            selectedVariant?.hasCustomization
+              ? "cursor-pointer"
+              : "cursor-not-allowed"
           )}
           disabled={!selectedVariant?.hasCustomization}
           title={
@@ -73,7 +65,7 @@ export default function ProductSelectionForm({
           outline
           className={clsx(
             "sm:ml-4 mt-4 sm:mt-0 flex max-w-xs flex-1 sm:w-full custom-gradient-border",
-            formState === "READY" && "cursor-pointer"
+            "cursor-pointer"
           )}
         >
           <span className="custom-gradient-text">

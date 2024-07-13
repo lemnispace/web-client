@@ -45,7 +45,6 @@ const mockProduct = {
 
 describe("ProductSelectionForm", () => {
   it("adds the selected variant when redirecting to customize page", async () => {
-    const mockOnSubmit = jest.fn();
     const { getByRole } = render(
       <ProductVariantContext.Provider
         value={{
@@ -57,7 +56,7 @@ describe("ProductSelectionForm", () => {
           },
         }}
       >
-        <ProductSelectionForm onSubmit={mockOnSubmit} product={mockProduct} />
+        <ProductSelectionForm product={mockProduct} />
       </ProductVariantContext.Provider>
     );
     const customizeLink = getByRole("link", { name: "test customize" });

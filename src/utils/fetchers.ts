@@ -1,10 +1,13 @@
+import { createCart } from "@/lib/shopify/mutations/cartMutations";
+import { fetchCart } from "@/lib/shopify/queries/cartQuery";
 import { fetchCollection } from "@/lib/shopify/queries/collectionQuery";
 import {
   ProductVariables,
   fetchProduct,
   fetchProductWithMetafields,
 } from "@/lib/shopify/queries/productQuery";
-import { ProductMetafield } from "@/lib/types/shopify";
+import { CartInput, ProductMetafield } from "@/lib/types/shopify";
+import { createCartIdCookie, getCartId } from "./cookies/cartId";
 import {
   getCustomProductByOriginProductHandle,
   getCustomProductByOriginProductId,
@@ -106,4 +109,48 @@ export const fetchCustomProductByOriginProduct = async (
     )?.id;
   }
   return tryFetchCustomProduct(customProductId);
+};
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                                 Custom Products                              ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+interface FetchOrCreateCartRequest extends CartInput {
+  cartId?: string;
+}
+
+export const fetchOrCreateCart = async (request: FetchOrCreateCartRequest) => {
+  if (request.cartId) {
+    const fetchedCartResponse = await fetchCart(request.cartId);
+    const fetchedCart = parseClientResponse(
+      fetchedCartResponse,
+      "error fetching cart"
+    );
+    return fetchedCart.cart;
+  }
+  // create new cart if no cartId is provided
+  const createCartResponse = await createCart(request);
+  const parsedCreateCartResponse = parseClientResponse(
+    createCartResponse,
+    "error creating cart"
+  );
+  return parsedCreateCartResponse.cartCreate.cart;
+};
+
+
+/**
+ * Gets the cartId from a cookie and attempts to fetch the cart with that id.
+ * If no cartId is found or fetching the cart fails, a new cart is created and the cartId is stored in a cookie.
+ * @param input - Optional cart input parameters.
+ * @returns The retrieved or created cart.
+ */
+export const getOrCreateCartWithManagedCookie = async (input?: CartInput) => {
+  let cartId = getCartId();
+  const cart = await fetchOrCreateCart({ ...input, cartId });
+  if (!cartId) {
+    createCartIdCookie(cart.id);
+  }
+  return cart;
 };
