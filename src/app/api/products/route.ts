@@ -19,6 +19,7 @@ import {
   VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
   VARIANT_METADATA_USER_ID_KEY,
 } from "@/utils/constants";
+import { getOrCreateVisitorId } from "@/utils/cookies/visitorId";
 import { fetchCustomProductByOriginProduct } from "@/utils/fetchers";
 import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapCustomProduct, mapProduct } from "@/utils/mappers";
@@ -29,7 +30,6 @@ import {
 } from "@/utils/schemaValidators";
 import { ApiResponse, ServerApiResponse } from "@/utils/types";
 import { isErrorResponse } from "@/utils/validators";
-import { getOrCreateVisitorId } from "@/utils/visitorId";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 

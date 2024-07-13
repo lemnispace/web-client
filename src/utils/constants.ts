@@ -1,24 +1,20 @@
 /*
- ***************************************************************************
- *                                                                         *
- *                    Constants for the app                                *
- *                                                                         *
- ***************************************************************************
+ *  ╔═════════════════════════════════════════════════════════════╗
+ *  ║                    Constants for the app                    ║
+ *  ╚═════════════════════════════════════════════════════════════╝
  */
 export const MAX_IMG_FILE_SIZE_MB = 10;
 export const MAX_IMG_FILE_SIZE = MAX_IMG_FILE_SIZE_MB * 1024 * 1024; // 10MB in bytes
 export const DEFAULT_CURRENCY_CODE = "USD";
+
 /*
- ***************************************************************************
- *                                                                         *
- *                    Constants for the Shopify API                        *
- *                                                                         *
- ***************************************************************************
+ *  ╔═════════════════════════════════════════════════════════════════════╗
+ *  ║                    Constants for the Shopify API                    ║
+ *  ╚═════════════════════════════════════════════════════════════════════╝
  */
 
-/**
- * VARIANT METADATA
- */
+/***VARIANT METADATA**/
+
 export const VARIANT_METADATA_NAMESPACE = "custom";
 export const VARIANT_METADATA_PREVIEW_IMAGE_KEY = "preview_image";
 export const VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY =
@@ -43,9 +39,7 @@ export type VariantMetadataKey =
 
 export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
 
-/**
- * PRODUCT METADATA
- * */
+/***PRODUCT METADATA**/
 
 export const PRODUCT_METADATA_NAMESPACE = "custom";
 export const PRODUCT_METADATA_ORIGIN_PRODUCT_KEY = "origin_product";
@@ -53,3 +47,12 @@ export const PRODUCT_METADATA_ORIENTATION_KEY = "orientation";
 export type ProductMetadataKey =
   | typeof PRODUCT_METADATA_ORIGIN_PRODUCT_KEY
   | typeof PRODUCT_METADATA_ORIENTATION_KEY;
+
+/*
+ *  ╔════════════════════════════════════════════════════════════╗
+ *  ║                    Cookie App Constants                    ║
+ *  ╚════════════════════════════════════════════════════════════╝
+ */
+
+export const SEVEN_DAYS_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 1 week
+export const THIRTY_DAYS_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days

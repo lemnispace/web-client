@@ -9,7 +9,7 @@ export const NAVIGATION_LINKS = {
   product(productHandle: string) {
     return `/shop/products/${productHandle}` as const;
   },
-  cart: "/cart",
+  cart: "/shop/cart",
 } as const;
 
 export const variantToQueryParams = (
