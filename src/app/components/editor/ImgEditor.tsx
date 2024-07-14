@@ -18,7 +18,6 @@ import FileDropZone from "./FileDropZone";
 import { ImgData, getImgSrcFromFile } from "./utils";
 
 interface ImgUploaderProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
-  onUploadComplete?: () => void;
   productVariant: ProductVariant;
   product: Product;
   template?: VariantTemplate;
@@ -53,7 +52,6 @@ const createCustomProduct = async (req: CreateCustomProductRequest) => {
 };
 
 export default function ImgEditor({
-  onUploadComplete,
   className,
   productVariant,
   product,

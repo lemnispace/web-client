@@ -1,7 +1,7 @@
 import { SEVEN_DAYS_COOKIE_MAX_AGE } from "../constants";
 import { createCookie, getCookie } from "./cookie";
 
-const CART_ID_COOKIE = "visitor_id";
+const CART_ID_COOKIE = "cart_id";
 
 export const createCartIdCookie = (cartId: string): string => {
   return createCookie(

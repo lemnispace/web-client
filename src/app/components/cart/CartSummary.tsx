@@ -1,17 +1,18 @@
 import { Button } from "@/components/button";
+import { isDefined } from "@/utils/validators";
 import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 
 interface CartSummaryProps {
-  subtotal: number;
-  tax: number;
-  total: number;
+  subtotal?: number;
+  tax?: number;
+  total?: number;
   checkoutUrl: string;
 }
 
 export function CartSummary({
-  subtotal,
+  subtotal = 0,
   tax,
-  total,
+  total = 0,
   checkoutUrl,
 }: CartSummaryProps) {
   return (
@@ -41,11 +42,13 @@ export function CartSummary({
               <QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true" />
             </a>
           </dt>
-          <dd className="text-sm font-medium text-gray-900">${tax}</dd>
+          <dd className="text-sm font-medium text-gray-900">
+            {isDefined(tax) ? `$${tax}` : "--"}
+          </dd>
         </div>
         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
           <dt className="text-base font-medium text-gray-900">Order total</dt>
-          <dd className="text-base font-medium text-gray-900">${total}</dd>
+          <dd className="text-base font-medium text-gray-900">${total ?? 0}</dd>
         </div>
       </dl>
 

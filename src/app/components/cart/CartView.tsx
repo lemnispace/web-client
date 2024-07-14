@@ -4,15 +4,9 @@ import { CartSummary } from "./CartSummary";
 
 interface CartViewProps {
   cart: Cart;
-  updateItemQuantity: (lineId: string, quantity: number) => void;
-  removeItem: (lineId: string) => void;
 }
 
-export function CartView({
-  cart,
-  updateItemQuantity,
-  removeItem,
-}: CartViewProps) {
+export function CartView({ cart }: CartViewProps) {
   if (!cart || cart.lines.edges.length === 0) {
     return (
       <div className="bg-white">
@@ -33,15 +27,11 @@ export function CartView({
           Shopping Cart
         </h1>
         <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
-          <CartItemList
-            items={cart.lines.edges.map((edge) => edge.node)}
-            onUpdateQuantity={updateItemQuantity}
-            onRemoveItem={removeItem}
-          />
+          <CartItemList items={cart.lines.edges.map((edge) => edge.node)} />
           <CartSummary
-            subtotal={cart.cost.subtotalAmount.amount}
-            tax={cart.cost.totalTaxAmount.amount}
-            total={cart.cost.totalAmount.amount}
+            subtotal={cart.cost.subtotalAmount?.amount}
+            tax={cart.cost.totalTaxAmount?.amount}
+            total={cart.cost.totalAmount?.amount}
             checkoutUrl={cart.checkoutUrl}
           />
         </form>

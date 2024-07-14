@@ -1379,7 +1379,7 @@ export interface Cart {
 /**
  * The costs that the buyer will pay at checkout. The cart cost uses CartBuyerIdentity to determine international pricing.
  */
-export interface CartCost {
+export type CartCost = Partial<{
   /**
    * The estimated amount, before taxes and discounts, for the customer to pay at checkout. The checkout charge amount doesn't include any deferred payments that'll be paid at a later date. If the cart has no deferred payments, then the checkout charge amount is equivalent to subtotalAmount.
    */
@@ -1416,7 +1416,7 @@ export interface CartCost {
    * Whether the total tax amount is estimated.
    */
   totalTaxAmountEstimated: boolean;
-}
+}>;
 
 /**
  * The cost of the merchandise line that the buyer will pay at checkout.
