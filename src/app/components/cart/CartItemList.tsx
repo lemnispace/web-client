@@ -1,7 +1,10 @@
 "use client";
 
 import { BaseCartLine } from "@/lib/types/shopify";
-import { handlerRemoveCartItem } from "../product/actions/cartActions";
+import {
+  handleRemoveCartItem,
+  handleUpdateCartItemQuantity,
+} from "../product/actions/cartActions";
 import { CartItem } from "./CartItem";
 
 interface CartItemListProps {
@@ -24,7 +27,7 @@ export function CartItemList({ items }: CartItemListProps) {
           if (removeButton && removeButton.dataset.action === "remove") {
             const cartItemId = removeButton.dataset.itemId;
             if (cartItemId) {
-              const onRemoveItem = handlerRemoveCartItem.bind(null, {
+              const onRemoveItem = handleRemoveCartItem.bind(null, {
                 lineId: cartItemId,
               });
               onRemoveItem();
@@ -37,7 +40,7 @@ export function CartItemList({ items }: CartItemListProps) {
             key={item.id}
             item={item}
             onUpdateQuantity={(quantity) => {
-              const onUpdateQuantity = handlerRemoveCartItem.bind(null, {
+              const onUpdateQuantity = handleUpdateCartItemQuantity.bind(null, {
                 lineId: item.id,
                 quantity,
               });
