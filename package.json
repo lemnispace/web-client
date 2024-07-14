@@ -20,7 +20,7 @@
     "aws-sdk": "^2.1608.0",
     "fabric": "6.0.0-beta17",
     "isomorphic-dompurify": "^2.6.0",
-    "next": "^14.0.4",
+    "next": "^14.2.5",
     "react": "^18",
     "react-dom": "^18",
     "react-easy-crop": "^5.0.6",
