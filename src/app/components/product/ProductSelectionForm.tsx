@@ -11,7 +11,7 @@ import { useContext } from "react";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
 import { ProductVariantContext } from "./ProductView";
-import { handleAddToCart } from "./actions/addToCart";
+import { handleAddToCart } from "./actions/cartActions";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {

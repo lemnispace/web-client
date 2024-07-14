@@ -1,3 +1,5 @@
+"use client";
+
 import { BaseCartLine } from "@/lib/types/shopify";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
@@ -6,11 +8,10 @@ import { QuantitySelector } from "./QuantitySelector";
 
 interface CartItemProps {
   item: BaseCartLine;
-  onRemove: () => void;
   onUpdateQuantity: (quantity: number) => void;
 }
 
-export function CartItem({ item, onRemove, onUpdateQuantity }: CartItemProps) {
+export function CartItem({ item, onUpdateQuantity }: CartItemProps) {
   const variant = item.merchandise as any; // Type assertion, ideally we'd have a more specific type
 
   return (
@@ -57,7 +58,8 @@ export function CartItem({ item, onRemove, onUpdateQuantity }: CartItemProps) {
               <button
                 type="button"
                 className="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
-                onClick={onRemove}
+                data-action="remove"
+                data-item-id={item.id}
               >
                 <span className="sr-only">Remove</span>
                 <XMarkIcon className="h-5 w-5" aria-hidden="true" />
