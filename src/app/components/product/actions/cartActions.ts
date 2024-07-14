@@ -49,7 +49,7 @@ export const handleUpdateCartItemQuantity = async ({
   parseClientResponse(updatedCartResponse, "error updating item quantity");
 };
 
-export const handlerRemoveCartItem = async ({ lineId }: { lineId: string }) => {
+export const handleRemoveCartItem = async ({ lineId }: { lineId: string }) => {
   const cartId = getCartId();
   if (!cartId) throw new Error("Unexpected error: cartId not found");
   const updatedCartResponse = await removeCartLine(cartId, [lineId]);
