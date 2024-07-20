@@ -16,7 +16,7 @@ export const variantToQueryParams = (
   variant: ProductVariantWithCustomization
 ) => {
   const params = new URLSearchParams();
-  // we need to add the variant id to the query params in the create page
+  // we need to add the variant id to the query params in the customize page
   params.set("variant", variant.id);
   return params.toString();
 };
