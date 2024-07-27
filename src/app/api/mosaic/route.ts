@@ -1,12 +1,12 @@
 import { env } from "@/utils/env";
 import { getErrorMessage } from "@/utils/getters";
+import { ApiResponse } from "@/utils/types";
 import {
   optionalBooleanSchema,
   optionalNumberSchema,
   requiredImageFileSchema,
   requiredStringSchema,
-} from "@/utils/schemaValidators";
-import { ApiResponse } from "@/utils/types";
+} from "@/utils/validators/schemaValidators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 

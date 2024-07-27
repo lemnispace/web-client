@@ -24,12 +24,12 @@ import { fetchCustomProductByOriginProduct } from "@/utils/fetchers";
 import { getCustomProductId, getVariantByTitle } from "@/utils/getters";
 import { mapCustomProduct, mapProduct } from "@/utils/mappers";
 import { parseApiResponse, parseClientResponse } from "@/utils/parsers";
+import { ApiResponse, ServerApiResponse } from "@/utils/types";
+import { isErrorResponse } from "@/utils/validators";
 import {
   requiredImageFileSchema,
   requiredStringSchema,
-} from "@/utils/schemaValidators";
-import { ApiResponse, ServerApiResponse } from "@/utils/types";
-import { isErrorResponse } from "@/utils/validators";
+} from "@/utils/validators/schemaValidators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 

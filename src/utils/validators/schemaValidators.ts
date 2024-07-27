@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_IMG_FILE_SIZE, MAX_IMG_FILE_SIZE_MB } from "./constants";
+import { MAX_IMG_FILE_SIZE, MAX_IMG_FILE_SIZE_MB } from "../constants";
 
 interface BaseSchemaConfig {
   name: string;

@@ -45,7 +45,6 @@ export const hasVariant = <T extends ProductVariantOptionType>(
 ): product is Product & ProductWithVariant<T> =>
   product.variants?.some((variant) => type in variant) ?? false;
 
-  
 /**
  * Checks if a custom variant ID is valid for a given product.
  * @param product - The product with customization options.
