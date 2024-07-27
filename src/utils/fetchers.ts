@@ -112,9 +112,9 @@ export const fetchCustomProductByOriginProduct = async (
 };
 
 /*
- *  ╔══════════════════════════════════════════════════════════════════════════════╗
- *  ║                                 Custom Products                              ║
- *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ *  ╔═══════════════════════════════════════════════════════════════════╗
+ *  ║                                 Cart                              ║
+ *  ╚═══════════════════════════════════════════════════════════════════╝
  */
 
 interface FetchOrCreateCartRequest extends CartInput {
@@ -138,7 +138,6 @@ export const fetchOrCreateCart = async (request: FetchOrCreateCartRequest) => {
   );
   return parsedCreateCartResponse.cartCreate.cart;
 };
-
 
 /**
  * Gets the cartId from a cookie and attempts to fetch the cart with that id.
