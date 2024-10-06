@@ -19,6 +19,7 @@ export const Input = forwardRef<
       | "tel"
       | "text"
       | "url"
+      | "color"
       | DateType;
   } & HeadlessInputProps
 >(function Input({ className, ...props }, ref) {

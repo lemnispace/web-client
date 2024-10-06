@@ -2,10 +2,11 @@ import ImgEditor from "@/app/components/editor/ImgEditor";
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { Container } from "@/components/container";
 import PrintfulClient from "@/lib/printful/PrintfulClient";
-import { Orientation } from "@/lib/types/printful";
-import { fetchProductDataWithMetafields } from "@/utils/fetchers";
+import { Orientation } from "@/lib/printful/types";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { getNavigationLink } from "@/utils/getters";
 import { mapPrintfulTemplates } from "@/utils/mappers";
-import { toInt } from "@/utils/parsers";
+import { parseClientResponse, toInt } from "@/utils/parsers";
 import { PRODUCTS_CREATE_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { ProductVariant } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
@@ -68,10 +69,15 @@ const fetchVariantTemplates = async (
 };
 
 export default async function CustomizeProduct(props: MosaicProps) {
+  const productService = new ShopifyProductService({
+    parseClientResponse,
+    getNavigationLink,
+  });
   const variantId = props.searchParams.variant;
   const productHandle = props.params.slug;
   try {
-    const product = await fetchProductDataWithMetafields(productHandle);
+    const product =
+      await productService.fetchProductDataWithMetafields(productHandle);
     if (!product) {
       throw new Error("product not found");
     }

@@ -1,4 +1,9 @@
-import { Cart, CartInput } from "@/lib/types/shopify";
+import { Cart } from "@/lib/shopify/types/cart";
+import {
+  CartInput,
+  CartLineInput,
+  CartLineUpdateInput,
+} from "@/lib/shopify/types/input";
 import { cartFragment } from "../fragments";
 import storefrontClient from "../storefrontClient";
 
@@ -45,10 +50,9 @@ export async function createCart(variables: CartInput) {
   return storefrontClient.request<CartCreateResponse>(mutation, { variables });
 }
 
-export async function addToCart(
-  cartId: string,
-  lines: { merchandiseId: string; quantity: number }[]
-) {
+export async function addToCart(cartId: string, lines: CartLineInput[]) {
+  console.log("cartId", cartId);
+  console.log("lines", lines);
   const mutation = /* GraphQL */ `
     mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
       cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -67,8 +71,7 @@ export async function addToCart(
 
 export async function updateCartLine(
   cartId: string,
-  lineId: string,
-  quantity: number
+  lines: CartLineUpdateInput[]
 ) {
   const mutation = /* GraphQL */ `
     mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
@@ -84,7 +87,7 @@ export async function updateCartLine(
   return storefrontClient.request<CartUpdateResponse>(mutation, {
     variables: {
       cartId,
-      lines: [{ id: lineId, quantity }],
+      lines,
     },
   });
 }

@@ -1,5 +1,5 @@
 import { Button } from "@/components/button";
-import { ProductPriceRange } from "@/lib/types/shopify";
+import { ProductPriceRange } from "@/lib/shopify/types/pricing";
 import { formatPrice } from "@/utils/formatters";
 import { ProductImg, ProductItem } from "@/utils/types";
 import clsx from "clsx";

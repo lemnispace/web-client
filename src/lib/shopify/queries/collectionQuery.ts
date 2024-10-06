@@ -1,4 +1,6 @@
-import { Collection, Edge, Edges, ProductNode } from "@/lib/types/shopify";
+import { Collection } from "@/lib/shopify/types/collection";
+import { Edge, Edges } from "@/lib/shopify/types/edge";
+import { ProductNode } from "@/lib/shopify/types/product";
 import { PRODUCT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
 import { getMetafieldsFragment } from "../fragments";

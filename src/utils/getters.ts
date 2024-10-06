@@ -1,4 +1,6 @@
-import { Price } from "@/lib/types/shopify";
+import { Price } from "@/lib/shopify/types/pricing";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
+import { NAVIGATION_LINKS } from "./links";
 import { toFloat } from "./parsers";
 import {
   Product,
@@ -21,27 +23,6 @@ import {
  *  ║                               Product Getters                                ║
  *  ╚══════════════════════════════════════════════════════════════════════════════╝
  */
-
-/**
- * Retrieves a variant from a product by its ID.
- * @param product - The product object.
- * @param id - The ID of the variant to retrieve.
- * @returns The variant object with the specified ID, or undefined if not found.
- */
-export const getVariantById = (product: Product, id: string) => {
-  return product.variants?.find((variant) => variant.id === id);
-};
-
-/**
- * Retrieves a variant from a product by its title.
- * @param product - The product object.
- * @param title - The title of the variant to retrieve.
- * @returns The first variant object with the specified title, or undefined if not found.
- */
-export const getVariantByTitle = (product: Product, title: string) => {
-  return product.variants?.find((variant) => variant.title === title);
-};
-
 /**
  * Retrieves a variant from a product by its variant options.
  * @param product - The product object.
@@ -86,37 +67,6 @@ export const getDimensionsFromVariant = (variant: ProductVariant) => {
   return { width, height };
 };
 
-interface CustomProductIdProps {
-  userId: string;
-  productId: string;
-}
-export const getCustomProductId = (product: CustomProductIdProps) => {
-  return `product-${product.userId}-${product.productId}`;
-};
-
-export const getCustomProductByOriginProductId = <
-  T extends Pick<ProductWithCustomization, "metafields">,
->(
-  products: T[] | undefined,
-  originProductId: string
-) => {
-  return products?.find(
-    ({ metafields }) => metafields?.origin_product?.value === originProductId
-  );
-};
-
-export const getCustomProductByOriginProductHandle = <
-  T extends Pick<ProductWithCustomization, "metafields">,
->(
-  products: T[] | undefined,
-  originProductHandle: string
-) => {
-  return products?.find(
-    ({ metafields }) =>
-      metafields?.origin_product?.reference?.handle === originProductHandle
-  );
-};
-
 export const getCustomVariantByOriginVariantId = <
   T extends Pick<ProductWithCustomization, "customVariants">,
 >(
@@ -139,11 +89,21 @@ export const getProductVariantByCustomVariantId = (
   return product.variants?.find((variant) => variant.id === originVariantId);
 };
 
-export const getProductPrice = (price: Price | string) => {
-  if (typeof price === "string") {
+export const getProductPrice = (price: Price | string | number) => {
+  if (typeof price === "string" || typeof price === "number") {
     return price;
   }
   return price.amount;
+};
+
+export const getCurrencyCode = (
+  price: Price | string | number,
+  defaultCurrencyCode = CurrencyCode.USD
+): CurrencyCode => {
+  if (typeof price === "string" || typeof price === "number") {
+    return defaultCurrencyCode;
+  }
+  return price.currencyCode;
 };
 
 /*
@@ -301,6 +261,21 @@ export const getuserErrorsFromResponseData = (
     return nestedData.userErrors;
   }
 };
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Service Getters                                ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+export function getNavigationLink(href: string, type: "Product") {
+  switch (type) {
+    case "Product":
+      return NAVIGATION_LINKS.product(href);
+    default:
+      throw new Error(`Unknown type: ${type}`);
+  }
+}
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗

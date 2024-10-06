@@ -17,6 +17,12 @@ export const IMAGE_EDITOR_INPUT_TEXT = {
   label: "Your Words Here",
 } as const;
 
+export const IMAGE_EDITOR_COLOR_INPUT = {
+  title: "Choose a Color",
+  description: "What color will bring your image to life?",
+  label: "Your Color Chosen Color",
+} as const;
+
 export const IMAGE_EDITOR_MENU_TEXT = {
   reset: {
     label: "Reset",
@@ -50,5 +56,9 @@ export const IMAGE_EDITOR_MENU_TEXT = {
     label: "Adjust Editor",
     description:
       "Move and resize your image editor with ease. Simply drag, scroll, or pinch in the editor itself.",
+  },
+  backgroundColor: {
+    label: "BG Color",
+    description: "Change the background color.",
   },
 } as const;

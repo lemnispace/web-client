@@ -1,9 +1,9 @@
-import { Cart } from "@/lib/types/shopify";
+import { Cart } from "@/lib/shopify/types/cart";
 import { CartItemList } from "./CartItemList";
 import { CartSummary } from "./CartSummary";
 
 interface CartViewProps {
-  cart: Cart;
+  cart?: Cart;
 }
 
 export function CartView({ cart }: CartViewProps) {

@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { getMockProduct } from "../test_utils";
 import { Product } from "../types";
 import {
@@ -50,7 +51,7 @@ describe("hasVariant", () => {
           Size: "Small",
           price: {
             amount: "100",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
         },
         {
@@ -60,7 +61,7 @@ describe("hasVariant", () => {
           Size: "Medium",
           price: {
             amount: "150",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
         },
         {
@@ -70,7 +71,7 @@ describe("hasVariant", () => {
           Size: "Large",
           price: {
             amount: "200",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
         },
       ],
@@ -89,7 +90,7 @@ describe("hasVariant", () => {
               Size: 0 as any,
               price: {
                 amount: "100",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
             },
           ],

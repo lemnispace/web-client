@@ -1,6 +1,7 @@
 import { env } from "@/utils/env";
 import { getErrorMessage } from "@/utils/getters";
-import { ApiResponse } from "@/utils/types";
+import { parseValidationErrors } from "@/utils/parsers";
+import { ApiResponse, ValidationErrors } from "@/utils/types";
 import {
   optionalBooleanSchema,
   optionalNumberSchema,
@@ -9,15 +10,6 @@ import {
 } from "@/utils/validators/schemaValidators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-
-type ValidationErrors = {
-  text?: string[];
-  width?: string[];
-  baseFontSize?: string[];
-  isBlackAndWhite?: string[];
-  contrastFactor?: string[];
-  file?: string[];
-};
 
 type MosaicError = {
   message: string;
@@ -66,14 +58,13 @@ const fetchTextMosaic = async (
     contrastFactor: _formData.get("contrast_factor"),
     file: _formData.get("file"),
   });
-  if (!validatedFields.success) {
-    console.error(
-      "Validation error:",
-      validatedFields.error.flatten().fieldErrors
-    );
+  const validationErrors = parseValidationErrors(validatedFields);
+  if (!validatedFields.data || validationErrors) {
+    console.error("Validation error:", validationErrors);
     return {
       status: 400,
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: validationErrors ?? { code: "unknown", message: "no data found" },
+      data: undefined,
     };
   }
 
@@ -90,8 +81,11 @@ const fetchTextMosaic = async (
       validatedFields.data.baseFontSize.toString()
     );
   }
-  if (validatedFields.data.isBlackAndWhite) {
-    formData.append("is_black_and_white", "true");
+  if (validatedFields.data.isBlackAndWhite != null) {
+    formData.append(
+      "is_black_and_white",
+      validatedFields.data.isBlackAndWhite.toString()
+    );
   }
   if (validatedFields.data.contrastFactor) {
     formData.append(

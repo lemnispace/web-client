@@ -1,11 +1,13 @@
-import { TemplatePlacementConflict } from "@/lib/types/printful";
+import { TemplatePlacementConflict } from "@/lib/printful/types";
 import {
   ProductMetafield,
-  ProductPriceRange,
   ProductVariantMetafield,
+} from "@/lib/shopify/types/metafields";
+import { ProductPriceRange } from "@/lib/shopify/types/pricing";
+import {
   ProductVariantNode,
   ProductVariantOptionType,
-} from "@/lib/types/shopify";
+} from "@/lib/shopify/types/product";
 import { NextResponse } from "next/server";
 import { ProductMetadataKey, VariantMetadataKey } from "./constants";
 export interface ProductImg {
@@ -105,9 +107,14 @@ export interface SuccessResponse<T> extends BaseResponse {
 }
 
 export type ApiResponse<VALIDATION_ERRORS, SERVER_ERRORS, DATA> =
-  | ValidationErrorResponse<VALIDATION_ERRORS>
+  | ValidationErrorResponse<ValidationErrors[] | VALIDATION_ERRORS>
   | ServerErrorResponse<SERVER_ERRORS>
   | SuccessResponse<DATA>;
+
+export interface ValidationErrors {
+  code: string;
+  message: string;
+}
 
 export type ServerParsedApiResponse<DATA> = ApiResponse<string, string, DATA>;
 export type ServerApiResponse<DATA> = NextResponse<

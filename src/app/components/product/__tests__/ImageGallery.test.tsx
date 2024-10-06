@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { getImgWithinElement, getMockProduct } from "@/utils/test_utils";
 import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
@@ -15,7 +16,7 @@ const product = {
       title: "S/Red",
       price: {
         amount: "10.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,
@@ -32,7 +33,7 @@ const product = {
       title: "M/Red",
       price: {
         amount: "20.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,
@@ -56,7 +57,7 @@ const productWithMoreImages = {
       Size: "L",
       price: {
         amount: "30.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,
@@ -73,7 +74,7 @@ const productWithMoreImages = {
       Size: "XS",
       price: {
         amount: "40.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,
@@ -90,7 +91,7 @@ const productWithMoreImages = {
       Size: "XL",
       price: {
         amount: "50.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,
@@ -107,7 +108,7 @@ const productWithMoreImages = {
       Size: "XXS",
       price: {
         amount: "60.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       image: {
         height: 100,

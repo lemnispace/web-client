@@ -2,6 +2,7 @@
 
 import { CustomProductResponse } from "@/app/api/products/route";
 import { Button } from "@/components/button";
+import { PRODUCTS_API_ENDPOINT } from "@/utils/constants";
 import { BUTTON_TEXT, IMAGE_EDITOR_TEXT } from "@/utils/text";
 import {
   ClientResponse,
@@ -36,7 +37,7 @@ const createCustomProduct = async (req: CreateCustomProductRequest) => {
   formData.append("variantTitle", req.variantTitle);
   formData.append("variantId", req.variantId);
   try {
-    const response = await fetch("/api/products", {
+    const response = await fetch(PRODUCTS_API_ENDPOINT, {
       method: "POST",
       body: formData,
     });

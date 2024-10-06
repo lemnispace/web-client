@@ -1,7 +1,6 @@
 "use client";
 
-import { Price } from "@/lib/types/shopify";
-import { DEFAULT_CURRENCY_CODE } from "@/utils/constants";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { formatPrice } from "@/utils/formatters";
 import { getProductVariantByCustomVariantId } from "@/utils/getters";
 import {
@@ -38,28 +37,6 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
   setSelectedVariant: null,
 });
 
-const getPrice = (
-  variant: ProductVariant | undefined,
-  product: ProductWithCustomization
-): Price => {
-  if (variant?.price) {
-    if (typeof variant.price === "string") {
-      return {
-        amount: variant.price,
-        currencyCode: DEFAULT_CURRENCY_CODE,
-      };
-    }
-    return {
-      amount: variant.price.amount,
-      currencyCode: variant.price.currencyCode,
-    };
-  }
-  return {
-    amount: `${product.priceRange.minVariantPrice.amount}`,
-    currencyCode: product.priceRange.minVariantPrice.currencyCode,
-  };
-};
-
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
   const [selectedVariant, setSelectedVariant] = useState(
     props.selectedCustomVariantId
@@ -81,7 +58,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
     });
     return variantMap;
   }, [product]);
-  const price = getPrice(selectedVariant, product);
+  const price = ShopifyProductService.getPrice(selectedVariant, product);
   const selectedVariantWithCustomization = useMemo(() => {
     const selectedCustomVariant =
       selectedVariant &&

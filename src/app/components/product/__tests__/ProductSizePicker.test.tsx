@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { getMockProduct } from "@/utils/test_utils";
 import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
@@ -15,7 +16,7 @@ describe("ProductSizePicker", () => {
         title: "Small",
         price: {
           amount: "9.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         quantityAvailable: 10,
         Size: "Small",
@@ -25,7 +26,7 @@ describe("ProductSizePicker", () => {
         title: "Medium",
         price: {
           amount: "9.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         quantityAvailable: 10,
         Size: "Medium",
@@ -35,7 +36,7 @@ describe("ProductSizePicker", () => {
         title: "Large",
         price: {
           amount: "9.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         quantityAvailable: 10,
         Size: "Large",
@@ -45,7 +46,7 @@ describe("ProductSizePicker", () => {
         title: "Large/Blue",
         price: {
           amount: "9.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         quantityAvailable: 1,
         Size: "Large",

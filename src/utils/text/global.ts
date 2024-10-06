@@ -16,6 +16,8 @@ export const BUTTON_TEXT = {
   cancel: "Cancel",
   crop: "Crop",
   back: "Back",
+  next: "Next",
+  save: "Save",
   finishEdit: "Finish Masterpiece",
 } as const;
 

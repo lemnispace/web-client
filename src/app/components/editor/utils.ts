@@ -210,6 +210,7 @@ export const removeBackground = async (
  * @returns A promise that resolves to the image file.
  */
 export const canvasToFile = async (canvas: Canvas): Promise<File> => {
+  // highest quality possible
   const dataURL = canvas.toDataURL();
   const blob = await (await fetch(dataURL)).blob();
   return new File([blob], "image.png", { type: "image/png" });

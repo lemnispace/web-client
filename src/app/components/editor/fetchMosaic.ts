@@ -1,3 +1,4 @@
+import { MOSAIC_API_ENDPOINT } from "@/utils/constants";
 import { getErrorMessage } from "@/utils/getters";
 
 export const fetchMosaic = async (formData: FormData) => {
@@ -8,7 +9,7 @@ export const fetchMosaic = async (formData: FormData) => {
     if (!formData.get("file")) {
       throw new Error("Missing file field in form data");
     }
-    const response = await fetch("/api/mosaic", {
+    const response = await fetch(MOSAIC_API_ENDPOINT, {
       method: "POST",
       body: formData,
       headers: {

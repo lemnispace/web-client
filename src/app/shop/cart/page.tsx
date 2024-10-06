@@ -1,9 +1,15 @@
 import { CartView } from "@/app/components/cart/CartView";
 import { Container } from "@/components/container";
-import { getOrCreateCartWithManagedCookie } from "@/utils/fetchers";
+import { ShopifyCartService } from "@/lib/shopify/services/CartService";
+import { getNavigationLink } from "@/utils/getters";
+import { parseClientResponse } from "@/utils/parsers";
 
 export default async function CartPage() {
-  const cart = await getOrCreateCartWithManagedCookie();
+  const cartService = new ShopifyCartService({
+    parseClientResponse,
+    getNavigationLink,
+  });
+  const cart = await cartService.tryFetchCart();
 
   return (
     <main className="bg-white flex-1">

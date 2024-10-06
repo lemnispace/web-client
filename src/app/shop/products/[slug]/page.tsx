@@ -1,13 +1,9 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
-import { fetchProduct } from "@/lib/shopify/queries/productQuery";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { mergeCustomProduct } from "@/lib/shopify/utils/mappers";
 import { getVisitorId } from "@/utils/cookies/visitorId";
-import {
-  fetchCustomProductData,
-  fetchCustomProductsFromUserCollection,
-} from "@/utils/fetchers";
-import { getCustomProductByOriginProductId } from "@/utils/getters";
-import { mapProduct, mergeCustomProduct } from "@/utils/mappers";
+import { getNavigationLink } from "@/utils/getters";
 import { parseClientResponse } from "@/utils/parsers";
 import { ProductWithCustomization } from "@/utils/types";
 import { isValidCustomVariantId } from "@/utils/validators";
@@ -33,22 +29,15 @@ const getValidCustomVariantId = (
   return undefined;
 };
 
-const fetchProductData = async (handle: string) => {
-  const productResponse = await fetchProduct({ handle });
-  const parsedProductResponse = parseClientResponse(
-    productResponse,
-    "Error, product not found"
-  );
-  return (
-    parsedProductResponse.product && mapProduct(parsedProductResponse.product)
-  );
-};
-
 export default async function ProductDetails(props: ProductDetailsProps) {
   const visitorId = getVisitorId();
+  const productService = new ShopifyProductService({
+    parseClientResponse,
+    getNavigationLink,
+  });
   const [customProducts, product] = await Promise.all([
-    fetchCustomProductsFromUserCollection(visitorId),
-    fetchProductData(props.params.slug),
+    productService.fetchCustomProductsFromUserCollection(visitorId),
+    productService.fetchProductData({ handle: props.params.slug }),
   ]);
 
   if (!product) {
@@ -56,12 +45,14 @@ export default async function ProductDetails(props: ProductDetailsProps) {
     redirect("/not-found");
   }
 
-  const customProductId = getCustomProductByOriginProductId(
-    customProducts,
-    product.id
-  )?.id;
+  const customProductId =
+    ShopifyProductService.getCustomProductByOriginProductId(
+      customProducts,
+      product.id
+    )?.id;
 
-  const customProduct = await fetchCustomProductData(customProductId);
+  const customProduct =
+    await productService.fetchCustomProductData(customProductId);
   const productWithCustomVariant = mergeCustomProduct(product, customProduct);
   const selectedCustomVariantId = getValidCustomVariantId(
     productWithCustomVariant,

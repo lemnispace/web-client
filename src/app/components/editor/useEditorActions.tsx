@@ -14,6 +14,7 @@ import {
   FlagIcon,
   PaintBrushIcon,
   PhotoIcon,
+  SwatchIcon,
 } from "@heroicons/react/24/outline";
 import { Canvas as FabricCanvas } from "fabric";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -51,14 +52,24 @@ const useImgSourcesState = (imgSrc: ImgSource) => {
 };
 
 const validatePreviewFormData = (formData: FormData) => {
-  const data = Object.fromEntries(formData.entries()) as { text?: string };
-  return !data.text?.trim() ? ["Text is required"] : undefined;
+  const data = Object.fromEntries(formData.entries()) as {
+    text?: string;
+    baseFontSize?: string;
+  };
+  if (!data.text?.trim()) {
+    return ["Text is required"];
+  }
+  if (!data.baseFontSize) {
+    return ["Font size is required"];
+  }
+  return undefined;
 };
 
 const useEditorActions = (props: EditorProps) => {
   const [fCanvas, setFCanvas] = useState<FabricCanvas | null>(null);
   const [isCropActive, setIsCropActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isColorInputOpen, setIsColorInputOpen] = useState(false);
   const [isPanZoomActive, setIsPanZoomActive] = useState(false);
   const [isBackgroundRemoved, setIsBackgroundRemoved] = useState(false);
   const { status, statusMessage, updateStatus } = useEditorStatus();
@@ -128,10 +139,11 @@ const useEditorActions = (props: EditorProps) => {
   );
 
   const handleSubmitPreview = useCallback(
-    async (text: string | undefined) => {
+    async ({ text, fontSize }: { text: string; fontSize: string }) => {
       updateStatus({ status: "idle" });
       const formData = new FormData();
       formData.append("text", text?.trim() || "");
+      formData.append("baseFontSize", fontSize || "");
       const formValidationErrors = validatePreviewFormData(formData);
       if (formValidationErrors) {
         updateStatus({
@@ -156,6 +168,7 @@ const useEditorActions = (props: EditorProps) => {
           updateStatus({ status: "idle" });
           imgSources.updateImgSrc(textMosaicImg);
         } catch (error) {
+          setIsPreviewOpen(true);
           console.error(ERROR_TEXTS.imageEditor.mosaicGeneration, error);
           updateStatus({
             status: "error",
@@ -192,6 +205,17 @@ const useEditorActions = (props: EditorProps) => {
     [fCanvas, props, updateStatus]
   );
 
+  const handleBackgroundColorChange = useCallback(
+    (color: string | undefined) => {
+      if (color && fCanvas) {
+        fCanvas.backgroundColor = color;
+        fCanvas.renderAll();
+      }
+      setIsColorInputOpen(false);
+    },
+    [fCanvas]
+  );
+
   const actions: EditorControlItemProps[] = [
     {
       label: IMAGE_EDITOR_MENU_TEXT.finishEdit.label,
@@ -212,6 +236,12 @@ const useEditorActions = (props: EditorProps) => {
       icon: <ArrowsPointingOutIcon className="h-6 w-6 stroke-white" />,
       onClick: () => setIsPanZoomActive((prev) => !prev),
       active: isPanZoomActive,
+    },
+    {
+      label: IMAGE_EDITOR_MENU_TEXT.backgroundColor.label,
+      title: IMAGE_EDITOR_MENU_TEXT.backgroundColor.description,
+      icon: <SwatchIcon className="h-6 w-6 stroke-white" />,
+      onClick: () => setIsColorInputOpen(true),
     },
     {
       label: IMAGE_EDITOR_MENU_TEXT.backgroundRemove.label,
@@ -238,7 +268,10 @@ const useEditorActions = (props: EditorProps) => {
       label: IMAGE_EDITOR_MENU_TEXT.textMosaicEffect.label,
       title: IMAGE_EDITOR_MENU_TEXT.textMosaicEffect.description,
       icon: <PaintBrushIcon className="h-6 w-6 stroke-white" />,
-      onClick: () => setIsPreviewOpen(true),
+      onClick: () => {
+        setIsPreviewOpen(true);
+        updateStatus({ status: "idle" });
+      },
       active: isPreviewOpen,
     },
     {
@@ -255,6 +288,9 @@ const useEditorActions = (props: EditorProps) => {
     setFCanvas,
     isCropActive,
     setIsCropActive,
+    isColorInputOpen,
+    setIsColorInputOpen,
+    handleBackgroundColorChange,
     isPreviewOpen,
     setIsPreviewOpen,
     isPanZoomActive,

@@ -1,4 +1,5 @@
-import { ProductVariantNode } from "@/lib/types/shopify";
+import { ProductVariantNode } from "@/lib/shopify/types/product";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { FabricImage } from "fabric";
 import { Product, VariantTemplate } from "../types";
 
@@ -32,11 +33,11 @@ export const getMockProduct = () =>
     priceRange: {
       minVariantPrice: {
         amount: 10.0,
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
       maxVariantPrice: {
         amount: 20.0,
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
     tags: ["test"],
@@ -72,7 +73,7 @@ export const getMockProduct = () =>
         title: "Red",
         price: {
           amount: "10.0",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
       {
@@ -81,7 +82,7 @@ export const getMockProduct = () =>
         title: "Blue",
         price: {
           amount: "20.0",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
     ],
@@ -94,7 +95,7 @@ export const getMockVariantNode = () =>
     quantityAvailable: 10,
     price: {
       amount: "9.99",
-      currencyCode: "USD",
+      currencyCode: CurrencyCode.USD,
     },
     image: {
       url: "variant1.jpg",

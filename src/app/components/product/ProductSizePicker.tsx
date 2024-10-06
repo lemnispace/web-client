@@ -1,7 +1,7 @@
 "use client";
 
+import { getAllProductVariantOptions } from "@/lib/shopify/utils/mappers";
 import { getVariantByValues } from "@/utils/getters";
-import { getAllProductVariantOptions } from "@/utils/mappers";
 import { PRODUCT_SIZE_PICKER_TEXT } from "@/utils/text";
 import { Product } from "@/utils/types";
 import { hasVariant } from "@/utils/validators";

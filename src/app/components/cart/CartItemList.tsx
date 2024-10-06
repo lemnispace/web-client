@@ -1,11 +1,13 @@
 "use client";
 
-import { BaseCartLine } from "@/lib/types/shopify";
+import { BaseCartLine } from "@/lib/shopify/types/cart";
+import { toInt } from "@/utils/parsers";
+import { isDefined } from "@/utils/validators";
+import { CartItem } from "./CartItem";
 import {
   handleRemoveCartItem,
   handleUpdateCartItemQuantity,
-} from "../product/actions/cartActions";
-import { CartItem } from "./CartItem";
+} from "./cartUtils";
 
 interface CartItemListProps {
   items: BaseCartLine[];
@@ -22,31 +24,38 @@ export function CartItemList({ items }: CartItemListProps) {
         role="list"
         className="divide-y divide-gray-200 border-b border-t border-gray-200"
         onClick={(event) => {
+          // Handle the onClick event from the remove button
           const target = event.target as HTMLElement;
           const removeButton = target.closest("button");
           if (removeButton && removeButton.dataset.action === "remove") {
             const cartItemId = removeButton.dataset.itemId;
             if (cartItemId) {
-              const onRemoveItem = handleRemoveCartItem.bind(null, {
-                lineId: cartItemId,
-              });
-              onRemoveItem();
+              handleRemoveCartItem(cartItemId);
+            }
+          }
+        }}
+        onChange={(event) => {
+          // Handle the onChange event from the quantity selector
+          const target = event.target as HTMLElement;
+          const quantitySelect = target.closest("select");
+          if (quantitySelect && quantitySelect.dataset.action === "update") {
+            const quantity = toInt(quantitySelect.value);
+            const cartItemId = quantitySelect.dataset.itemId;
+            if (isDefined(quantity) && cartItemId) {
+              if (quantity === 0) {
+                handleRemoveCartItem(cartItemId);
+              } else {
+                handleUpdateCartItemQuantity({
+                  cartLineId: cartItemId,
+                  quantity,
+                });
+              }
             }
           }
         }}
       >
         {items.map((item) => (
-          <CartItem
-            key={item.id}
-            item={item}
-            onUpdateQuantity={(quantity) => {
-              const onUpdateQuantity = handleUpdateCartItemQuantity.bind(null, {
-                lineId: item.id,
-                quantity,
-              });
-              onUpdateQuantity();
-            }}
-          />
+          <CartItem key={item.id} item={item} />
         ))}
       </ul>
     </section>

@@ -1,5 +1,6 @@
 import { getErrorMessage } from "@/utils/getters";
 import { isDefined, isFieldDefined } from "@/utils/validators";
+import printfulConfig, { PrintfulConfig } from "./printfulConfig";
 import {
   CatalogVariant,
   CatalogVariantImagesResponse,
@@ -11,8 +12,7 @@ import {
   SyncProductsResponse,
   SyncVariant,
   SyncVariantsResponse,
-} from "../types/printful";
-import printfulConfig, { PrintfulConfig } from "./printfulConfig";
+} from "./types";
 
 interface requestParams {
   params?: Array<[string, string | undefined]>;

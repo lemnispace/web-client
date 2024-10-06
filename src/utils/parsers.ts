@@ -1,4 +1,5 @@
 import { ClientResponse } from "@shopify/storefront-api-client";
+import { SafeParseReturnType } from "zod";
 import {
   getArrayErrorMessage,
   getErrorMessage,
@@ -86,7 +87,28 @@ export const parseApiResponse = async <
     };
   }
   return {
-    status: response.status,
-    data: response.data,
+    status: response.status as 200 | 201 | 204,
+    data: response.data as DATA,
   };
+};
+
+export const parseFetchResponse = async <T>(
+  response: Response,
+  defaultMessage: string
+): Promise<NonNullable<T>> => {
+  if (!response.ok) {
+    const errorMessage = await getErrorMessage(response, defaultMessage);
+    throw new Error(errorMessage);
+  }
+  return await response.json();
+};
+
+export const parseValidationErrors = <Input, Output>(
+  validatedValues: SafeParseReturnType<Input, Output>
+) => {
+  if (!validatedValues.success) {
+    const errors = validatedValues.error.errors;
+    return errors.map(({ code, message }) => ({ code, message }));
+  }
+  return undefined;
 };

@@ -2,11 +2,12 @@
  * @jest-environment node
  */
 
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import {
   getDimensionsFromVariant,
   getErrorMessage,
   getObjFirstValue,
-  getVariantById,
   getVariantByValues,
   getuserErrorsFromResponseData,
 } from "../getters";
@@ -23,7 +24,7 @@ const product = {
       Size: "Small",
       price: {
         amount: "100",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
     {
@@ -33,7 +34,7 @@ const product = {
       Size: "Medium",
       price: {
         amount: "150",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
     {
@@ -43,7 +44,7 @@ const product = {
       Size: "Large",
       price: {
         amount: "200",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
   ],
@@ -52,13 +53,13 @@ const product = {
 describe("getVariantById", () => {
   it("should return the variant object with the specified ID", () => {
     const id = "2";
-    const result = getVariantById(product, id);
+    const result = ShopifyProductService.getVariantById(product, id);
     expect(result).toEqual(product.variants[1]);
   });
 
   it("should return undefined if the variant with the specified ID is not found", () => {
     const id = "4";
-    const result = getVariantById(product, id);
+    const result = ShopifyProductService.getVariantById(product, id);
     expect(result).toBeUndefined();
   });
 });
