@@ -1,4 +1,5 @@
-import { Edges, ProductEdge, ProductNode } from "@/lib/types/shopify";
+import { Edges } from "@/lib/shopify/types/edge";
+import { ProductEdge, ProductNode } from "@/lib/shopify/types/product";
 import {
   PRODUCT_METADATA_NAMESPACE,
   VARIANT_METADATA_NAMESPACE,

@@ -1,18 +1,27 @@
+import { Price } from "@/lib/shopify/types/pricing";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import DOMPurify from "isomorphic-dompurify";
+import { getCurrencyCode, getProductPrice } from "./getters";
 
 /**
  * Formats the price with the currency sign.
  *
- * @param price - The price to format.
- * @param currencyCode - The currency code.
+ * @param price - The price to format, either as a number/string or a Price object.
+ * @param currencyCode - The currency code (optional if price is a Price object).
  * @returns The formatted price.
  */
-export const formatPrice = (price: string | number, currencyCode: string) => {
+export function formatPrice(
+  price: string | number | Price,
+  currencyCode?: CurrencyCode
+): string {
+  const amount = typeof price === "number" ? price : getProductPrice(price);
+  let currency = getCurrencyCode(price, currencyCode);
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: currencyCode,
-  }).format(Number(price));
-};
+    currency: currency,
+  }).format(Number(amount));
+}
 
 /**
  * Sanitizes the given HTML string using DOMPurify.

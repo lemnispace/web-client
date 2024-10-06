@@ -1,7 +1,7 @@
 "use client";
 
-import { ProductVariantOptionType } from "@/lib/types/shopify";
-import { getVariantById } from "@/utils/getters";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ProductVariantOptionType } from "@/lib/shopify/types/product";
 import {
   Product,
   ProductImg,
@@ -77,7 +77,10 @@ export default function ImageGallery({
   }
 
   const handleVariantImageSelect = (index: number) => {
-    const variant = getVariantById(product, images?.[index].variantId);
+    const variant = ShopifyProductService.getVariantById(
+      product,
+      images?.[index].variantId
+    );
     if (variant) {
       setSelectedVariant((prev) => {
         if (!prev) {
@@ -126,7 +129,7 @@ export default function ImageGallery({
                       }}
                       fill
                       priority
-                      className="object-cover object-center"
+                      className="object-contain object-center"
                     />
                   </span>
                   <span
@@ -154,7 +157,7 @@ export default function ImageGallery({
                 maxWidth: "100%",
               }}
               fill
-              className="object-cover object-center sm:rounded-lg"
+              className="object-contain object-center sm:rounded-lg"
             />
           </Tab.Panel>
         ))}

@@ -1,4 +1,4 @@
-import { Cart } from "@/lib/types/shopify";
+import { Cart } from "@/lib/shopify/types/cart";
 import { cartFragment } from "../fragments";
 import storefrontClient from "../storefrontClient";
 

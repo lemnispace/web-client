@@ -3,6 +3,7 @@ import { ProductItem } from "@/utils/types";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { ProductGridSection } from "../ProductGrid";
 
 // mock text
@@ -23,11 +24,11 @@ describe("ProductGridSection", () => {
         priceRange: {
           minVariantPrice: {
             amount: 10.0,
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           maxVariantPrice: {
             amount: 20.0,
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
         },
         description: "test description",
@@ -48,11 +49,11 @@ describe("ProductGridSection", () => {
         priceRange: {
           minVariantPrice: {
             amount: 20.0,
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           maxVariantPrice: {
             amount: 30.0,
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
         },
         description: "test description 2",

@@ -1,5 +1,5 @@
-import { MetafieldTypes } from "@/lib/types/shopify";
-import { CountryCode } from "@/lib/types/shopifyCountryCodes";
+import { MetafieldTypes } from "@/lib/shopify/types/metafields";
+import { CountryCode } from "@/lib/shopify/types/shopifyCountryCodes";
 import { z } from "zod";
 import {
   optionalNumberSchema,
@@ -24,7 +24,31 @@ const AttributeInputSchema = z.object({
 /**
  * Schema for validating cart line input.
  */
-const CartLineInputSchema = z.object({
+export const CartLineUpdateInputSchema = z.object({
+  attributes: z.array(AttributeInputSchema).max(250).optional(),
+  merchandiseId: optionalStringSchema({
+    name: "Merchandise ID",
+    description: "ID of the merchandise",
+  }),
+  id: requiredStringSchema({
+    name: "Merchandise Line ID",
+    description: "The ID of the merchandise line",
+  }),
+  quantity: optionalNumberSchema({
+    name: "Quantity",
+    description: "The quantity of the line item.",
+    min: 1,
+  }).default(1),
+  sellingPlanId: optionalStringSchema({
+    name: "Selling Plan ID",
+    description:
+      "The ID of the selling plan that the merchandise is being purchased with",
+  }),
+});
+/**
+ * Schema for validating cart line input.
+ */
+export const CartLineInputSchema = z.object({
   attributes: z.array(AttributeInputSchema).max(250).optional(),
   merchandiseId: requiredStringSchema({
     name: "Merchandise ID",

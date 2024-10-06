@@ -2,7 +2,8 @@ import ProductsMainMessageSection from "@/app/components/product/ProductsMainMes
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
 import { fetchProductList } from "@/lib/shopify/queries/productQuery";
-import { mapProducts } from "@/utils/mappers";
+import { mapProducts } from "@/lib/shopify/utils/mappers";
+import { getNavigationLink } from "@/utils/getters";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 
 export default async function Shop() {
@@ -10,7 +11,7 @@ export default async function Shop() {
   if (productList.errors) {
     console.error("Error getting product list: ", productList.errors);
   }
-  const products = mapProducts(productList.data);
+  const products = mapProducts(productList.data, getNavigationLink);
   return (
     <main>
       <Container>

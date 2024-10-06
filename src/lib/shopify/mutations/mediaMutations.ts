@@ -1,12 +1,8 @@
-import {
-  CreateMediaInput,
-  FilesUserError,
-  MediaNode,
-  ProductNode,
-  StagedUploadInput,
-  StagedUploadTarget,
-  UserError,
-} from "@/lib/types/shopify";
+import { UserError } from "@/lib/shopify/types/error";
+import { CreateMediaInput, StagedUploadInput } from "@/lib/shopify/types/input";
+import { FilesUserError, MediaNode } from "@/lib/shopify/types/media";
+import { ProductNode } from "@/lib/shopify/types/product";
+import { StagedUploadTarget } from "@/lib/shopify/types/stagedUpload";
 import { parseClientResponse } from "@/utils/parsers";
 import adminClient from "../adminClient";
 interface StagedUploadsCreatePayload {

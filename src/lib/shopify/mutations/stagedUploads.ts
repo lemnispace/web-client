@@ -1,4 +1,5 @@
-import { CreateMediaInput, StagedUploadTarget } from "@/lib/types/shopify";
+import { CreateMediaInput } from "@/lib/shopify/types/input";
+import { StagedUploadTarget } from "@/lib/shopify/types/stagedUpload";
 import { getErrorMessage } from "@/utils/getters";
 import { productCreateMedia, stagedUploadsCreate } from "./mediaMutations";
 

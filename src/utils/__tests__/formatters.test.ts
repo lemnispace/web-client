@@ -1,10 +1,11 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { formatPrice, sanitizeHtml, toKebabCase } from "../formatters";
 
 describe("formatPrice", () => {
   it("should format the price with the currency sign", () => {
-    expect(formatPrice(10, "USD")).toBe("$10.00");
-    expect(formatPrice(20.5, "EUR")).toBe("€20.50");
-    expect(formatPrice("30", "GBP")).toBe("£30.00");
+    expect(formatPrice(10, CurrencyCode.USD)).toBe("$10.00");
+    expect(formatPrice(20.5, CurrencyCode.EUR)).toBe("€20.50");
+    expect(formatPrice("30", CurrencyCode.GBP)).toBe("£30.00");
   });
 });
 

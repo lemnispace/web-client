@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import { Product } from "@/utils/types";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
@@ -20,11 +21,11 @@ const mockProduct = {
   priceRange: {
     minVariantPrice: {
       amount: 10.0,
-      currencyCode: "USD",
+      currencyCode: CurrencyCode.USD,
     },
     maxVariantPrice: {
       amount: 20.0,
-      currencyCode: "USD",
+      currencyCode: CurrencyCode.USD,
     },
   },
   tags: ["test"],
@@ -44,7 +45,7 @@ const mockProduct = {
       title: "Red",
       price: {
         amount: "10.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
     {
@@ -53,7 +54,7 @@ const mockProduct = {
       title: "Blue",
       price: {
         amount: "20.0",
-        currencyCode: "USD",
+        currencyCode: CurrencyCode.USD,
       },
     },
   ],

@@ -1,10 +1,15 @@
 "use client";
 
-import { BUTTON_TEXT, IMAGE_EDITOR_INPUT_TEXT } from "@/utils/text";
+import {
+  BUTTON_TEXT,
+  IMAGE_EDITOR_COLOR_INPUT,
+  IMAGE_EDITOR_INPUT_TEXT,
+} from "@/utils/text";
 import { VariantTemplate } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
 import clsx from "clsx";
 import Canvas from "./Canvas";
+import ColorInputDialog from "./ColorInputDialog";
 import Crop from "./Crop";
 import { EditorLoader } from "./EditorLoader";
 import EditorMenu from "./EditorMenu";
@@ -29,6 +34,9 @@ export default function Editor(props: EditorProps) {
     setIsCropActive,
     isPreviewOpen,
     setIsPreviewOpen,
+    isColorInputOpen,
+    setIsColorInputOpen,
+    handleBackgroundColorChange,
     isPanZoomActive,
     status,
     statusMessage,
@@ -66,6 +74,17 @@ export default function Editor(props: EditorProps) {
           onSubmit={handleSubmitPreview}
           cta={BUTTON_TEXT.generate}
           description={IMAGE_EDITOR_INPUT_TEXT.description}
+          name="text"
+          error={status === "error" ? statusMessage : undefined}
+        />
+        <ColorInputDialog
+          open={isColorInputOpen}
+          title={IMAGE_EDITOR_COLOR_INPUT.title}
+          label={IMAGE_EDITOR_COLOR_INPUT.label}
+          onClose={() => setIsColorInputOpen(false)}
+          onSubmit={handleBackgroundColorChange}
+          cta={BUTTON_TEXT.save}
+          description={IMAGE_EDITOR_COLOR_INPUT.description}
           name="text"
           error={status === "error" ? statusMessage : undefined}
         />

@@ -1,3 +1,5 @@
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
+
 /*
  *  ╔═════════════════════════════════════════════════════════════╗
  *  ║                    Constants for the app                    ║
@@ -5,7 +7,7 @@
  */
 export const MAX_IMG_FILE_SIZE_MB = 10;
 export const MAX_IMG_FILE_SIZE = MAX_IMG_FILE_SIZE_MB * 1024 * 1024; // 10MB in bytes
-export const DEFAULT_CURRENCY_CODE = "USD";
+export const DEFAULT_CURRENCY_CODE = CurrencyCode.USD;
 
 /*
  *  ╔═════════════════════════════════════════════════════════════════════╗
@@ -37,6 +39,16 @@ export type VariantMetadataKey =
   | typeof VARIANT_METADATA_PRINTFUL_CATALOG_VARIANT_ID_KEY
   | typeof VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY;
 
+export const VariantMetadataKey = [
+  VARIANT_METADATA_PREVIEW_IMAGE_KEY,
+  VARIANT_METADATA_ORIGIN_PRODUCT_VARIANT_KEY,
+  VARIANT_METADATA_ORIGIN_PRODUCT_KEY,
+  VARIANT_METADATA_USER_ID_KEY,
+  VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
+  VARIANT_METADATA_PRINTFUL_CATALOG_VARIANT_ID_KEY,
+  VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY,
+] as const;
+
 export type VariantMetadataNamespace = typeof VARIANT_METADATA_NAMESPACE;
 
 /***PRODUCT METADATA**/
@@ -56,3 +68,14 @@ export type ProductMetadataKey =
 
 export const SEVEN_DAYS_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 1 week
 export const THIRTY_DAYS_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+/*
+ *  ╔═════════════════════════════════════════════════════════╗
+ *  ║                 API Endpoints Constants                 ║
+ *  ╚═════════════════════════════════════════════════════════╝
+ */
+
+export const CART_API_ENDPOINT = "/api/cart";
+export const CART_LINE_API_ENDPOINT = "/api/cart/line";
+export const MOSAIC_API_ENDPOINT = "/api/mosaic";
+export const PRODUCTS_API_ENDPOINT = "/api/products";

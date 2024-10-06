@@ -54,3 +54,12 @@ export const getCookie = (key: string): string | undefined => {
   const cookieStore = cookies();
   return cookieStore.get(key)?.value;
 };
+
+/**
+ * Deletes a cookie with the specified key.
+ * @param key - The key of the cookie to delete.
+ */
+export const deleteCookie = (key: string) => {
+  const cookieStore = cookies();
+  cookieStore.delete(key);
+}

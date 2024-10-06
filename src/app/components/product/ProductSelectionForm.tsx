@@ -8,10 +8,10 @@ import { Product } from "@/utils/types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useContext } from "react";
+import { handleAddToCart } from "../cart/cartUtils";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
 import { ProductVariantContext } from "./ProductView";
-import { handleAddToCart } from "./actions/cartActions";
 
 interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
@@ -32,12 +32,19 @@ export default function ProductSelectionForm({
   ...props
 }: ProductSelectionFormProps) {
   const { selectedVariant } = useContext(ProductVariantContext);
-  const addToCartWithSelectedVariant = handleAddToCart.bind(null, {
-    variant: selectedVariant,
-    quantity: 1,
-  });
+
   return (
-    <form {...props} action={addToCartWithSelectedVariant}>
+    <form
+      {...props}
+      onSubmit={(e) => {
+        e.preventDefault();
+        selectedVariant?.customization &&
+          handleAddToCart({
+            variantId: selectedVariant.customization.id,
+            quantity: 1,
+          });
+      }}
+    >
       <ProductColorPicker product={product} />
       <ProductSizePicker product={product} className="mt-8" />
       <div className={clsx("mt-10 flex flex-col sm:w-full sm:flex-row")}>

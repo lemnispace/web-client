@@ -1,12 +1,14 @@
-import { Edges, ProductNode, ProductVariantEdge } from "@/lib/types/shopify";
-import { Product, ProductVariant } from "@/utils/types";
+import { Edges } from "@/lib/shopify/types/edge";
+import { ProductNode, ProductVariantEdge } from "@/lib/shopify/types/product";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import {
-  filterObject,
   getAllProductVariantOptions,
   mapCustomProduct,
   mapProduct,
   mapProductVariantNodeToProductVariant,
-} from "../mappers";
+} from "@/lib/shopify/utils/mappers";
+import { Product, ProductVariant } from "@/utils/types";
+import { filterObject } from "../mappers";
 
 describe("mapProductVariantNodeToProductVariant", () => {
   it("should map product variant nodes to product variants", () => {
@@ -20,7 +22,7 @@ describe("mapProductVariantNodeToProductVariant", () => {
             quantityAvailable: 10,
             price: {
               amount: "9.99",
-              currencyCode: "USD",
+              currencyCode: CurrencyCode.USD,
             },
             image: {
               url: "variant1.jpg",
@@ -43,7 +45,7 @@ describe("mapProductVariantNodeToProductVariant", () => {
             quantityAvailable: 5,
             price: {
               amount: "14.99",
-              currencyCode: "USD",
+              currencyCode: CurrencyCode.USD,
             },
             image: {
               url: "variant2.jpg",
@@ -70,7 +72,7 @@ describe("mapProductVariantNodeToProductVariant", () => {
         Size: "small",
         price: {
           amount: "9.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         image: {
           id: "image-1",
@@ -88,7 +90,7 @@ describe("mapProductVariantNodeToProductVariant", () => {
         Size: "medium",
         price: {
           amount: "14.99",
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         image: {
           id: "image-2",
@@ -136,11 +138,11 @@ describe("mapProduct", () => {
       priceRange: {
         minVariantPrice: {
           amount: 9.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         maxVariantPrice: {
           amount: 14.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
       tags: ["tag1", "tag2"],
@@ -178,7 +180,7 @@ describe("mapProduct", () => {
               quantityAvailable: 10,
               price: {
                 amount: "9.99",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
               image: {
                 url: "variant1.jpg",
@@ -206,11 +208,11 @@ describe("mapProduct", () => {
       priceRange: {
         minVariantPrice: {
           amount: 9.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         maxVariantPrice: {
           amount: 14.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
       type: "test product",
@@ -240,7 +242,7 @@ describe("mapProduct", () => {
           Size: '12"x18"',
           price: {
             amount: "9.99",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           image: {
             id: "image-1",
@@ -253,7 +255,10 @@ describe("mapProduct", () => {
       ],
     } satisfies Product;
 
-    const mappedProduct = mapProduct(productNode);
+    const mappedProduct = mapProduct(
+      productNode,
+      (handle) => `/shop/products/${handle}`
+    );
 
     expect(mappedProduct).toEqual(expectedProduct);
   });
@@ -266,7 +271,7 @@ describe("mapProduct", () => {
           quantityAvailable: 10,
           price: {
             amount: "9.99",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           Color: "red",
           Size: "small",
@@ -279,7 +284,7 @@ describe("mapProduct", () => {
           quantityAvailable: 5,
           price: {
             amount: "14.99",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           Color: "blue",
           Size: "medium",
@@ -292,7 +297,7 @@ describe("mapProduct", () => {
           quantityAvailable: 3,
           price: {
             amount: "19.99",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           Color: "red",
           Size: "small",
@@ -310,7 +315,7 @@ describe("mapProduct", () => {
               quantityAvailable: 10,
               price: {
                 amount: "9.99",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
               Color: "red",
             },
@@ -399,11 +404,11 @@ describe("mapCustomProduct", () => {
       priceRange: {
         minVariantPrice: {
           amount: 15.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         maxVariantPrice: {
           amount: 25.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
       tags: ["custom"],
@@ -420,7 +425,7 @@ describe("mapCustomProduct", () => {
               quantityAvailable: 10,
               price: {
                 amount: "15.99",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
               image: null!,
               selectedOptions: [
@@ -437,7 +442,7 @@ describe("mapCustomProduct", () => {
               quantityAvailable: 8,
               price: {
                 amount: "25.99",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
               image: {
                 url: "custom-variant2.jpg",
@@ -460,7 +465,7 @@ describe("mapCustomProduct", () => {
               quantityAvailable: 8,
               price: {
                 amount: "25.99",
-                currencyCode: "USD",
+                currencyCode: CurrencyCode.USD,
               },
               image: {
                 url: "custom-variant3.jpg",
@@ -525,11 +530,11 @@ describe("mapCustomProduct", () => {
       priceRange: {
         minVariantPrice: {
           amount: 15.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
         maxVariantPrice: {
           amount: 25.99,
-          currencyCode: "USD",
+          currencyCode: CurrencyCode.USD,
         },
       },
       type: "custom",
@@ -544,7 +549,7 @@ describe("mapCustomProduct", () => {
           Color: "Yellow",
           price: {
             amount: "25.99",
-            currencyCode: "USD",
+            currencyCode: CurrencyCode.USD,
           },
           image: {
             id: "image-4",
@@ -580,7 +585,10 @@ describe("mapCustomProduct", () => {
       ],
     } satisfies Product;
 
-    const mappedCustomProduct = mapCustomProduct(productNode);
+    const mappedCustomProduct = mapCustomProduct(
+      productNode,
+      (handle) => `/shop/products/${handle}`
+    );
 
     expect(mappedCustomProduct).toEqual(expectedCustomProduct);
   });

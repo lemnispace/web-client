@@ -141,6 +141,7 @@ export const cartFragment = /* GraphQL */ `
             ... on ProductVariant {
               id
               title
+              quantityAvailable
               price {
                 amount
                 currencyCode
@@ -153,6 +154,55 @@ export const cartFragment = /* GraphQL */ `
                 title
                 handle
               }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const draftOrderFragment = /* GraphQL */ `
+  fragment DraftOrderFields on DraftOrder {
+    id
+    name
+    status
+    email
+    totalPriceSet {
+      shopMoney {
+        amount
+        currencyCode
+      }
+      presentmentMoney {
+        amount
+        currencyCode
+      }
+    }
+    lineItems(first: 100) {
+      # Adjust 'first' if you expect more line items
+      edges {
+        node {
+          id
+          title
+          quantity
+          originalUnitPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+          }
+          variant {
+            id
+            title
+            image {
+              url
+            }
+            product {
+              handle
             }
           }
         }

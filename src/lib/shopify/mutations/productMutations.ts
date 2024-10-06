@@ -1,13 +1,15 @@
+import { UserError } from "@/lib/shopify/types/error";
 import {
-  ImageJobNode,
-  ProductNode,
-  ProductStatus,
   ProductUpdateInput,
   ProductVariantInput,
-  ProductVariantNode,
   ProductVariantsBulkInput,
-  UserError,
-} from "@/lib/types/shopify";
+} from "@/lib/shopify/types/input";
+import { ImageJobNode } from "@/lib/shopify/types/media";
+import {
+  ProductNode,
+  ProductStatus,
+  ProductVariantNode,
+} from "@/lib/shopify/types/product";
 import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
 import adminClient from "../adminClient";
 import {

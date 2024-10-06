@@ -1,16 +1,17 @@
 import PrintfulClient, {
   SyncVariantWithCatalogVariant,
 } from "@/lib/printful/PrintfulClient";
+import { CatalogVariant } from "@/lib/printful/types";
 import { productVariantsBulkUpdate } from "@/lib/shopify/mutations/productMutations";
 import { fetchProductList } from "@/lib/shopify/queries/productQuery";
-import { CatalogVariant } from "@/lib/types/printful";
-import { ProductVariantsBulkInput } from "@/lib/types/shopify";
+import { ProductVariantsBulkInput } from "@/lib/shopify/types/input";
+import { mapProducts } from "@/lib/shopify/utils/mappers";
 import {
   VARIANT_METADATA_NAMESPACE,
   VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY,
   VARIANT_METADATA_PRINTFUL_CATALOG_VARIANT_ID_KEY,
 } from "@/utils/constants";
-import { mapProducts } from "@/utils/mappers";
+import { getNavigationLink } from "@/utils/getters";
 import { parseClientResponse } from "@/utils/parsers";
 import { ProductItem, ProductVariant, ServerApiResponse } from "@/utils/types";
 import { isDefined, isEmptyArray } from "@/utils/validators";
@@ -52,7 +53,7 @@ const fetchData = async () => {
     productListResponse,
     "Error fetching products"
   );
-  const products = mapProducts(parsedProductListResponse);
+  const products = mapProducts(parsedProductListResponse, getNavigationLink);
   if (isEmptyArray(products)) {
     throw new Error("No products found");
   }

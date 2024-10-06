@@ -1,9 +1,9 @@
 import { SEVEN_DAYS_COOKIE_MAX_AGE } from "../constants";
-import { createCookie, getCookie } from "./cookie";
+import { createCookie, deleteCookie, getCookie } from "./cookie";
 
 const CART_ID_COOKIE = "cart_id";
 
-export const createCartIdCookie = (cartId: string): string => {
+export const createCartId = (cartId: string): string => {
   return createCookie(
     CART_ID_COOKIE,
     { maxAge: SEVEN_DAYS_COOKIE_MAX_AGE },
@@ -12,3 +12,5 @@ export const createCartIdCookie = (cartId: string): string => {
 };
 
 export const getCartId = (): string | undefined => getCookie(CART_ID_COOKIE);
+
+export const deleteCartId = (): void => deleteCookie(CART_ID_COOKIE);

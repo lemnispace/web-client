@@ -1,4 +1,4 @@
-import { ProductVariantOptionType } from "@/lib/types/shopify";
+import { ProductVariantOptionType } from "@/lib/shopify/types/product";
 import { RequireFields } from "./genericTypes";
 import {
   ApiResponse,
