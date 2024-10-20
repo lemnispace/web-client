@@ -1,4 +1,4 @@
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { Price } from "@/lib/shopify/types/pricing";
 import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import DOMPurify from "isomorphic-dompurify";

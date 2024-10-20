@@ -1,6 +1,6 @@
 "use client";
 
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { ProductVariantOptionType } from "@/lib/shopify/types/product";
 import {
   Product,

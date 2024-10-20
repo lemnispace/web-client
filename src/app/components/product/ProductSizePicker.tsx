@@ -1,6 +1,6 @@
 "use client";
 
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { getAllProductVariantOptions } from "@/lib/shopify/utils/mappers";
 import { PRODUCT_SIZE_PICKER_TEXT } from "@/utils/text";
 import { Product } from "@/utils/types";

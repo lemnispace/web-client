@@ -1,8 +1,8 @@
-import { ShopifyCollectionService } from "@/lib/shopify/services/CollectionService";
+import { ShopifyCollectionService } from "@/lib/shopify/services/ShopifyCollectionService";
 import {
   CreateCustomProductParams,
   ShopifyProductService,
-} from "@/lib/shopify/services/ProductService";
+} from "@/lib/shopify/services/ShopifyProductService";
 import { Collection } from "@/lib/shopify/types/collection";
 import { getOrCreateVisitorId } from "@/utils/cookies/visitorId";
 import { getNavigationLink } from "@/utils/getters";

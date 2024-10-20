@@ -1,4 +1,4 @@
-import { ShopifyCartService } from "@/lib/shopify/services/CartService";
+import { ShopifyCartService } from "@/lib/shopify/services/ShopifyCartService";
 import { Cart } from "@/lib/shopify/types/cart";
 import { getCartId } from "@/utils/cookies/cartId";
 import { getNavigationLink } from "@/utils/getters";
