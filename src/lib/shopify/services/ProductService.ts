@@ -1,5 +1,5 @@
 import { toFloat } from "@/utils/parsers";
-import { isDefined } from "@/utils/validators";
+import { isDefined, isEmptyArray } from "@/utils/validators";
 import { ClientResponse } from "@shopify/storefront-api-client";
 import {
   VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
@@ -19,6 +19,7 @@ import {
 import { fetchCollection } from "../queries/collectionQuery";
 import {
   fetchProduct,
+  fetchProductList,
   fetchProductWithMetafields,
   ProductVariables,
 } from "../queries/productQuery";
@@ -31,6 +32,7 @@ import {
   mapCustomProduct,
   mapMetafields,
   mapProduct,
+  mapProducts,
   Product,
   ProductVariant,
   ProductWithCustomization,
@@ -106,6 +108,22 @@ export class ShopifyProductService {
    *  ║                               FETCHERS                                ║
    *  ╚═══════════════════════════════════════════════════════════════════════╝
    */
+
+  fetchProductList = async (firstNProducts: number) => {
+    const productListResponse = await fetchProductList(firstNProducts);
+    const parsedProductListResponse = this.parseClientResponse(
+      productListResponse,
+      "Error fetching products"
+    );
+    const products = mapProducts(
+      parsedProductListResponse,
+      this.getNavigationLink
+    );
+    if (isEmptyArray(products)) {
+      throw new Error("No products found");
+    }
+    return products;
+  };
 
   fetchProductData = async (params: ProductVariables) => {
     const productResponse = await fetchProduct(params);

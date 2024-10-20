@@ -3,9 +3,8 @@ import PrintfulClient, {
 } from "@/lib/printful/PrintfulClient";
 import { CatalogVariant } from "@/lib/printful/types";
 import { productVariantsBulkUpdate } from "@/lib/shopify/mutations/productMutations";
-import { fetchProductList } from "@/lib/shopify/queries/productQuery";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { ProductVariantsBulkInput } from "@/lib/shopify/types/input";
-import { mapProducts } from "@/lib/shopify/utils/mappers";
 import {
   VARIANT_METADATA_NAMESPACE,
   VARIANT_METADATA_PRINTFUL_CATALOG_PRODUCT_ID_KEY,
@@ -14,7 +13,7 @@ import {
 import { getNavigationLink } from "@/utils/getters";
 import { parseClientResponse } from "@/utils/parsers";
 import { ProductItem, ProductVariant, ServerApiResponse } from "@/utils/types";
-import { isDefined, isEmptyArray } from "@/utils/validators";
+import { isDefined } from "@/utils/validators";
 import { NextResponse } from "next/server";
 
 interface SyncResponse {
@@ -45,18 +44,14 @@ const getProductVariantsBulkInput = (
 };
 
 const fetchData = async () => {
-  const [allCatalogVariants, productListResponse] = await Promise.all([
+  const productService = new ShopifyProductService({
+    parseClientResponse,
+    getNavigationLink,
+  });
+  const [allCatalogVariants, products] = await Promise.all([
     PrintfulClient.getAllCatalogVariants(),
-    fetchProductList(99),
+    productService.fetchProductList(99),
   ]);
-  const parsedProductListResponse = parseClientResponse(
-    productListResponse,
-    "Error fetching products"
-  );
-  const products = mapProducts(parsedProductListResponse, getNavigationLink);
-  if (isEmptyArray(products)) {
-    throw new Error("No products found");
-  }
   return { allCatalogVariants, products };
 };
 

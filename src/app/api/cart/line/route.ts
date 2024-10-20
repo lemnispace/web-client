@@ -1,4 +1,3 @@
-import { updateCartLine } from "@/lib/shopify/mutations/cartMutations";
 import { ShopifyCartService } from "@/lib/shopify/services/CartService";
 import { Cart } from "@/lib/shopify/types/cart";
 import { CartLineUpdateInput } from "@/lib/shopify/types/input";
@@ -45,17 +44,13 @@ export const PATCH = async (
       );
     }
     // if cart exists, update the cart with the new lines
-    const cartResponse = await updateCartLine(
+    const updatedCart = await cartService.updateCartLine(
       existingCart.id,
       validCartLinesInput.data as CartLineUpdateInput[]
     );
 
-    const parsedCartResponse = parseClientResponse(
-      cartResponse,
-      "error updating cart"
-    );
     return NextResponse.json(
-      { data: parsedCartResponse.cartLinesUpdate.cart, errors: undefined },
+      { data: updatedCart, errors: undefined },
       { status: 200 }
     );
   } catch (error) {

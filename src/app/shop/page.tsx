@@ -1,17 +1,18 @@
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
-import { fetchProductList } from "@/lib/shopify/queries/productQuery";
-import { mapProducts } from "@/lib/shopify/utils/mappers";
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { getNavigationLink } from "@/utils/getters";
+import { parseClientResponse } from "@/utils/parsers";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 
 export default async function Shop() {
-  const productList = await fetchProductList(20);
-  if (productList.errors) {
-    console.error("Error getting product list: ", productList.errors);
-  }
-  const products = mapProducts(productList.data, getNavigationLink);
+  const productService = new ShopifyProductService({
+    parseClientResponse,
+    getNavigationLink,
+  });
+  const products = await productService.fetchProductList(20);
+
   return (
     <main>
       <Container>
