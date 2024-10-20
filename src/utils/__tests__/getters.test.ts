@@ -5,10 +5,8 @@
 import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import {
-  getDimensionsFromVariant,
   getErrorMessage,
   getObjFirstValue,
-  getVariantByValues,
   getuserErrorsFromResponseData,
 } from "../getters";
 import { getMockProduct } from "../test_utils";
@@ -74,7 +72,10 @@ describe("getVariantByValues", () => {
   ])(
     "should return the variant object that matches the $expected variant options",
     (variantOptions, expected) => {
-      const result = getVariantByValues(product, variantOptions);
+      const result = ShopifyProductService.getVariantByValues(
+        product,
+        variantOptions
+      );
       expect(result).toEqual(expected);
     }
   );
@@ -104,7 +105,9 @@ describe("getDimensionsFromVariant", () => {
     "should return an object with the width and height of the variant",
     (size, expected) => {
       const variant = { ...product.variants[0], Size: size };
-      const result = getDimensionsFromVariant(variant as any);
+      const result = ShopifyProductService.getDimensionsFromVariant(
+        variant as any
+      );
       expect(result).toEqual(expected);
     }
   );

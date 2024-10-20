@@ -1,7 +1,7 @@
 "use client";
 
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { getAllProductVariantOptions } from "@/lib/shopify/utils/mappers";
-import { getVariantByValues } from "@/utils/getters";
 import { PRODUCT_SIZE_PICKER_TEXT } from "@/utils/text";
 import { Product } from "@/utils/types";
 import { hasVariant } from "@/utils/validators";
@@ -35,7 +35,7 @@ export default function ProductSizePicker({
       if (!prev) {
         return prev;
       }
-      const variant = getVariantByValues(product, {
+      const variant = ShopifyProductService.getVariantByValues(product, {
         Color: prev.Color,
         Size: size,
         Material: prev.Material,

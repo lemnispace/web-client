@@ -14,6 +14,11 @@ import { Price, ProductPriceRange } from "./pricing";
 
 export type ProductVariantOptionType = "Color" | "Size" | "Material" | "Style";
 
+export type ProductVariantOption = {
+  [K in ProductVariantOptionType]?: string;
+};
+
+
 export interface ProductVariantNode {
   id: string;
   title: string;

@@ -9,6 +9,7 @@ import {
   ProductNode,
   ProductVariantEdge,
   ProductVariantNode,
+  ProductVariantOption,
   ProductVariantOptionType,
 } from "../types/product";
 
@@ -26,10 +27,6 @@ interface ProductImg {
   height: number;
   id: string;
 }
-
-type ProductVariantOption = {
-  [K in ProductVariantOptionType]?: string;
-};
 
 type ProductVariantMetafieldValue = Omit<ProductVariantMetafield, "key">;
 

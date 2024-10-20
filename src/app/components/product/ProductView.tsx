@@ -2,7 +2,6 @@
 
 import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { formatPrice } from "@/utils/formatters";
-import { getProductVariantByCustomVariantId } from "@/utils/getters";
 import {
   ProductVariant,
   ProductVariantWithCustomization,
@@ -40,7 +39,7 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
   const [selectedVariant, setSelectedVariant] = useState(
     props.selectedCustomVariantId
-      ? getProductVariantByCustomVariantId(
+      ? ShopifyProductService.getProductVariantByCustomVariantId(
           product,
           props.selectedCustomVariantId
         )

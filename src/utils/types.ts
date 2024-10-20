@@ -6,7 +6,7 @@ import {
 import { ProductPriceRange } from "@/lib/shopify/types/pricing";
 import {
   ProductVariantNode,
-  ProductVariantOptionType,
+  ProductVariantOption,
 } from "@/lib/shopify/types/product";
 import { NextResponse } from "next/server";
 import { ProductMetadataKey, VariantMetadataKey } from "./constants";
@@ -17,10 +17,6 @@ export interface ProductImg {
   height: number;
   id: string;
 }
-
-export type ProductVariantOption = {
-  [K in ProductVariantOptionType]?: string;
-};
 
 export type ProductVariantMetafieldValue = Omit<ProductVariantMetafield, "key">;
 

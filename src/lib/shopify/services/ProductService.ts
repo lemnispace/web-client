@@ -1,3 +1,5 @@
+import { toFloat } from "@/utils/parsers";
+import { isDefined } from "@/utils/validators";
 import { ClientResponse } from "@shopify/storefront-api-client";
 import {
   VARIANT_METADATA_CUSTOMIZATION_TIMESTAMP_KEY,
@@ -22,7 +24,7 @@ import {
 } from "../queries/productQuery";
 import { ProductMetafield, ProductMetafieldsByKey } from "../types/metafields";
 import { Price } from "../types/pricing";
-import { ProductNode } from "../types/product";
+import { ProductNode, ProductVariantOption } from "../types/product";
 import { ShopifyServiceConfig } from "../types/services";
 import { DEFAULT_CURRENCY_CODE } from "../types/shopifyCurrencyCodes";
 import {
@@ -262,6 +264,50 @@ export class ShopifyProductService {
     return product.variants?.find((variant) => variant.id === id);
   };
 
+  /**
+   * Retrieves a variant from a product by its variant options.
+   * @param product - The product object.
+   * @param variantOptions - The variant options to match.
+   * @returns The variant object that matches the specified variant options, or undefined if not found.
+   */
+  static getVariantByValues = (
+    product: Product,
+    variantOptions: ProductVariantOption
+  ) => {
+    return product.variants?.find((variant) =>
+      Object.entries(variantOptions).every(
+        ([key, value]) => variant[key as keyof ProductVariantOption] === value
+      )
+    );
+  };
+
+  /**
+   * Retrieves the dimensions (width and height) from a variant.
+   * @param variant - The variant object.
+   * @returns An object containing the width and height of the variant, or undefined if the dimensions cannot be extracted.
+   */
+  static getDimensionsFromVariant = (variant: ProductVariant) => {
+    const size = variant.Size; // size like 18"x24" or "24x36" or 12x18 or etc...
+    if (!size) {
+      return undefined;
+    }
+    // Match digits in the size string
+    const matches = size.match(/\d+(\.\d+)?/g);
+    // Check if exactly two matches are found (width and height)
+    if (!matches || matches.length !== 2) {
+      return undefined;
+    }
+    // Extract width and height from the matches
+    const width = toFloat(matches[0]);
+    const height = toFloat(matches[1]);
+    // Check if both width and height are valid numbers
+    if (!isDefined(width) || !isDefined(height)) {
+      return undefined;
+    }
+    // Return an object with the extracted width and height
+    return { width, height };
+  };
+
   static getPrice = (
     variant: ProductVariant | undefined,
     product: ProductWithCustomization
@@ -282,6 +328,35 @@ export class ShopifyProductService {
       amount: `${product.priceRange.minVariantPrice.amount}`,
       currencyCode: product.priceRange.minVariantPrice.currencyCode,
     };
+  };
+
+  static getProductPrice = (price: Price | string | number) => {
+    if (typeof price === "string" || typeof price === "number") {
+      return price;
+    }
+    return price.amount;
+  };
+
+  static getCustomVariantByOriginVariantId = <
+    T extends Pick<ProductWithCustomization, "customVariants">,
+  >(
+    product: T,
+    originVariantId: string
+  ) => {
+    return product.customVariants?.find(
+      (variant) =>
+        variant.metafields?.origin_product_variant?.value === originVariantId
+    );
+  };
+
+  static getProductVariantByCustomVariantId = (
+    product: ProductWithCustomization,
+    customVariantId: string
+  ) => {
+    const originVariantId = product.customVariants?.find(
+      (variant) => variant.id === customVariantId
+    )?.metafields?.origin_product_variant?.value;
+    return product.variants?.find((variant) => variant.id === originVariantId);
   };
 
   /*
