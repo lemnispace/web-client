@@ -1,6 +1,6 @@
 import { CartView } from "@/app/components/cart/CartView";
 import { Container } from "@/components/container";
-import { ShopifyCartService } from "@/lib/shopify/services/CartService";
+import { ShopifyCartService } from "@/lib/shopify/services/ShopifyCartService";
 import { getNavigationLink } from "@/utils/getters";
 import { parseClientResponse } from "@/utils/parsers";
 

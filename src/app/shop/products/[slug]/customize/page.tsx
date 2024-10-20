@@ -3,7 +3,7 @@ import ProductsMainMessageSection from "@/app/components/product/ProductsMainMes
 import { Container } from "@/components/container";
 import PrintfulClient from "@/lib/printful/PrintfulClient";
 import { Orientation } from "@/lib/printful/types";
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { getNavigationLink } from "@/utils/getters";
 import { mapPrintfulTemplates } from "@/utils/mappers";
 import { parseClientResponse, toInt } from "@/utils/parsers";

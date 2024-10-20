@@ -1,7 +1,7 @@
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { getNavigationLink } from "@/utils/getters";
 import { parseClientResponse } from "@/utils/parsers";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";

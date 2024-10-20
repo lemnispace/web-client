@@ -1,6 +1,6 @@
 import { ProductView } from "@/app/components/product/ProductView";
 import { Container } from "@/components/container";
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { mergeCustomProduct } from "@/lib/shopify/utils/mappers";
 import { getVisitorId } from "@/utils/cookies/visitorId";
 import { getNavigationLink } from "@/utils/getters";

@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import {
   getErrorMessage,

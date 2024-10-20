@@ -3,7 +3,7 @@ import PrintfulClient, {
 } from "@/lib/printful/PrintfulClient";
 import { CatalogVariant } from "@/lib/printful/types";
 import { productVariantsBulkUpdate } from "@/lib/shopify/mutations/productMutations";
-import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
+import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
 import { ProductVariantsBulkInput } from "@/lib/shopify/types/input";
 import {
   VARIANT_METADATA_NAMESPACE,
