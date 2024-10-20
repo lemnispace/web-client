@@ -1,7 +1,7 @@
 "use client";
 
+import { ShopifyProductService } from "@/lib/shopify/services/ProductService";
 import { getAllProductVariantOptions } from "@/lib/shopify/utils/mappers";
-import { getVariantByValues } from "@/utils/getters";
 import { PRODUCT_COLOR_PICKER_TEXT } from "@/utils/text";
 import { Product, ProductVariant } from "@/utils/types";
 import { hasVariant } from "@/utils/validators";
@@ -85,7 +85,7 @@ export default function ProductColorPicker({
       if (!prev) {
         return prev;
       }
-      const variant = getVariantByValues(product, {
+      const variant = ShopifyProductService.getVariantByValues(product, {
         Color: color,
         Size: prev.Size,
         Material: prev.Material,
