@@ -9,7 +9,10 @@ type EnvVariableName =
   | "LEMNISPACE_PRODUCTS_API_SECRET_KEY"
   | "LEMNISPACE_HOST_NAME"
   | "LEMNISPACE_SHOP_NAME"
+  | "SHOP_API_URL"
   | "NODE_ENV";
+
+type OptionalEnvVariableName = "SHOP_API_KEY";
 
 const getEnvVariable = (name: EnvVariableName): string => {
   const value = process.env[name];
@@ -17,6 +20,10 @@ const getEnvVariable = (name: EnvVariableName): string => {
     throw new Error(`Missing environment variable: ${name}`);
   }
   return value;
+};
+
+const getOptionalEnvVariable = (name: OptionalEnvVariableName): string | undefined => {
+  return process.env[name];
 };
 
 export const env = {
@@ -38,6 +45,8 @@ export const env = {
   ),
   LEMNISPACE_HOST_NAME: getEnvVariable("LEMNISPACE_HOST_NAME"),
   LEMNISPACE_SHOP_NAME: getEnvVariable("LEMNISPACE_SHOP_NAME"),
+  SHOP_API_URL: getEnvVariable("SHOP_API_URL"),
+  SHOP_API_KEY: getOptionalEnvVariable("SHOP_API_KEY"),
   NODE_ENV: getEnvVariable("NODE_ENV"),
   get LEMNISPACE_HOST_SCHEME() {
     return this.NODE_ENV === "development" ? "http" : "https";
