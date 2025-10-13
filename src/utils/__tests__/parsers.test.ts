@@ -5,9 +5,11 @@
 import {
   parseApiResponse,
   parseClientResponse,
+  parseValidationErrors,
   toFloat,
   toInt,
 } from "../parsers";
+import { z } from "zod";
 
 describe("toInt", () => {
   test.each([
@@ -213,5 +215,89 @@ describe("parseClientResponse", () => {
     expect(() =>
       parseClientResponse(response, "default error message")
     ).toThrow("test user error");
+  });
+});
+
+describe("parseValidationErrors", () => {
+  it("should return undefined when validation succeeds", () => {
+    const schema = z.object({
+      name: z.string(),
+      age: z.number(),
+    });
+
+    const result = schema.safeParse({ name: "John", age: 30 });
+    const errors = parseValidationErrors(result);
+
+    expect(errors).toBeUndefined();
+  });
+
+  it("should return array of error objects when validation fails", () => {
+    const schema = z.object({
+      name: z.string(),
+      age: z.number(),
+      email: z.string().email(),
+    });
+
+    const result = schema.safeParse({ name: "John", age: "thirty", email: "invalid" });
+    const errors = parseValidationErrors(result);
+
+    expect(errors).toBeDefined();
+    expect(Array.isArray(errors)).toBe(true);
+    expect(errors?.length).toBeGreaterThan(0);
+
+    // Check error format
+    errors?.forEach(error => {
+      expect(error).toHaveProperty('code');
+      expect(error).toHaveProperty('message');
+    });
+  });
+
+  it("should include error codes and messages for each validation failure", () => {
+    const schema = z.object({
+      quantity: z.number().positive(),
+    });
+
+    const result = schema.safeParse({ quantity: -5 });
+    const errors = parseValidationErrors(result);
+
+    expect(errors).toBeDefined();
+    expect(errors?.[0]).toMatchObject({
+      code: expect.any(String),
+      message: expect.any(String),
+    });
+  });
+
+  it("should handle nested object validation errors", () => {
+    const schema = z.object({
+      user: z.object({
+        name: z.string().min(3),
+        email: z.string().email(),
+      }),
+    });
+
+    const result = schema.safeParse({
+      user: { name: "Jo", email: "invalid" }
+    });
+    const errors = parseValidationErrors(result);
+
+    expect(errors).toBeDefined();
+    expect(errors?.length).toBe(2); // Two validation failures
+  });
+
+  it("should handle array validation errors", () => {
+    const schema = z.array(z.object({
+      id: z.string(),
+      quantity: z.number().positive(),
+    }));
+
+    const result = schema.safeParse([
+      { id: "1", quantity: 5 },
+      { id: "2", quantity: -1 }, // Invalid
+      { id: "", quantity: 3 }, // Invalid ID
+    ]);
+    const errors = parseValidationErrors(result);
+
+    expect(errors).toBeDefined();
+    expect(errors?.length).toBeGreaterThan(0);
   });
 });
