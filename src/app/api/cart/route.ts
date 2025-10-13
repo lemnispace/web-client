@@ -1,18 +1,16 @@
-import { ShopifyCartService } from "@/lib/shopify/services/ShopifyCartService";
-import { Cart } from "@/lib/shopify/types/cart";
-import { getCartId } from "@/utils/cookies/cartId";
-import { getNavigationLink } from "@/utils/getters";
-import { parseClientResponse, parseValidationErrors } from "@/utils/parsers";
+import { getDefaultProvider } from "@/lib/commerce";
+import type { Cart } from "@/lib/commerce/types";
+import { getCartId, createCartId } from "@/utils/cookies/cartId";
+import { parseValidationErrors } from "@/utils/parsers";
 import { ServerApiResponse } from "@/utils/types";
 import {
-  CartInputSchema,
   CartLineInputSchema,
 } from "@/utils/validators/cartInputValidator";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 export const GET = async (): Promise<ServerApiResponse<Cart>> => {
-  let cartId = getCartId();
+  const cartId = getCartId();
   if (!cartId) {
     // no cartId in cookie means no cart for this visitor
     return NextResponse.json(
@@ -20,12 +18,18 @@ export const GET = async (): Promise<ServerApiResponse<Cart>> => {
       { status: 404 }
     );
   }
-  const cartService = new ShopifyCartService({
-    parseClientResponse,
-    getNavigationLink,
-  });
-  const cart = await cartService.fetchCart(cartId);
-  return NextResponse.json({ data: cart }, { status: 200 });
+
+  try {
+    const commerce = getDefaultProvider();
+    const cart = await commerce.getCart(cartId);
+    return NextResponse.json({ data: cart }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    return NextResponse.json(
+      { errors: "Error fetching cart", data: undefined },
+      { status: 500 }
+    );
+  }
 };
 
 export const POST = async (
@@ -37,29 +41,35 @@ export const POST = async (
       { status: 405 }
     );
   }
-  const cartService = new ShopifyCartService({
-    parseClientResponse,
-    getNavigationLink,
-  });
+
   try {
-    const data = await request.json();
-    const validatedCartInput = CartInputSchema.safeParse(data);
-    if (!validatedCartInput.success) {
-      const errors = validatedCartInput.error.errors;
-      return NextResponse.json({ errors, data: undefined }, { status: 400 });
+    const commerce = getDefaultProvider();
+    const data = await request.json().catch(() => ({}));
+
+    // Extract customerId if provided (shop-api format)
+    const customerId = data.customerId as string | undefined;
+
+    // Check if cart already exists
+    const existingCartId = getCartId();
+    if (existingCartId) {
+      try {
+        const existingCart = await commerce.getCart(existingCartId);
+        return NextResponse.json(
+          { data: existingCart, errors: undefined },
+          { status: 200 }
+        );
+      } catch (error) {
+        // Cart doesn't exist or error, create new one
+        console.warn("Existing cart not found, creating new cart");
+      }
     }
 
-    const existingCart = await cartService.tryFetchCart();
-    if (existingCart) {
-      return NextResponse.json(
-        { data: existingCart, errors: undefined },
-        { status: 200 }
-      );
-    }
-    // create new cart if no existing cart is found
-    const cart = await cartService.createCartWithManagedCookie(
-      validatedCartInput.data
-    );
+    // Create new cart
+    const cart = await commerce.createCart(customerId);
+
+    // Set cart ID in cookie using createCartId helper
+    createCartId(cart.id);
+
     return NextResponse.json(
       { data: cart, errors: undefined },
       { status: 200 }
@@ -82,14 +92,13 @@ export const PATCH = async (
       { status: 405 }
     );
   }
+
   try {
-    const cartService = new ShopifyCartService({
-      parseClientResponse,
-      getNavigationLink,
-    });
+    const commerce = getDefaultProvider();
     const data = await request.json();
     const validCartLinesInput = z.array(CartLineInputSchema).safeParse(data);
     const validationErrors = parseValidationErrors(validCartLinesInput);
+
     if (validationErrors || !validCartLinesInput.success) {
       return NextResponse.json(
         {
@@ -99,24 +108,45 @@ export const PATCH = async (
         { status: 400 }
       );
     }
-    const existingCart = await cartService.tryFetchCart();
-    if (existingCart) {
-      // if cart exists, update the cart with the new lines
-      const updatedCart = await cartService.addToCart(
-        existingCart.id,
-        validCartLinesInput.data
-      );
-      return NextResponse.json(
-        { data: updatedCart, errors: undefined },
-        { status: 200 }
-      );
+
+    // Transform Shopify format to shop-api format
+    // Shopify uses merchandiseId, shop-api uses productId + variantId
+    // For now, we pass through merchandiseId as variantId (needs proper mapping in real implementation)
+    const cartItems = validCartLinesInput.data.map((line) => ({
+      productId: line.merchandiseId, // TODO: Extract actual productId
+      variantId: line.merchandiseId,
+      quantity: line.quantity ?? 1,
+      customizationData: line.attributes
+        ? Object.fromEntries(
+            line.attributes.map((attr) => [attr.key, attr.value])
+          )
+        : undefined,
+    }));
+
+    const existingCartId = getCartId();
+
+    if (existingCartId) {
+      try {
+        // Add items to existing cart
+        const updatedCart = await commerce.addToCart(existingCartId, cartItems);
+        return NextResponse.json(
+          { data: updatedCart, errors: undefined },
+          { status: 200 }
+        );
+      } catch (error) {
+        console.warn("Existing cart not found, creating new cart");
+      }
     }
-    // cart does not exist, create a new cart with the new lines
-    const newCart = await cartService.createCartWithManagedCookie({
-      lines: validCartLinesInput.data,
-    });
+
+    // Cart doesn't exist, create a new cart with items
+    const newCart = await commerce.createCart();
+    const cartWithItems = await commerce.addToCart(newCart.id, cartItems);
+
+    // Set cart ID in cookie
+    createCartId(newCart.id);
+
     return NextResponse.json(
-      { data: newCart, errors: undefined },
+      { data: cartWithItems, errors: undefined },
       { status: 200 }
     );
   } catch (error) {
