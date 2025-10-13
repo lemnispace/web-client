@@ -1,18 +1,22 @@
-import { ShopifyCollectionService } from "@/lib/shopify/services/ShopifyCollectionService";
-import {
-  CreateCustomProductParams,
-  ShopifyProductService,
-} from "@/lib/shopify/services/ShopifyProductService";
-import { Collection } from "@/lib/shopify/types/collection";
+/**
+ * Customization Image Upload API
+ *
+ * This endpoint handles uploading customer customization images to shop-api.
+ * Instead of duplicating products in Shopify, we now upload the customization
+ * image to shop-api and return the image ID. This ID is later linked to the
+ * cart item when adding to cart.
+ *
+ * Flow:
+ * 1. Customer uploads customization image
+ * 2. Image is stored in shop-api with user ID
+ * 3. Image ID is returned to client
+ * 4. When adding to cart, imageId is included in customizationData
+ */
+
+import { getDefaultProvider } from "@/lib/commerce";
 import { getOrCreateVisitorId } from "@/utils/cookies/visitorId";
-import { getNavigationLink } from "@/utils/getters";
-import {
-  parseApiResponse,
-  parseClientResponse,
-  parseValidationErrors,
-} from "@/utils/parsers";
-import { ApiResponse, ServerApiResponse } from "@/utils/types";
-import { isErrorResponse } from "@/utils/validators";
+import { parseValidationErrors } from "@/utils/parsers";
+import { ServerApiResponse } from "@/utils/types";
 import {
   requiredImageFileSchema,
   requiredStringSchema,
@@ -20,118 +24,76 @@ import {
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-interface ValidationErrors {
-  productId?: string[];
-  file?: string[];
-}
-
-export interface CustomProductResponse {
+/**
+ * Response format for customization upload
+ */
+export interface CustomizationUploadResponse {
+  imageId: string;
+  imageUrl: string;
   productId: string;
-  productHandle: string;
   variantId: string;
-  collection: Pick<Collection, "id" | "handle">;
+  width?: number;
+  height?: number;
 }
 
-type CreateCustomProductResponse = ApiResponse<
-  ValidationErrors,
-  unknown,
-  CustomProductResponse
->;
+/**
+ * Alias for backwards compatibility
+ */
+export type CustomProductResponse = CustomizationUploadResponse;
 
+/**
+ * Validation schema for customization upload
+ */
 const schema = z.object({
   productId: requiredStringSchema({
     name: "ProductId",
-    description: "The ProductId of the product to use for customizations",
+    description: "The product ID to associate with this customization",
   }),
   variantId: requiredStringSchema({
     name: "VariantId",
-    description:
-      "The VariantId of the variant associated with the product to use for customizations",
-  }),
-  variantTitle: requiredStringSchema({
-    name: "VariantTitle",
-    description:
-      "The variantTitle of the variant associated with the product to use for customizations",
-  }),
-  userId: requiredStringSchema({
-    name: "UserId",
-    description: "The userId of the user creating the custom product",
+    description: "The variant ID to associate with this customization",
   }),
   file: requiredImageFileSchema(),
 });
 
+/**
+ * Validate form data from multipart request
+ */
 const validateFormData = (formData: FormData) => {
   const validatedFields = schema.safeParse({
     file: formData.get("file"),
     productId: formData.get("productId"),
-    variantTitle: formData.get("variantTitle"),
     variantId: formData.get("variantId"),
-    userId: formData.get("userId"),
   });
+
   const validationErrors = parseValidationErrors(validatedFields);
   if (!validatedFields.success || validationErrors) {
     console.error("Validation error:", validationErrors);
     return {
-      errors: validationErrors ?? { code: "unknown", message: "no data found" },
+      errors: validationErrors ?? { code: "unknown", message: "validation failed" },
     };
   }
+
   return { data: validatedFields.data };
 };
 
-const createCustomProduct = async (
-  params: CreateCustomProductParams
-): Promise<CreateCustomProductResponse> => {
-  const productService = new ShopifyProductService({
-    parseClientResponse,
-    getNavigationLink,
-  });
-  const collectionService = new ShopifyCollectionService({
-    parseClientResponse,
-    getNavigationLink,
-  });
-  try {
-    const customProductResponse =
-      await productService.createCustomProduct(params);
-    if (!customProductResponse.data) {
-      throw new Error("No custom product data found");
-    }
-    const { customProduct, userId, referenceProductId, updatedCustomVariant } =
-      customProductResponse.data;
-    const collection = await collectionService.addProductToCollection(
-      userId,
-      customProduct,
-      referenceProductId
-    );
-
-    return {
-      status: 200,
-      data: {
-        productId: customProduct.id,
-        productHandle: customProduct.handle,
-        variantId: updatedCustomVariant.id,
-        collection: {
-          id: collection.id,
-          handle: collection.handle,
-        },
-      },
-    };
-  } catch (error) {
-    console.error("Error creating custom product:", error);
-    return {
-      data: undefined,
-      status: 500,
-      errors: error,
-    };
-  }
-};
-
+/**
+ * POST /api/products/customizations
+ *
+ * Upload a customization image for a product variant.
+ * The image is stored in shop-api and linked to the user.
+ */
 export const POST = async (
   req: Request
-): Promise<ServerApiResponse<CustomProductResponse>> => {
+): Promise<ServerApiResponse<CustomizationUploadResponse>> => {
   try {
-    const visitorId = getOrCreateVisitorId();
+    // Get or create visitor ID for guest users
+    const userId = getOrCreateVisitorId();
+
+    // Parse multipart form data
     const formData = await req.formData();
-    formData.append("userId", visitorId);
+
+    // Validate form data
     const validatedFields = validateFormData(formData);
     if (validatedFields.errors) {
       return NextResponse.json(
@@ -139,24 +101,44 @@ export const POST = async (
         { status: 400 }
       );
     }
-    const createCustomProductResponse = await createCustomProduct(
-      validatedFields.data
+
+    const { file, productId, variantId } = validatedFields.data;
+
+    // Get commerce provider (shop-api)
+    const commerce = getDefaultProvider();
+
+    // Upload customization image to shop-api
+    const uploadResult = await commerce.uploadCustomizationImage(
+      file as File,
+      userId,
+      {
+        productId,
+        variantId,
+      }
     );
-    const result = await parseApiResponse(
-      createCustomProductResponse,
-      "Error creating custom product"
-    );
-    if (isErrorResponse(result)) {
-      throw new Error(result.errors);
-    }
-    const { status, ...response } = result;
-    return NextResponse.json(response, {
-      status,
-    });
-  } catch (error) {
-    console.error("Error creating custom product:", error);
+
+    // Return response with image info
     return NextResponse.json(
-      { errors: "Error creating custom product", data: undefined },
+      {
+        data: {
+          imageId: uploadResult.id,
+          imageUrl: uploadResult.url,
+          productId,
+          variantId,
+          width: uploadResult.width,
+          height: uploadResult.height,
+        },
+        errors: undefined,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error uploading customization image:", error);
+    return NextResponse.json(
+      {
+        errors: "Error uploading customization image",
+        data: undefined,
+      },
       { status: 500 }
     );
   }
