@@ -1,8 +1,7 @@
-import { ShopifyCartService } from "@/lib/shopify/services/ShopifyCartService";
-import { Cart } from "@/lib/shopify/types/cart";
-import { CartLineUpdateInput } from "@/lib/shopify/types/input";
-import { getNavigationLink } from "@/utils/getters";
-import { parseClientResponse, parseValidationErrors } from "@/utils/parsers";
+import { getDefaultProvider } from "@/lib/commerce";
+import type { Cart } from "@/lib/commerce/types";
+import { getCartId } from "@/utils/cookies/cartId";
+import { parseValidationErrors } from "@/utils/parsers";
 import { ServerApiResponse } from "@/utils/types";
 import { CartLineUpdateInputSchema } from "@/utils/validators/cartInputValidator";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,13 +16,25 @@ export const PATCH = async (
       { status: 405 }
     );
   }
+
   try {
+    const commerce = getDefaultProvider();
+    const cartId = getCartId();
+
+    if (!cartId) {
+      return NextResponse.json(
+        { errors: "No cart found", data: undefined },
+        { status: 404 }
+      );
+    }
+
     const data = await request.json();
     const validCartLinesInput = z
       .array(CartLineUpdateInputSchema)
       .safeParse(data);
     const validationErrors = parseValidationErrors(validCartLinesInput);
-    if (validationErrors) {
+
+    if (validationErrors || !validCartLinesInput.success) {
       return NextResponse.json(
         {
           errors: validationErrors,
@@ -32,22 +43,21 @@ export const PATCH = async (
         { status: 400 }
       );
     }
-    const cartService = new ShopifyCartService({
-      parseClientResponse,
-      getNavigationLink,
-    });
-    const existingCart = await cartService.tryFetchCart();
-    if (!existingCart) {
-      return NextResponse.json(
-        { errors: "No cart found", data: undefined },
-        { status: 404 }
-      );
+
+    // Update each cart line (quantity update or removal)
+    let updatedCart: Cart | undefined = undefined;
+
+    for (const line of validCartLinesInput.data) {
+      const quantity = line.quantity ?? 1;
+
+      if (quantity === 0) {
+        // Remove item if quantity is 0
+        updatedCart = await commerce.removeCartItem(cartId, line.id);
+      } else {
+        // Update quantity
+        updatedCart = await commerce.updateCartItem(cartId, line.id, quantity);
+      }
     }
-    // if cart exists, update the cart with the new lines
-    const updatedCart = await cartService.updateCartLine(
-      existingCart.id,
-      validCartLinesInput.data as CartLineUpdateInput[]
-    );
 
     return NextResponse.json(
       { data: updatedCart, errors: undefined },
