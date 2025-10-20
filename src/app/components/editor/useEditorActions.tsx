@@ -143,7 +143,7 @@ const useEditorActions = (props: EditorProps) => {
       updateStatus({ status: "idle" });
       const formData = new FormData();
       formData.append("text", text?.trim() || "");
-      formData.append("baseFontSize", fontSize || "");
+      formData.append("base_font_size", fontSize || "");
       const formValidationErrors = validatePreviewFormData(formData);
       if (formValidationErrors) {
         updateStatus({
