@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseCartLine } from "@/lib/shopify/types/cart";
+import { CartItem as CartItemType } from "@/lib/commerce/types";
 import { formatPrice } from "@/utils/formatters";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
@@ -8,18 +8,19 @@ import Link from "next/link";
 import { QuantitySelector } from "./QuantitySelector";
 
 interface CartItemProps {
-  item: BaseCartLine;
+  item: CartItemType;
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const variant = item.merchandise;
+  // Format price from cents to dollars for display
+  const priceInDollars = item.price / 100;
 
   return (
     <li className="flex py-6 sm:py-10">
       <div className="flex-shrink-0">
         <Image
-          src={variant.image?.url ?? "https://placehold.co/96x96"}
-          alt={variant.image?.altText || variant.title}
+          src={item.product?.image ?? "https://placehold.co/96x96"}
+          alt={item.product?.title || "Product image"}
           width={96}
           height={96}
           className="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
@@ -32,18 +33,20 @@ export function CartItem({ item }: CartItemProps) {
             <div className="flex justify-between">
               <h3 className="text-sm">
                 <Link
-                  href={`/shop/products/${variant.product?.handle}`}
+                  href={`/shop/products/${item.productId}`}
                   className="font-medium text-gray-700 hover:text-gray-800"
                 >
-                  {variant.product?.title}
+                  {item.product?.title || "Product"}
                 </Link>
               </h3>
             </div>
-            <div className="mt-1 flex text-sm">
-              <p className="text-gray-500">{variant.title}</p>
-            </div>
+            {item.variant?.title && (
+              <div className="mt-1 flex text-sm">
+                <p className="text-gray-500">{item.variant.title}</p>
+              </div>
+            )}
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {formatPrice(variant.price)}
+              {formatPrice(priceInDollars)}
             </p>
           </div>
 
@@ -52,7 +55,7 @@ export function CartItem({ item }: CartItemProps) {
               defaultValue={item.quantity}
               data-action="update"
               data-item-id={item.id}
-              max={item.merchandise.quantityAvailable}
+              max={99}
             />
 
             <div className="absolute right-0 top-0">

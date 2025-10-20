@@ -1,19 +1,28 @@
 import { CartView } from "@/app/components/cart/CartView";
 import { Container } from "@/components/container";
-import { ShopifyCartService } from "@/lib/shopify/services/ShopifyCartService";
-import { getNavigationLink } from "@/utils/getters";
-import { parseClientResponse } from "@/utils/parsers";
+import { ShopAPIProvider } from "@/lib/commerce/providers/shop-api";
+import { env } from "@/utils/env";
 import { cookies } from "next/headers";
 
 export default async function CartPage() {
-  const cartService = new ShopifyCartService({
-    parseClientResponse,
-    getNavigationLink,
+  const shopAPI = new ShopAPIProvider({
+    baseUrl: env.SHOP_API_URL,
+    apiKey: env.SHOP_API_KEY,
   });
 
   // Read cart_id from httpOnly cookie for SSR hydration
   const cartId = cookies().get("cart_id")?.value;
-  const cart = await cartService.tryFetchCart(cartId);
+
+  // Fetch cart from shop-api, or null if no cart exists
+  let cart = null;
+  if (cartId) {
+    try {
+      cart = await shopAPI.getCart(cartId);
+    } catch (error) {
+      console.error("Error fetching cart for SSR:", error);
+      // Cart doesn't exist or error occurred, leave as null
+    }
+  }
 
   return (
     <main className="bg-white flex-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseCartLine } from "@/lib/shopify/types/cart";
+import { CartItem as CartItemType } from "@/lib/commerce/types";
 import { toInt } from "@/utils/parsers";
 import { isDefined } from "@/utils/validators";
 import { CartItem } from "./CartItem";
@@ -10,7 +10,7 @@ import {
 } from "./cartUtils";
 
 interface CartItemListProps {
-  items: BaseCartLine[];
+  items: CartItemType[];
 }
 
 export function CartItemList({ items }: CartItemListProps) {
