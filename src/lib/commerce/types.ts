@@ -46,6 +46,16 @@ export interface ProductImage {
   height?: number;
 }
 
+export interface VariantSearchParams {
+  productId?: string;
+  color?: string;
+  size?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  limit?: number;
+}
+
 // ============================================================================
 // Cart Types
 // ============================================================================
@@ -107,10 +117,12 @@ export interface Collection {
 export type OrderStatus =
   | "pending"
   | "paid"
+  | "processing"
   | "fulfilled"
   | "shipped"
   | "delivered"
-  | "cancelled";
+  | "cancelled"
+  | "refunded";
 
 export interface Order {
   id: string;
@@ -127,6 +139,16 @@ export interface Order {
   paymentMethod: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderStatusUpdate {
+  status: OrderStatus;
+  notes?: string;
+}
+
+export interface CancelOrderInput {
+  reason?: string;
+  refund?: boolean;
 }
 
 export interface OrderInput {
@@ -252,4 +274,48 @@ export interface CartCheckout {
   estimatedShipping: number;
   totalPrice: number;
   itemCount: number;
+}
+
+// ============================================================================
+// Printful Types
+// ============================================================================
+
+export interface PrintfulOrder {
+  id: string;
+  externalId: string;
+  status: string;
+  recipient: {
+    name: string;
+    address1: string;
+    city: string;
+    state_code: string;
+    country_code: string;
+    zip: string;
+  };
+  items: Array<{
+    sync_variant_id: number;
+    quantity: number;
+    files?: Array<{ url: string }>;
+  }>;
+  costs?: {
+    subtotal: string;
+    shipping: string;
+    tax: string;
+    total: string;
+  };
+}
+
+export interface PrintfulOrderStatus {
+  id: string;
+  status: string;
+  tracking_number?: string;
+  tracking_url?: string;
+  shipments?: Array<{
+    id: string;
+    carrier: string;
+    service: string;
+    tracking_number: string;
+    tracking_url: string;
+    created: number;
+  }>;
 }
