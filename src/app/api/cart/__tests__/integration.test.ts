@@ -613,28 +613,6 @@ describe('Cart API Routes Integration Tests', () => {
       expect(mockUpdateCartItem).toHaveBeenCalledWith(mockCartId, 'item_001', 5);
     });
 
-    it('should return 400 when quantity is 0 (invalid per validator)', async () => {
-      mockGetCartId.mockReturnValue(mockCartId);
-
-      const updateData = [
-        {
-          id: 'item_001',
-          quantity: 0,
-        },
-      ];
-
-      const request = new Request('http://localhost:3000/api/cart/line', {
-        method: 'PATCH',
-        body: JSON.stringify(updateData),
-      });
-
-      const response = await PATCH_LINE(request);
-
-      expect(response.status).toBe(400);
-      const data = await response.json();
-      expect(data.errors).toBeDefined();
-    });
-
     it('should update multiple items sequentially', async () => {
       mockGetCartId.mockReturnValue(mockCartId);
 

@@ -262,7 +262,7 @@ describe('CartLineUpdateInputSchema', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should reject zero quantity', () => {
+    it('should accept zero quantity for item removal', () => {
       const input = {
         id: 'item_123',
         quantity: 0,
@@ -270,7 +270,10 @@ describe('CartLineUpdateInputSchema', () => {
 
       const result = CartLineUpdateInputSchema.safeParse(input);
 
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.quantity).toBe(0);
+      }
     });
   });
 
@@ -302,9 +305,9 @@ describe('CartLineUpdateInputSchema', () => {
       expect(results[2].success).toBe(true);
     });
 
-    it('should handle item removal scenario (quantity 0 handled in route logic)', () => {
-      // Note: The schema rejects quantity: 0, but the route handles this
-      // by checking if quantity === 0 and calling removeCartItem instead
+    it('should handle item removal scenario (quantity 0 is valid)', () => {
+      // The schema allows quantity: 0 for item removal
+      // The route logic checks if quantity === 0 and calls removeCartItem instead
       const input = {
         id: 'item_123',
         quantity: 0,
@@ -312,10 +315,12 @@ describe('CartLineUpdateInputSchema', () => {
 
       const result = CartLineUpdateInputSchema.safeParse(input);
 
-      // Schema validation will fail for quantity 0
-      // This is expected - the route logic should check for 0 before validation
-      // or handle the removal case separately
-      expect(result.success).toBe(false);
+      // Schema validation succeeds for quantity 0
+      // The route logic handles the removal by checking quantity === 0
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.quantity).toBe(0);
+      }
     });
   });
 });
