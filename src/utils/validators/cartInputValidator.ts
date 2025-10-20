@@ -36,8 +36,8 @@ export const CartLineUpdateInputSchema = z.object({
   }),
   quantity: optionalNumberSchema({
     name: "Quantity",
-    description: "The quantity of the line item.",
-    min: 1,
+    description: "The quantity of the line item. Set to 0 to remove the item.",
+    min: 0, // Allow 0 for item removal
   }).default(1),
   sellingPlanId: optionalStringSchema({
     name: "Selling Plan ID",

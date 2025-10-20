@@ -57,20 +57,19 @@ export const handleUpdateCartItemQuantity = async ({
 };
 
 export const handleRemoveCartItem = async (cartLineId: string) => {
-  throw new Error("Not implemented");
-  // TODO: fix this to delete cart line item
-  const updateCartResponse = await fetch(CART_API_ENDPOINT, {
+  // Remove item by setting quantity to 0
+  const updateCartResponse = await fetch(CART_LINE_API_ENDPOINT, {
     method: "PATCH",
     body: JSON.stringify([
       {
-        merchandiseId: cartLineId,
+        id: cartLineId,
         quantity: 0,
       },
     ]),
   });
   const data = await parseFetchResponse<ClientResponse<Cart>>(
     updateCartResponse,
-    "error removing item from cart"
+    "Error removing item from cart"
   );
   if (!data.data || data.errors) {
     return undefined;
