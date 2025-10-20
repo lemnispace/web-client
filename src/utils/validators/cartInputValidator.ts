@@ -50,6 +50,10 @@ export const CartLineUpdateInputSchema = z.object({
  */
 export const CartLineInputSchema = z.object({
   attributes: z.array(AttributeInputSchema).max(250).optional(),
+  productId: optionalStringSchema({
+    name: "Product ID",
+    description: "ID of the product (shop-api format)",
+  }),
   merchandiseId: requiredStringSchema({
     name: "Merchandise ID",
     description: "ID of the merchandise",

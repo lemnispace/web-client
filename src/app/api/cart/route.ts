@@ -126,9 +126,8 @@ export const PATCH = async (
 
     // Transform Shopify format to shop-api format
     // Shopify uses merchandiseId, shop-api uses productId + variantId
-    // For now, we pass through merchandiseId as variantId (needs proper mapping in real implementation)
     const cartItems = validCartLinesInput.data.map((line) => ({
-      productId: line.merchandiseId, // TODO: Extract actual productId
+      productId: line.productId || line.merchandiseId, // Use provided productId, fallback to merchandiseId
       variantId: line.merchandiseId,
       quantity: line.quantity ?? 1,
       customizationData: line.attributes
