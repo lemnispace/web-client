@@ -30,20 +30,25 @@ export function useAuth() {
   // Load tokens from localStorage on mount
   useEffect(() => {
     const loadAuth = () => {
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
-      const customerData = localStorage.getItem('customer');
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        const customerData = localStorage.getItem('customer');
 
-      if (accessToken && customerData) {
-        setState({
-          customer: JSON.parse(customerData),
-          accessToken,
-          refreshToken,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
-      } else {
+        if (accessToken && customerData) {
+          setState({
+            customer: JSON.parse(customerData),
+            accessToken,
+            refreshToken,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+        } else {
+          setState(prev => ({ ...prev, isLoading: false }));
+        }
+      } catch (error) {
+        // Handle invalid JSON or other errors
         setState(prev => ({ ...prev, isLoading: false }));
       }
     };

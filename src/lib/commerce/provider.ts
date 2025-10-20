@@ -7,6 +7,7 @@
  */
 
 import type {
+  CancelOrderInput,
   Cart,
   CartCheckout,
   CartItemInput,
@@ -17,9 +18,14 @@ import type {
   LoginResponse,
   Order,
   OrderInput,
+  OrderStatusUpdate,
   PaymentIntent,
   PaymentIntentInput,
+  PrintfulOrder,
+  PrintfulOrderStatus,
   Product,
+  ProductVariant,
+  VariantSearchParams,
 } from "./types";
 
 export interface CommerceProvider {
@@ -43,6 +49,11 @@ export interface CommerceProvider {
    */
   getProduct(productId: string): Promise<Product>;
 
+  /**
+   * Search for product variants by attributes
+   */
+  searchVariants(params: VariantSearchParams): Promise<ProductVariant[]>;
+
   // ============================================================================
   // Collection Operations
   // ============================================================================
@@ -59,6 +70,19 @@ export interface CommerceProvider {
    * Get a single collection by ID
    */
   getCollection(collectionId: string): Promise<Collection>;
+
+  /**
+   * Get products in a specific collection
+   */
+  getCollectionProducts(
+    collectionId: string,
+    params?: {
+      limit?: number;
+      cursor?: string;
+      sortBy?: string;
+      order?: "asc" | "desc";
+    }
+  ): Promise<ListResponse<Product>>;
 
   // ============================================================================
   // Cart Operations
@@ -134,6 +158,24 @@ export interface CommerceProvider {
    * Confirm payment for order
    */
   confirmPayment(orderId: string, paymentIntentId: string): Promise<Order>;
+
+  /**
+   * Update order status (Admin only)
+   */
+  updateOrderStatus(
+    orderId: string,
+    update: OrderStatusUpdate,
+    adminToken: string
+  ): Promise<Order>;
+
+  /**
+   * Cancel an order
+   */
+  cancelOrder(
+    orderId: string,
+    input: CancelOrderInput,
+    accessToken: string
+  ): Promise<Order>;
 
   // ============================================================================
   // Customer Operations
@@ -239,4 +281,14 @@ export interface CommerceProvider {
     message: string;
     status: string;
   }>;
+
+  /**
+   * Create Printful order from an existing order
+   */
+  createPrintfulOrder(orderId: string): Promise<PrintfulOrder>;
+
+  /**
+   * Get Printful order status and tracking information
+   */
+  getPrintfulOrderStatus(printfulOrderId: string): Promise<PrintfulOrderStatus>;
 }

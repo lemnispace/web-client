@@ -7,6 +7,7 @@
 
 import type { CommerceProvider } from "../provider";
 import type {
+  CancelOrderInput,
   Cart,
   CartCheckout,
   CartItemInput,
@@ -17,9 +18,14 @@ import type {
   LoginResponse,
   Order,
   OrderInput,
+  OrderStatusUpdate,
   PaymentIntent,
   PaymentIntentInput,
+  PrintfulOrder,
+  PrintfulOrderStatus,
   Product,
+  ProductVariant,
+  VariantSearchParams,
 } from "../types";
 
 interface ShopAPIConfig {
@@ -102,6 +108,22 @@ export class ShopAPIProvider implements CommerceProvider {
     return this.request<Product>(`/v1/products/${productId}`);
   }
 
+  async searchVariants(params: VariantSearchParams): Promise<ProductVariant[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params.productId) queryParams.append('productId', params.productId);
+    if (params.color) queryParams.append('color', params.color);
+    if (params.size) queryParams.append('size', params.size);
+    if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice.toString());
+    if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice.toString());
+    if (params.inStock !== undefined) queryParams.append('inStock', params.inStock.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+
+    const response = await this.request<{ variants: ProductVariant[] }>(`/v1/variants?${queryParams}`);
+
+    return response.variants || [];
+  }
+
   // ============================================================================
   // Collection Operations
   // ============================================================================
@@ -127,6 +149,33 @@ export class ShopAPIProvider implements CommerceProvider {
 
   async getCollection(collectionId: string): Promise<Collection> {
     return this.request<Collection>(`/v1/collections/${collectionId}`);
+  }
+
+  async getCollectionProducts(
+    collectionId: string,
+    params?: {
+      limit?: number;
+      cursor?: string;
+      sortBy?: string;
+      order?: "asc" | "desc";
+    }
+  ): Promise<ListResponse<Product>> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.cursor) queryParams.append("cursor", params.cursor);
+    if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
+    if (params?.order) queryParams.append("order", params.order);
+
+    const response = await this.request<{
+      products: Product[];
+      pagination?: { cursor?: string; hasMore: boolean };
+    }>(`/v1/collections/${collectionId}/products?${queryParams}`);
+
+    return {
+      data: response.products,
+      pagination: response.pagination,
+    };
   }
 
   // ============================================================================
@@ -247,6 +296,34 @@ export class ShopAPIProvider implements CommerceProvider {
     return this.request<Order>("/v1/payments/confirm", {
       method: "POST",
       body: JSON.stringify({ orderId, paymentIntentId }),
+    });
+  }
+
+  async updateOrderStatus(
+    orderId: string,
+    update: OrderStatusUpdate,
+    adminToken: string
+  ): Promise<Order> {
+    return this.request<Order>(`/v1/orders/${orderId}/status`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify(update),
+    });
+  }
+
+  async cancelOrder(
+    orderId: string,
+    input: CancelOrderInput,
+    accessToken: string
+  ): Promise<Order> {
+    return this.request<Order>(`/v1/orders/${orderId}/cancel`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(input),
     });
   }
 
@@ -429,5 +506,18 @@ export class ShopAPIProvider implements CommerceProvider {
     }>("/v1/integrations/printful/sync", {
       method: "POST",
     });
+  }
+
+  async createPrintfulOrder(orderId: string): Promise<PrintfulOrder> {
+    return this.request<PrintfulOrder>("/v1/integrations/printful/orders", {
+      method: "POST",
+      body: JSON.stringify({ orderId }),
+    });
+  }
+
+  async getPrintfulOrderStatus(printfulOrderId: string): Promise<PrintfulOrderStatus> {
+    return this.request<PrintfulOrderStatus>(
+      `/v1/integrations/printful/orders/${printfulOrderId}/status`
+    );
   }
 }
