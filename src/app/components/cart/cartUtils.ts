@@ -1,4 +1,4 @@
-import { Cart } from "@/lib/shopify/types/cart";
+import { Cart } from "@/lib/commerce/types";
 import { CART_API_ENDPOINT, CART_LINE_API_ENDPOINT } from "@/utils/constants";
 import { parseFetchResponse } from "@/utils/parsers";
 import { ClientResponse } from "@/utils/types";
@@ -15,6 +15,10 @@ interface UpdateCartProps {
 export const handleAddToCart = async (props: AddToCartProps) => {
   const updateCartResponse = await fetch(CART_API_ENDPOINT, {
     method: "PATCH",
+    credentials: "include", // Include httpOnly cart_id cookie
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify([
       {
         merchandiseId: props.variantId,
@@ -36,9 +40,12 @@ export const handleUpdateCartItemQuantity = async ({
   cartLineId,
   quantity,
 }: UpdateCartProps) => {
-  // TODO: fix this to update cart line item
   const updateCartResponse = await fetch(CART_LINE_API_ENDPOINT, {
     method: "PATCH",
+    credentials: "include", // Include httpOnly cart_id cookie
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify([
       {
         id: cartLineId,
@@ -60,6 +67,10 @@ export const handleRemoveCartItem = async (cartLineId: string) => {
   // Remove item by setting quantity to 0
   const updateCartResponse = await fetch(CART_LINE_API_ENDPOINT, {
     method: "PATCH",
+    credentials: "include", // Include httpOnly cart_id cookie
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify([
       {
         id: cartLineId,

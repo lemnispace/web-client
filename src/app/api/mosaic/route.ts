@@ -3,8 +3,6 @@ import { getErrorMessage } from "@/utils/getters";
 import { parseValidationErrors } from "@/utils/parsers";
 import { ApiResponse, ValidationErrors } from "@/utils/types";
 import {
-  optionalBooleanSchema,
-  optionalNumberSchema,
   requiredImageFileSchema,
   requiredStringSchema,
 } from "@/utils/validators/schemaValidators";
@@ -22,28 +20,14 @@ const schema = z.object({
     name: "Text",
     description: "The text to use for the mosaic",
   }),
-  width: optionalNumberSchema({
-    name: "Width",
-    description: "The width of the mosaic",
-    min: 1,
-    max: 7200,
-  }),
-  baseFontSize: optionalNumberSchema({
-    name: "Base Font Size",
-    description: "The base font size of the mosaic",
-    min: 1,
-    max: 100,
-  }),
-  isBlackAndWhite: optionalBooleanSchema({
-    name: "Is Black and White",
-    description: "Whether the mosaic should be black and white",
-  }),
-  contrastFactor: optionalNumberSchema({
-    name: "Contrast Factor",
-    description:
-      "A floating point value controlling the enhancement. Factor 1.0 always returns a copy of the original image, lower factors mean less color (brightness, contrast, etc), and higher values more",
-    min: 0,
-  }),
+  // Use coerce for numeric fields since FormData.get() returns strings
+  width: z.coerce.number().min(1).max(7200).optional(),
+  baseFontSize: z.coerce.number().min(1).max(100).optional(),
+  isBlackAndWhite: z
+    .union([z.boolean(), z.literal("true"), z.literal("false")])
+    .transform((val) => val === true || val === "true")
+    .optional(),
+  contrastFactor: z.coerce.number().min(0).optional(),
   file: requiredImageFileSchema(),
 });
 
