@@ -1,6 +1,6 @@
 import { Cart } from "@/lib/shopify/types/cart";
 import { cartFragment } from "../fragments";
-import storefrontClient from "../storefrontClient";
+import { ensureStorefrontClient as ensureClient } from "../clientUtils";
 
 interface CartQueryResponse {
   cart: Cart;
@@ -16,7 +16,7 @@ export async function fetchCart(cartId: string) {
     ${cartFragment}
   `;
 
-  return storefrontClient.request<CartQueryResponse>(query, {
+  return ensureClient().request<CartQueryResponse>(query, {
     variables: { cartId },
   });
 }

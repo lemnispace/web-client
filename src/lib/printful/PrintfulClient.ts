@@ -31,8 +31,8 @@ export interface SyncVariantWithCatalogVariant
 }
 class PrintfulAPI {
   private static instance: PrintfulAPI;
-  private readonly baseUrl: string;
-  private readonly authToken: string;
+  private readonly baseUrl: string | undefined;
+  private readonly authToken: string | undefined;
 
   private constructor(config: PrintfulConfig) {
     this.authToken = config.authToken;

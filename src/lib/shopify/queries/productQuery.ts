@@ -4,7 +4,6 @@ import {
   PRODUCT_METADATA_NAMESPACE,
   VARIANT_METADATA_NAMESPACE,
 } from "@/utils/constants";
-import adminClient from "../adminClient";
 import {
   getMetafieldsFragment,
   getVariantEdgesFragment,
@@ -12,7 +11,7 @@ import {
   imageFragment,
   moneyFragment,
 } from "../fragments";
-import storefrontClient from "../storefrontClient";
+import { ensureStorefrontClient, ensureAdminClient } from "../clientUtils";
 
 export const productsQuery = /* GraphQL */ `
   query getProducts($firstNProducts: Int!) {
@@ -105,7 +104,7 @@ export interface ProductsResponse {
 }
 
 export function fetchProductList(firstNProducts: number) {
-  return storefrontClient.request<ProductsResponse>(productsQuery, {
+  return ensureStorefrontClient().request<ProductsResponse>(productsQuery, {
     variables: {
       firstNProducts,
     },
@@ -133,7 +132,7 @@ export type ProductVariables =
 
 export function fetchProduct(variables: ProductVariables) {
   if ("id" in variables && variables.id) {
-    return storefrontClient.request<ProductResponse>(getProductQuery("id"), {
+    return ensureStorefrontClient().request<ProductResponse>(getProductQuery("id"), {
       variables: {
         id: variables.id,
       },
@@ -142,7 +141,7 @@ export function fetchProduct(variables: ProductVariables) {
   if (!("handle" in variables) || !variables.handle) {
     throw new Error("Invalid product handle");
   }
-  return storefrontClient.request<ProductResponse>(getProductQuery("handle"), {
+  return ensureStorefrontClient().request<ProductResponse>(getProductQuery("handle"), {
     variables: {
       handle: variables.handle,
     },
@@ -154,7 +153,7 @@ export async function fetchProductWithMetafields<BY extends "handle" | "id">(
   by: BY
 ) {
   const input = by === "handle" ? { handle: identifier } : { id: identifier };
-  const response = await adminClient.request<ProductWithMetafieldsResponse<BY>>(
+  const response = await ensureAdminClient().request<ProductWithMetafieldsResponse<BY>>(
     productWithMetafieldsQuery(by),
     {
       variables: {

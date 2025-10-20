@@ -3,8 +3,8 @@ import { ApiVersion } from "@shopify/shopify-api";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 
 const shopifyConfig = (() => {
-  const productApiToken = env.LEMNISPACE_PRODUCTS_API_TOKEN;
-  const productDomain = env.LEMNISPACE_STORE_DOMAIN;
+  const productApiToken = env.LEMNISPACE_PRODUCTS_API_TOKEN || '';
+  const productDomain = env.LEMNISPACE_STORE_DOMAIN || '';
   return {
     product: {
       storeDomain: productDomain,
@@ -13,10 +13,13 @@ const shopifyConfig = (() => {
   };
 })();
 
-const storefrontClient = createStorefrontApiClient({
-  storeDomain: shopifyConfig.product.storeDomain,
-  apiVersion: ApiVersion.April24,
-  publicAccessToken: shopifyConfig.product.publicAccessToken,
-});
+// Only initialize client if Shopify config is available (deprecated, for backward compatibility)
+const storefrontClient = shopifyConfig.product.storeDomain && shopifyConfig.product.publicAccessToken
+  ? createStorefrontApiClient({
+      storeDomain: shopifyConfig.product.storeDomain,
+      apiVersion: ApiVersion.April24,
+      publicAccessToken: shopifyConfig.product.publicAccessToken,
+    })
+  : null;
 
 export default storefrontClient;

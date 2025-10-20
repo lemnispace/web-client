@@ -5,6 +5,18 @@
  * It provides mock environment variables required by the application.
  */
 
+// Polyfill fetch for Node.js test environment (for integration tests)
+// @ts-ignore - global fetch might not be available in all Node versions
+if (typeof global.fetch === 'undefined') {
+  // For Node 18+, fetch should be available globally
+  // For older versions, we'll need to polyfill it
+  const nodeFetch = require('node-fetch');
+  global.fetch = nodeFetch;
+  global.Headers = nodeFetch.Headers;
+  global.Request = nodeFetch.Request;
+  global.Response = nodeFetch.Response;
+}
+
 // Set up environment variables for tests
 process.env.TEXT_MOSAIC_API_URL = 'http://localhost:3001';
 process.env.LEMNISPACE_MOCKUP_GEN_API_URL = 'https://api.printful.com';
@@ -18,7 +30,6 @@ process.env.LEMNISPACE_HOST_NAME = 'http://localhost:3000';
 process.env.LEMNISPACE_SHOP_NAME = 'test-shop.myshopify.com';
 process.env.SHOP_API_URL = 'http://localhost:8080';
 process.env.SHOP_API_KEY = 'test_shop_api_key';
-process.env.NODE_ENV = 'test';
 
 // Mock jose package to avoid ESM issues
 jest.mock('jose', () => ({
@@ -45,19 +56,19 @@ jest.mock('@/lib/shopify/services/ShopifyProductService', () => ({
     }),
     getVariantByValues: jest.fn((product, options) => {
       // Find variant matching the options
-      return product?.variants?.find((variant) => {
+      return product?.variants?.find((variant: any) => {
         return Object.entries(options).every(([key, value]) => {
           return variant.selectedOptions?.some(
-            (opt) => opt.name === key && opt.value === value
+            (opt: any) => opt.name === key && opt.value === value
           ) || variant[key] === value;
         });
       });
     }),
     getVariantById: jest.fn((product, variantId) => {
-      return product?.variants?.find((v) => v.id === variantId);
+      return product?.variants?.find((v: any) => v.id === variantId);
     }),
     getProductVariantByCustomVariantId: jest.fn((product, customVariantId) => {
-      return product?.variants?.find((v) => v.id === customVariantId);
+      return product?.variants?.find((v: any) => v.id === customVariantId);
     }),
     getPrice: jest.fn((variant, product) => {
       if (variant?.price) return variant.price;

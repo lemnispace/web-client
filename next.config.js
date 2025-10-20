@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Updated for shop-api migration - removed Shopify domains
   images: {
     remotePatterns: [
       {
@@ -10,15 +11,17 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cdn.shopify.com",
-        port: "",
-        pathname: "/s/*/**",
-      },
-      {
-        protocol: "https",
         hostname: "files.cdn.printful.com",
         port: "",
         pathname: "/*/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lemnispace-images.s3.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.lemnispace.com",
       },
     ],
   },

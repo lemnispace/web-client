@@ -11,7 +11,7 @@ import {
   ProductVariantNode,
 } from "@/lib/shopify/types/product";
 import { VARIANT_METADATA_NAMESPACE } from "@/utils/constants";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 import {
   getMetafieldsFragment,
   getVariantEdgesWithMetafieldsFragment,
@@ -148,7 +148,7 @@ export const productVariantsBulkUpdateMutation = /* GraphQL */ `
 `;
 
 export async function duplicateProduct(input: ProductDuplicateInput) {
-  const response = await adminClient.request<ProductDuplicateResponse>(
+  const response = await ensureAdminClient().request<ProductDuplicateResponse>(
     productDuplicateMutation,
     {
       variables: {
@@ -163,7 +163,7 @@ export async function duplicateProduct(input: ProductDuplicateInput) {
 }
 
 export async function productVariantUpdate(input: ProductVariantInput) {
-  return adminClient.request<ProductVariantUpdateResponse>(
+  return ensureAdminClient().request<ProductVariantUpdateResponse>(
     productVariantUpdateMutation,
     {
       variables: {
@@ -174,7 +174,7 @@ export async function productVariantUpdate(input: ProductVariantInput) {
 }
 
 export async function productUpdate(input: ProductUpdateInput) {
-  return adminClient.request<ProductUpdateResponse>(productUpdateMutation, {
+  return ensureAdminClient().request<ProductUpdateResponse>(productUpdateMutation, {
     variables: {
       input,
     },
@@ -185,7 +185,7 @@ export async function productVariantsBulkUpdate(
   productId: string,
   variants: ProductVariantsBulkInput[]
 ) {
-  return adminClient.request<ProductVariantsBulkUpdateResponse>(
+  return ensureAdminClient().request<ProductVariantsBulkUpdateResponse>(
     productVariantsBulkUpdateMutation,
     {
       variables: {

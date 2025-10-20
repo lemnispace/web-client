@@ -8,6 +8,7 @@
 
 import type {
   Cart,
+  CartCheckout,
   CartItemInput,
   Collection,
   Customer,
@@ -16,6 +17,8 @@ import type {
   LoginResponse,
   Order,
   OrderInput,
+  PaymentIntent,
+  PaymentIntentInput,
   Product,
 } from "./types";
 
@@ -90,6 +93,16 @@ export interface CommerceProvider {
    */
   removeCartItem(cartId: string, itemId: string): Promise<Cart>;
 
+  /**
+   * List all carts for a customer
+   */
+  getCustomerCarts(customerId: string, includeExpired?: boolean): Promise<Cart[]>;
+
+  /**
+   * Get cart checkout summary
+   */
+  getCartCheckout(cartId: string): Promise<CartCheckout>;
+
   // ============================================================================
   // Order Operations
   // ============================================================================
@@ -112,6 +125,16 @@ export interface CommerceProvider {
     params?: { limit?: number; cursor?: string }
   ): Promise<ListResponse<Order>>;
 
+  /**
+   * Create Stripe payment intent
+   */
+  createPaymentIntent(input: PaymentIntentInput): Promise<PaymentIntent>;
+
+  /**
+   * Confirm payment for order
+   */
+  confirmPayment(orderId: string, paymentIntentId: string): Promise<Order>;
+
   // ============================================================================
   // Customer Operations
   // ============================================================================
@@ -130,6 +153,19 @@ export interface CommerceProvider {
    * Get customer by ID
    */
   getCustomer(customerId: string): Promise<Customer>;
+
+  /**
+   * Get current authenticated customer profile
+   */
+  getCustomerProfile(accessToken: string): Promise<Customer>;
+
+  /**
+   * Update customer profile
+   */
+  updateCustomerProfile(
+    accessToken: string,
+    updates: Partial<CustomerInput>
+  ): Promise<Customer>;
 
   // ============================================================================
   // Customization Operations
@@ -175,6 +211,21 @@ export interface CommerceProvider {
     width?: number;
     height?: number;
   }>;
+
+  /**
+   * Delete a customization image
+   */
+  deleteCustomizationImage(imageId: string, userId: string): Promise<void>;
+
+  /**
+   * Link customization image to cart item
+   */
+  linkImageToCartItem(
+    imageId: string,
+    userId: string,
+    cartId: string,
+    itemId: string
+  ): Promise<void>;
 
   // ============================================================================
   // Integration Operations

@@ -226,3 +226,30 @@ export interface ApiResponse<T> {
   data?: T;
   error?: ApiError;
 }
+
+// ============================================================================
+// Payment Types
+// ============================================================================
+
+export interface PaymentIntent {
+  id: string;
+  clientSecret: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+export interface PaymentIntentInput {
+  orderId: string;
+  amount: number;
+  currency?: string; // defaults to USD
+}
+
+export interface CartCheckout {
+  cartId: string;
+  subtotal: number;
+  estimatedTax: number;
+  estimatedShipping: number;
+  totalPrice: number;
+  itemCount: number;
+}

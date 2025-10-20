@@ -2,7 +2,7 @@ import { Collection } from "@/lib/shopify/types/collection";
 import { Edge, Edges } from "@/lib/shopify/types/edge";
 import { ProductNode } from "@/lib/shopify/types/product";
 import { PRODUCT_METADATA_NAMESPACE } from "@/utils/constants";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 import { getMetafieldsFragment } from "../fragments";
 
 export type CollectionPayload = Pick<
@@ -35,7 +35,7 @@ export const collectionByHandleQuery = /* GraphQL */ `
 `;
 
 export function fetchCollection(handle: string, first = 99) {
-  return adminClient.request<CollectionResponse>(collectionByHandleQuery, {
+  return ensureAdminClient().request<CollectionResponse>(collectionByHandleQuery, {
     variables: {
       handle,
       first,
