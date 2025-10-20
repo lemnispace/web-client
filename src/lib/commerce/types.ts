@@ -11,6 +11,7 @@
 
 export interface Product {
   id: string;
+  handle: string; // URL-friendly slug for routing
   title: string;
   description: string;
   price: number;
@@ -82,6 +83,7 @@ export interface CartItem {
   price: number;
   product?: {
     title: string;
+    handle?: string; // URL-friendly slug for routing
     image?: string;
   };
   variant?: {

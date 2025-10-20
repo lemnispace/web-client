@@ -8,7 +8,7 @@ import { Product } from "@/utils/types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useContext } from "react";
-import { handleAddToCart } from "../cart/cartUtils";
+import { useCart } from "@/app/hooks/useCart";
 import ProductColorPicker, { ProductColor } from "./ProductColorPicker";
 import ProductSizePicker from "./ProductSizePicker";
 import { ProductVariantContext } from "./ProductView";
@@ -32,17 +32,22 @@ export default function ProductSelectionForm({
   ...props
 }: ProductSelectionFormProps) {
   const { selectedVariant } = useContext(ProductVariantContext);
+  const { addItem } = useCart();
 
   return (
     <form
       {...props}
       onSubmit={(e) => {
         e.preventDefault();
-        selectedVariant?.customization &&
-          handleAddToCart({
+        if (selectedVariant?.customization) {
+          addItem({
+            productId: product.id,
             variantId: selectedVariant.customization.id,
             quantity: 1,
+          }).catch((error) => {
+            console.error("Failed to add item to cart:", error);
           });
+        }
       }}
     >
       <ProductColorPicker product={product} />
