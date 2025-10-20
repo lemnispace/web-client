@@ -12,6 +12,9 @@ interface CartItemProps {
 }
 
 export function CartItem({ item }: CartItemProps) {
+  // Use handle for routing if available, fallback to productId (will 404 but better than breaking)
+  const productSlug = item.product?.handle || item.productId;
+
   return (
     <li className="flex py-6 sm:py-10">
       <div className="flex-shrink-0">
@@ -30,7 +33,7 @@ export function CartItem({ item }: CartItemProps) {
             <div className="flex justify-between">
               <h3 className="text-sm">
                 <Link
-                  href={`/shop/products/${item.productId}`}
+                  href={`/shop/products/${productSlug}`}
                   className="font-medium text-gray-700 hover:text-gray-800"
                 >
                   {item.product?.title || "Product"}
