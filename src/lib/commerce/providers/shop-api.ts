@@ -71,6 +71,12 @@ export class ShopAPIProvider implements CommerceProvider {
       throw new Error(error.message || `HTTP ${response.status}`);
     }
 
+    // Handle 204 No Content and other empty responses
+    // DELETE endpoints and some PATCH endpoints return 204 with no body
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return undefined as T;
+    }
+
     return response.json();
   }
 

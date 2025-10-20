@@ -3,6 +3,7 @@ import type { Cart } from "@/lib/commerce/types";
 import { getCartId } from "@/utils/cookies/cartId";
 import { parseValidationErrors } from "@/utils/parsers";
 import { ServerApiResponse } from "@/utils/types";
+import { env } from "@/utils/env";
 import { CartLineUpdateInputSchema } from "@/utils/validators/cartInputValidator";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -19,7 +20,8 @@ export const PATCH = async (
 
   try {
     const shopAPI = new ShopAPIProvider({
-      baseUrl: process.env.SHOP_API_URL || 'http://localhost:8080',
+      baseUrl: env.SHOP_API_URL,
+      apiKey: env.SHOP_API_KEY,
     });
 
     const cartId = getCartId();
