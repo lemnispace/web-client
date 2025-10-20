@@ -1,4 +1,4 @@
-import { getDefaultProvider } from "@/lib/commerce";
+import { ShopAPIProvider } from "@/lib/commerce/providers/shop-api";
 import type { Cart } from "@/lib/commerce/types";
 import { getCartId } from "@/utils/cookies/cartId";
 import { parseValidationErrors } from "@/utils/parsers";
@@ -18,7 +18,10 @@ export const PATCH = async (
   }
 
   try {
-    const commerce = getDefaultProvider();
+    const shopAPI = new ShopAPIProvider({
+      baseUrl: process.env.SHOP_API_URL || 'http://localhost:8080',
+    });
+
     const cartId = getCartId();
 
     if (!cartId) {
@@ -52,10 +55,10 @@ export const PATCH = async (
 
       if (quantity === 0) {
         // Remove item if quantity is 0
-        updatedCart = await commerce.removeCartItem(cartId, line.id);
+        updatedCart = await shopAPI.removeCartItem(cartId, line.id);
       } else {
         // Update quantity
-        updatedCart = await commerce.updateCartItem(cartId, line.id, quantity);
+        updatedCart = await shopAPI.updateCartItem(cartId, line.id, quantity);
       }
     }
 

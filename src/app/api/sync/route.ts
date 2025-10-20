@@ -1,11 +1,6 @@
-import { getDefaultProvider } from "@/lib/commerce";
-import { ServerApiResponse } from "@/utils/types";
+import { ShopAPIProvider } from "@/lib/commerce/providers/shop-api";
+import { env } from "@/utils/env";
 import { NextResponse } from "next/server";
-
-interface SyncResponse {
-  message: string;
-  status: string;
-}
 
 /**
  * Sync Printful Catalog
@@ -16,18 +11,22 @@ interface SyncResponse {
  *
  * Returns 202 Accepted immediately while sync runs in background.
  */
-export const POST = async (): Promise<ServerApiResponse<SyncResponse>> => {
+export async function POST() {
   try {
-    const commerce = getDefaultProvider();
-    const result = await commerce.syncPrintfulCatalog();
+    const shopAPI = new ShopAPIProvider({
+      baseUrl: env.SHOP_API_URL,
+      apiKey: env.SHOP_API_KEY,
+    });
+
+    const result = await shopAPI.syncPrintfulCatalog();
 
     // Return 202 Accepted for async operation
-    return NextResponse.json({ data: result }, { status: 202 });
+    return NextResponse.json(result, { status: 202 });
   } catch (error) {
     console.error("Error syncing Printful catalog:", error);
     return NextResponse.json(
-      { errors: "Error syncing Printful catalog", data: undefined },
+      { error: "Error syncing Printful catalog" },
       { status: 500 }
     );
   }
-};
+}

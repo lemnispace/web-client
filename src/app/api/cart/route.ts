@@ -1,6 +1,7 @@
-import { getDefaultProvider } from "@/lib/commerce";
+import { ShopAPIProvider } from '@/lib/commerce/providers/shop-api';
 import type { Cart } from "@/lib/commerce/types";
 import { getCartId, createCartId } from "@/utils/cookies/cartId";
+import { env } from "@/utils/env";
 import { parseValidationErrors } from "@/utils/parsers";
 import { ServerApiResponse } from "@/utils/types";
 import {
@@ -20,8 +21,11 @@ export const GET = async (): Promise<ServerApiResponse<Cart>> => {
   }
 
   try {
-    const commerce = getDefaultProvider();
-    const cart = await commerce.getCart(cartId);
+    const shopAPI = new ShopAPIProvider({
+      baseUrl: env.SHOP_API_URL,
+      apiKey: env.SHOP_API_KEY,
+    });
+    const cart = await shopAPI.getCart(cartId);
     return NextResponse.json({ data: cart }, { status: 200 });
   } catch (error) {
     console.error("Error fetching cart:", error);
@@ -43,17 +47,20 @@ export const POST = async (
   }
 
   try {
-    const commerce = getDefaultProvider();
-    const data = await request.json().catch(() => ({}));
+    const shopAPI = new ShopAPIProvider({
+      baseUrl: env.SHOP_API_URL,
+      apiKey: env.SHOP_API_KEY,
+    });
+    const body = await request.json().catch(() => ({}));
 
-    // Extract customerId if provided (shop-api format)
-    const customerId = data.customerId as string | undefined;
+    // Parse request body
+    const { items, customerId } = body;
 
     // Check if cart already exists
     const existingCartId = getCartId();
     if (existingCartId) {
       try {
-        const existingCart = await commerce.getCart(existingCartId);
+        const existingCart = await shopAPI.getCart(existingCartId);
         return NextResponse.json(
           { data: existingCart, errors: undefined },
           { status: 200 }
@@ -65,7 +72,12 @@ export const POST = async (
     }
 
     // Create new cart
-    const cart = await commerce.createCart(customerId);
+    let cart = await shopAPI.createCart(customerId);
+
+    // Add items if provided
+    if (items && items.length > 0) {
+      cart = await shopAPI.addToCart(cart.id, items);
+    }
 
     // Set cart ID in cookie using createCartId helper
     createCartId(cart.id);
@@ -94,7 +106,10 @@ export const PATCH = async (
   }
 
   try {
-    const commerce = getDefaultProvider();
+    const shopAPI = new ShopAPIProvider({
+      baseUrl: env.SHOP_API_URL,
+      apiKey: env.SHOP_API_KEY,
+    });
     const data = await request.json();
     const validCartLinesInput = z.array(CartLineInputSchema).safeParse(data);
     const validationErrors = parseValidationErrors(validCartLinesInput);
@@ -128,7 +143,7 @@ export const PATCH = async (
     if (existingCartId) {
       try {
         // Add items to existing cart
-        const updatedCart = await commerce.addToCart(existingCartId, cartItems);
+        const updatedCart = await shopAPI.addToCart(existingCartId, cartItems);
         return NextResponse.json(
           { data: updatedCart, errors: undefined },
           { status: 200 }
@@ -139,8 +154,8 @@ export const PATCH = async (
     }
 
     // Cart doesn't exist, create a new cart with items
-    const newCart = await commerce.createCart();
-    const cartWithItems = await commerce.addToCart(newCart.id, cartItems);
+    const newCart = await shopAPI.createCart();
+    const cartWithItems = await shopAPI.addToCart(newCart.id, cartItems);
 
     // Set cart ID in cookie
     createCartId(newCart.id);
