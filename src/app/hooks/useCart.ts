@@ -77,6 +77,7 @@ export function useCart() {
         },
         body: JSON.stringify([
           {
+            productId: item.productId,
             merchandiseId: item.variantId,
             quantity: item.quantity,
           },
