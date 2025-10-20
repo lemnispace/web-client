@@ -2,7 +2,7 @@
 
 import { DraftOrder } from "@/lib/shopify/types/draftorder";
 import { DraftOrderInput } from "@/lib/shopify/types/input";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 import { draftOrderFragment } from "../fragments";
 
 interface DraftOrderCreateResponse {
@@ -41,7 +41,7 @@ export async function draftOrderCreate(input: DraftOrderInput) {
     ${draftOrderFragment}
   `;
 
-  return adminClient.request<DraftOrderCreateResponse>(mutation, {
+  return ensureAdminClient().request<DraftOrderCreateResponse>(mutation, {
     variables: { input },
   });
 }
@@ -62,7 +62,7 @@ export async function draftOrderUpdate(id: string, input: DraftOrderInput) {
     ${draftOrderFragment}
   `;
 
-  return adminClient.request<DraftOrderUpdateResponse>(mutation, {
+  return ensureAdminClient().request<DraftOrderUpdateResponse>(mutation, {
     variables: { id, input },
   });
 }

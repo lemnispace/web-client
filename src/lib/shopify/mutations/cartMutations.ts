@@ -5,7 +5,7 @@ import {
   CartLineUpdateInput,
 } from "@/lib/shopify/types/input";
 import { cartFragment } from "../fragments";
-import storefrontClient from "../storefrontClient";
+import { ensureStorefrontClient as ensureClient } from "../clientUtils";
 
 interface CartCreateResponse {
   cartCreate: {
@@ -47,7 +47,7 @@ export async function createCart(variables: CartInput) {
     ${cartFragment}
   `;
 
-  return storefrontClient.request<CartCreateResponse>(mutation, { variables });
+  return ensureClient().request<CartCreateResponse>(mutation, { variables });
 }
 
 export async function addToCart(cartId: string, lines: CartLineInput[]) {
@@ -64,7 +64,7 @@ export async function addToCart(cartId: string, lines: CartLineInput[]) {
     ${cartFragment}
   `;
 
-  return storefrontClient.request<CartAddResponse>(mutation, {
+  return ensureClient().request<CartAddResponse>(mutation, {
     variables: { cartId, lines },
   });
 }
@@ -84,7 +84,7 @@ export async function updateCartLine(
     ${cartFragment}
   `;
 
-  return storefrontClient.request<CartUpdateResponse>(mutation, {
+  return ensureClient().request<CartUpdateResponse>(mutation, {
     variables: {
       cartId,
       lines,
@@ -104,7 +104,7 @@ export async function removeCartLine(cartId: string, lineIds: string[]) {
     ${cartFragment}
   `;
 
-  return storefrontClient.request<CartRemoveResponse>(mutation, {
+  return ensureClient().request<CartRemoveResponse>(mutation, {
     variables: {
       cartId,
       lineIds,

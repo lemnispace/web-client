@@ -1,7 +1,7 @@
 // /lib/shopify/queries/draftOrderQuery.ts
 
 import { DraftOrder } from "@/lib/shopify/types/draftorder";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 import { draftOrderFragment } from "../fragments";
 
 interface DraftOrdersResponse {
@@ -28,7 +28,7 @@ export async function fetchDraftOrders(query?: string) {
     ${draftOrderFragment}
   `;
 
-  return adminClient.request<DraftOrdersResponse>(graphqlQuery);
+  return ensureAdminClient().request<DraftOrdersResponse>(graphqlQuery);
 }
 
 export async function fetchDraftOrder(id: string) {
@@ -41,5 +41,5 @@ export async function fetchDraftOrder(id: string) {
     ${draftOrderFragment}
   `;
 
-  return adminClient.request<DraftOrdersResponse>(graphqlQuery);
+  return ensureAdminClient().request<DraftOrdersResponse>(graphqlQuery);
 }

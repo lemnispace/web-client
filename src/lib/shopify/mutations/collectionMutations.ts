@@ -2,7 +2,7 @@ import { Collection } from "@/lib/shopify/types/collection";
 import { UserError } from "@/lib/shopify/types/error";
 import { CollectionInput } from "@/lib/shopify/types/input";
 import { RequireFields } from "@/utils/genericTypes";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 
 /**
  * The payload returned by the `collectionCreate` mutation.
@@ -70,7 +70,7 @@ export const collectionAddProductsMutation = /* GraphQL */ `
 `;
 
 export async function collectionCreate(input: CreateCollectionInput) {
-  return adminClient.request<CollectionCreateResponse>(
+  return ensureAdminClient().request<CollectionCreateResponse>(
     collectionCreateMutation,
     {
       variables: {
@@ -81,7 +81,7 @@ export async function collectionCreate(input: CreateCollectionInput) {
 }
 
 export async function collectionAddProducts(id: string, productIds: string[]) {
-  return adminClient.request<CollectionAddProductsResponse>(
+  return ensureAdminClient().request<CollectionAddProductsResponse>(
     collectionAddProductsMutation,
     {
       variables: {

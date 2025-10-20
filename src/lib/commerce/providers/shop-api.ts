@@ -8,6 +8,7 @@
 import type { CommerceProvider } from "../provider";
 import type {
   Cart,
+  CartCheckout,
   CartItemInput,
   Collection,
   Customer,
@@ -16,6 +17,8 @@ import type {
   LoginResponse,
   Order,
   OrderInput,
+  PaymentIntent,
+  PaymentIntentInput,
   Product,
 } from "../types";
 
@@ -186,6 +189,19 @@ export class ShopAPIProvider implements CommerceProvider {
     return this.getCart(cartId);
   }
 
+  async getCustomerCarts(customerId: string, includeExpired = false): Promise<Cart[]> {
+    const params = new URLSearchParams({ customerId });
+    if (includeExpired) {
+      params.append("includeExpired", "true");
+    }
+    const response = await this.request<{ carts: Cart[] }>(`/v1/cart?${params}`);
+    return response.carts;
+  }
+
+  async getCartCheckout(cartId: string): Promise<CartCheckout> {
+    return this.request<CartCheckout>(`/v1/cart/${cartId}/checkout`);
+  }
+
   // ============================================================================
   // Order Operations
   // ============================================================================
@@ -220,6 +236,20 @@ export class ShopAPIProvider implements CommerceProvider {
     };
   }
 
+  async createPaymentIntent(input: PaymentIntentInput): Promise<PaymentIntent> {
+    return this.request<PaymentIntent>("/v1/payments/intent", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  }
+
+  async confirmPayment(orderId: string, paymentIntentId: string): Promise<Order> {
+    return this.request<Order>("/v1/payments/confirm", {
+      method: "POST",
+      body: JSON.stringify({ orderId, paymentIntentId }),
+    });
+  }
+
   // ============================================================================
   // Customer Operations
   // ============================================================================
@@ -240,6 +270,37 @@ export class ShopAPIProvider implements CommerceProvider {
 
   async getCustomer(customerId: string): Promise<Customer> {
     return this.request<Customer>(`/v1/customers/${customerId}`);
+  }
+
+  async getCustomerProfile(accessToken: string): Promise<Customer> {
+    return this.request<Customer>("/v1/customers/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  async updateCustomerProfile(
+    accessToken: string,
+    updates: Partial<CustomerInput>
+  ): Promise<Customer> {
+    return this.request<Customer>("/v1/customers/me", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  async refreshAccessToken(refreshToken: string): Promise<LoginResponse> {
+    return this.request<LoginResponse>("/v1/customers/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    });
   }
 
   // ============================================================================
@@ -325,6 +386,30 @@ export class ShopAPIProvider implements CommerceProvider {
     }>(`/v1/customizations/images/${imageId}/process?userId=${userId}`, {
       method: "POST",
       body: JSON.stringify({ operations }),
+    });
+  }
+
+  /**
+   * Delete a customization image
+   */
+  async deleteCustomizationImage(imageId: string, userId: string): Promise<void> {
+    await this.request<void>(`/v1/customizations/images/${imageId}?userId=${userId}`, {
+      method: "DELETE",
+    });
+  }
+
+  /**
+   * Link customization image to cart item
+   */
+  async linkImageToCartItem(
+    imageId: string,
+    userId: string,
+    cartId: string,
+    itemId: string
+  ): Promise<void> {
+    await this.request<void>(`/v1/customizations/images/${imageId}/link?userId=${userId}`, {
+      method: "POST",
+      body: JSON.stringify({ cartId, itemId }),
     });
   }
 

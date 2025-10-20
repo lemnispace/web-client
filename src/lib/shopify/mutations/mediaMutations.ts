@@ -4,7 +4,7 @@ import { FilesUserError, MediaNode } from "@/lib/shopify/types/media";
 import { ProductNode } from "@/lib/shopify/types/product";
 import { StagedUploadTarget } from "@/lib/shopify/types/stagedUpload";
 import { parseClientResponse } from "@/utils/parsers";
-import adminClient from "../adminClient";
+import { ensureAdminClient } from "../clientUtils";
 interface StagedUploadsCreatePayload {
   stagedTargets: StagedUploadTarget[];
   userErrors?: FilesUserError[];
@@ -72,7 +72,7 @@ export const productCreateMediaMutation = /* GraphQL */ `
  */
 export const stagedUploadsCreate = async (input: StagedUploadInput) => {
   try {
-    const response = await adminClient.request<StagedUploadsCreateResponse>(
+    const response = await ensureAdminClient().request<StagedUploadsCreateResponse>(
       stagedUploadsCreateMutation,
       {
         variables: {
@@ -94,7 +94,7 @@ export const stagedUploadsCreate = async (input: StagedUploadInput) => {
 
 export const productCreateMedia = async (input: ProductCreateMediaInput) => {
   try {
-    const response = await adminClient.request<ProductCreateMediaResponse>(
+    const response = await ensureAdminClient().request<ProductCreateMediaResponse>(
       productCreateMediaMutation,
       {
         variables: {
