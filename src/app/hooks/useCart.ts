@@ -1,57 +1,96 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ShopAPIProvider } from '@/lib/commerce/providers/shop-api';
+import { useState, useEffect, useCallback } from 'react';
 import type { Cart, CartItemInput } from '@/lib/commerce/types';
-import { getCookie, setCookie } from '@/lib/utils/cookies';
 
 export function useCart() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const shopAPI = useMemo(
-    () =>
-      new ShopAPIProvider({
-        baseUrl: process.env.NEXT_PUBLIC_SHOP_API_URL || 'http://localhost:8080',
-      }),
-    []
-  );
-
-  // Load cart on mount
+  // Load cart on mount from Next.js API route
+  // The API route manages the httpOnly cart_id cookie
   useEffect(() => {
     const loadCart = async () => {
-      const cartId = getCookie('cartId');
-      if (cartId) {
-        try {
-          const cartData = await shopAPI.getCart(cartId);
-          setCart(cartData);
-        } catch (err) {
-          // Cart not found, create new
-          const newCart = await shopAPI.createCart();
-          setCart(newCart);
-          setCookie('cartId', newCart.id);
+      try {
+        // GET /api/cart reads cart_id from httpOnly cookie
+        const response = await fetch('/api/cart', {
+          method: 'GET',
+          credentials: 'include', // Include cookies
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data) {
+            setCart(data.data);
+          } else {
+            // No cart exists, create one
+            await createNewCart();
+          }
+        } else {
+          // Cart not found or error, create new
+          await createNewCart();
         }
-      } else {
-        // Create new cart
-        const newCart = await shopAPI.createCart();
-        setCart(newCart);
-        setCookie('cartId', newCart.id);
+      } catch (err) {
+        console.error('Error loading cart:', err);
+        // Try to create new cart on error
+        await createNewCart();
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
+    };
+
+    const createNewCart = async () => {
+      try {
+        const response = await fetch('/api/cart', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data) {
+            setCart(data.data);
+          }
+        }
+      } catch (err) {
+        console.error('Error creating cart:', err);
+      }
     };
 
     loadCart();
-  }, [shopAPI]);
+  }, []);
 
   const addItem = useCallback(async (item: CartItemInput) => {
-    if (!cart) return;
-
     setIsLoading(true);
     setError(null);
     try {
-      const updatedCart = await shopAPI.addToCart(cart.id, [item]);
-      setCart(updatedCart);
+      // PATCH /api/cart adds items
+      const response = await fetch('/api/cart', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          {
+            merchandiseId: item.variantId,
+            quantity: item.quantity,
+          },
+        ]),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add item to cart');
+      }
+
+      const data = await response.json();
+      if (data.data) {
+        setCart(data.data);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add item';
       setError(errorMessage);
@@ -59,16 +98,35 @@ export function useCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [cart, shopAPI]);
+  }, []);
 
   const updateItem = useCallback(async (itemId: string, quantity: number) => {
-    if (!cart) return;
-
     setIsLoading(true);
     setError(null);
     try {
-      const updatedCart = await shopAPI.updateCartItem(cart.id, itemId, quantity);
-      setCart(updatedCart);
+      // PATCH /api/cart/line updates quantity
+      const response = await fetch('/api/cart/line', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          {
+            id: itemId,
+            quantity,
+          },
+        ]),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update item');
+      }
+
+      const data = await response.json();
+      if (data.data) {
+        setCart(data.data);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update item';
       setError(errorMessage);
@@ -76,16 +134,35 @@ export function useCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [cart, shopAPI]);
+  }, []);
 
   const removeItem = useCallback(async (itemId: string) => {
-    if (!cart) return;
-
     setIsLoading(true);
     setError(null);
     try {
-      const updatedCart = await shopAPI.removeCartItem(cart.id, itemId);
-      setCart(updatedCart);
+      // PATCH /api/cart/line with quantity: 0 removes item
+      const response = await fetch('/api/cart/line', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          {
+            id: itemId,
+            quantity: 0,
+          },
+        ]),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove item');
+      }
+
+      const data = await response.json();
+      if (data.data) {
+        setCart(data.data);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove item';
       setError(errorMessage);
@@ -93,15 +170,29 @@ export function useCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [cart, shopAPI]);
+  }, []);
 
   const clearCart = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const newCart = await shopAPI.createCart();
-      setCart(newCart);
-      setCookie('cartId', newCart.id);
+      // Create a new cart, which replaces the old one
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to clear cart');
+      }
+
+      const data = await response.json();
+      if (data.data) {
+        setCart(data.data);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to clear cart';
       setError(errorMessage);
@@ -109,7 +200,7 @@ export function useCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [shopAPI]);
+  }, []);
 
   return {
     cart,
