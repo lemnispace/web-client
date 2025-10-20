@@ -17,6 +17,12 @@ if (typeof global.fetch === 'undefined') {
   global.Response = nodeFetch.Response;
 }
 
+// Polyfill FormData if not available
+if (typeof global.FormData === 'undefined') {
+  // @ts-ignore
+  global.FormData = require('form-data');
+}
+
 // Set up environment variables for tests
 process.env.TEXT_MOSAIC_API_URL = 'http://localhost:3001';
 process.env.LEMNISPACE_MOCKUP_GEN_API_URL = 'https://api.printful.com';
