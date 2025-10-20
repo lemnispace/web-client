@@ -12,9 +12,6 @@ interface CartItemProps {
 }
 
 export function CartItem({ item }: CartItemProps) {
-  // Format price from cents to dollars for display
-  const priceInDollars = item.price / 100;
-
   return (
     <li className="flex py-6 sm:py-10">
       <div className="flex-shrink-0">
@@ -46,7 +43,7 @@ export function CartItem({ item }: CartItemProps) {
               </div>
             )}
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {formatPrice(priceInDollars)}
+              {formatPrice(item.price)}
             </p>
           </div>
 

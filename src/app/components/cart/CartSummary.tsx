@@ -16,11 +16,6 @@ export function CartSummary({
   total = 0,
   checkoutUrl,
 }: CartSummaryProps) {
-  // Convert from cents to dollars for display
-  const subtotalDollars = subtotal / 100;
-  const taxDollars = isDefined(tax) ? tax / 100 : undefined;
-  const totalDollars = total / 100;
-
   return (
     <section
       aria-labelledby="summary-heading"
@@ -34,7 +29,7 @@ export function CartSummary({
         <div className="flex items-center justify-between">
           <dt className="text-sm text-gray-600">Subtotal</dt>
           <dd className="text-sm font-medium text-gray-900">
-            {formatPrice(subtotalDollars)}
+            {formatPrice(subtotal)}
           </dd>
         </div>
         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
@@ -51,13 +46,13 @@ export function CartSummary({
             </a>
           </dt>
           <dd className="text-sm font-medium text-gray-900">
-            {isDefined(taxDollars) ? formatPrice(taxDollars) : "--"}
+            {isDefined(tax) ? formatPrice(tax) : "--"}
           </dd>
         </div>
         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
           <dt className="text-base font-medium text-gray-900">Order total</dt>
           <dd className="text-base font-medium text-gray-900">
-            {formatPrice(totalDollars)}
+            {formatPrice(total)}
           </dd>
         </div>
       </dl>

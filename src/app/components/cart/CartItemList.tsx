@@ -4,16 +4,18 @@ import { CartItem as CartItemType } from "@/lib/commerce/types";
 import { toInt } from "@/utils/parsers";
 import { isDefined } from "@/utils/validators";
 import { CartItem } from "./CartItem";
-import {
-  handleRemoveCartItem,
-  handleUpdateCartItemQuantity,
-} from "./cartUtils";
 
 interface CartItemListProps {
   items: CartItemType[];
+  onUpdateItem: (itemId: string, quantity: number) => Promise<void>;
+  onRemoveItem: (itemId: string) => Promise<void>;
 }
 
-export function CartItemList({ items }: CartItemListProps) {
+export function CartItemList({
+  items,
+  onUpdateItem,
+  onRemoveItem,
+}: CartItemListProps) {
   return (
     <section aria-labelledby="cart-heading" className="lg:col-span-7">
       <h2 id="cart-heading" className="sr-only">
@@ -30,7 +32,9 @@ export function CartItemList({ items }: CartItemListProps) {
           if (removeButton && removeButton.dataset.action === "remove") {
             const cartItemId = removeButton.dataset.itemId;
             if (cartItemId) {
-              handleRemoveCartItem(cartItemId);
+              onRemoveItem(cartItemId).catch((error) => {
+                console.error("Failed to remove item:", error);
+              });
             }
           }
         }}
@@ -43,11 +47,12 @@ export function CartItemList({ items }: CartItemListProps) {
             const cartItemId = quantitySelect.dataset.itemId;
             if (isDefined(quantity) && cartItemId) {
               if (quantity === 0) {
-                handleRemoveCartItem(cartItemId);
+                onRemoveItem(cartItemId).catch((error) => {
+                  console.error("Failed to remove item:", error);
+                });
               } else {
-                handleUpdateCartItemQuantity({
-                  cartLineId: cartItemId,
-                  quantity,
+                onUpdateItem(cartItemId, quantity).catch((error) => {
+                  console.error("Failed to update item:", error);
                 });
               }
             }
