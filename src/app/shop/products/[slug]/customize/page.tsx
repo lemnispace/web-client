@@ -1,12 +1,11 @@
 import ImgEditor from "@/app/components/editor/ImgEditor";
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { Container } from "@/components/container";
+import { getDefaultProvider } from "@/lib/commerce";
 import PrintfulClient from "@/lib/printful/PrintfulClient";
 import { Orientation } from "@/lib/printful/types";
-import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
-import { getNavigationLink } from "@/utils/getters";
-import { mapPrintfulTemplates } from "@/utils/mappers";
-import { parseClientResponse, toInt } from "@/utils/parsers";
+import { mapPrintfulTemplates, mapShopAPIProductToFull } from "@/utils/mappers";
+import { toInt } from "@/utils/parsers";
 import { PRODUCTS_CREATE_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { ProductVariant } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
@@ -69,26 +68,32 @@ const fetchVariantTemplates = async (
 };
 
 export default async function CustomizeProduct(props: MosaicProps) {
-  const productService = new ShopifyProductService({
-    parseClientResponse,
-    getNavigationLink,
-  });
+  const commerce = getDefaultProvider();
   const variantId = props.searchParams.variant;
-  const productHandle = props.params.slug;
+  const productId = props.params.slug; // Now using product ID instead of handle
+
   try {
-    const product =
-      await productService.fetchProductDataWithMetafields(productHandle);
-    if (!product) {
+    // Fetch product from shop-api
+    const shopApiProduct = await commerce.getProduct(productId);
+    if (!shopApiProduct) {
       throw new Error("product not found");
     }
+
+    // Map to the format expected by components
+    const product = mapShopAPIProductToFull(shopApiProduct);
+
     const variant = product.variants?.find((v) => v.id === variantId);
     if (!variant) {
       throw new Error("variant not found");
     }
+
+    // Fetch Printful templates
+    // Note: Shop-API products don't have orientation metafields yet, so passing undefined
     const variantTemplates = await fetchVariantTemplates(
       variant,
-      product.metafields?.orientation?.value
+      undefined
     );
+
     return (
       <main className="bg-white flex-1">
         <Container>

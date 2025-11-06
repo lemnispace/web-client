@@ -1,17 +1,14 @@
 import ProductsMainMessageSection from "@/app/components/product/ProductsMainMessageSection";
 import { ProductGridSection } from "@/app/components/shop/ProductGrid";
 import { Container } from "@/components/container";
-import { ShopifyProductService } from "@/lib/shopify/services/ShopifyProductService";
-import { getNavigationLink } from "@/utils/getters";
-import { parseClientResponse } from "@/utils/parsers";
+import { getDefaultProvider } from "@/lib/commerce";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
+import { mapShopAPIProducts } from "@/utils/mappers";
 
 export default async function Shop() {
-  const productService = new ShopifyProductService({
-    parseClientResponse,
-    getNavigationLink,
-  });
-  const products = await productService.fetchProductList(20);
+  const commerce = getDefaultProvider();
+  const response = await commerce.getProducts({ limit: 20, status: 'active' });
+  const products = mapShopAPIProducts(response.data);
 
   return (
     <main>

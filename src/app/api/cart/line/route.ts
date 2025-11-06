@@ -8,6 +8,16 @@ import { CartLineUpdateInputSchema } from "@/utils/validators/cartInputValidator
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+const getShopAPI = () => {
+  if (!env.SHOP_API_URL) {
+    throw new Error("SHOP_API_URL is not configured");
+  }
+  return new ShopAPIProvider({
+    baseUrl: env.SHOP_API_URL,
+    apiKey: env.SHOP_API_KEY,
+  });
+};
+
 export const PATCH = async (
   request: NextRequest
 ): Promise<ServerApiResponse<Cart>> => {
@@ -19,10 +29,7 @@ export const PATCH = async (
   }
 
   try {
-    const shopAPI = new ShopAPIProvider({
-      baseUrl: env.SHOP_API_URL,
-      apiKey: env.SHOP_API_KEY,
-    });
+    const shopAPI = getShopAPI();
 
     const cartId = getCartId();
 

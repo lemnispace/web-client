@@ -45,7 +45,7 @@ export interface ProductItem {
   tags: string[];
   variants?: ProductVariant[];
   href: string;
-  img?: ProductImg;
+  img: ProductImg;
 }
 
 export interface Product extends ProductItem {

@@ -26,6 +26,7 @@ describe('ShopAPIProvider - Products', () => {
 
   const mockProduct: Product = {
     id: 'prod_123',
+    handle: 'test-product',
     title: 'Test Product',
     description: 'A great product for testing',
     price: 29.99,

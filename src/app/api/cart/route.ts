@@ -10,6 +10,16 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+const getShopAPI = () => {
+  if (!env.SHOP_API_URL) {
+    throw new Error("SHOP_API_URL is not configured");
+  }
+  return new ShopAPIProvider({
+    baseUrl: env.SHOP_API_URL,
+    apiKey: env.SHOP_API_KEY,
+  });
+};
+
 export const GET = async (): Promise<ServerApiResponse<Cart>> => {
   const cartId = getCartId();
   if (!cartId) {
@@ -21,10 +31,7 @@ export const GET = async (): Promise<ServerApiResponse<Cart>> => {
   }
 
   try {
-    const shopAPI = new ShopAPIProvider({
-      baseUrl: env.SHOP_API_URL,
-      apiKey: env.SHOP_API_KEY,
-    });
+    const shopAPI = getShopAPI();
     const cart = await shopAPI.getCart(cartId);
     return NextResponse.json({ data: cart }, { status: 200 });
   } catch (error) {
@@ -47,10 +54,7 @@ export const POST = async (
   }
 
   try {
-    const shopAPI = new ShopAPIProvider({
-      baseUrl: env.SHOP_API_URL,
-      apiKey: env.SHOP_API_KEY,
-    });
+    const shopAPI = getShopAPI();
     const body = await request.json().catch(() => ({}));
 
     // Parse request body
@@ -106,10 +110,7 @@ export const PATCH = async (
   }
 
   try {
-    const shopAPI = new ShopAPIProvider({
-      baseUrl: env.SHOP_API_URL,
-      apiKey: env.SHOP_API_KEY,
-    });
+    const shopAPI = getShopAPI();
     const data = await request.json();
     const validCartLinesInput = z.array(CartLineInputSchema).safeParse(data);
     const validationErrors = parseValidationErrors(validCartLinesInput);

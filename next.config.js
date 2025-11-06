@@ -23,7 +23,13 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.lemnispace.com",
       },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
     ],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   webpack: (config) => {
     config.externals = [...config.externals, "canvas", "jsdom"];

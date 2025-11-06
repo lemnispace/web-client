@@ -133,3 +133,14 @@ dist
 
 # typescript
 next-env.d.ts
+
+# test outputs
+*.out
+*.log
+test-results/
+*.png
+playwright-report/
+
+# docs for planning
+*.md
+tasks/
