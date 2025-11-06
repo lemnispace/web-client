@@ -1,5 +1,128 @@
 import { Template } from "@/lib/printful/types";
-import { VariantTemplate } from "./types";
+import { Product as ShopAPIProduct } from "@/lib/commerce/types";
+import { ProductItem, ProductImg, VariantTemplate } from "./types";
+import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
+import DOMPurify from "isomorphic-dompurify";
+
+/*
+ *  ╔══════════════════════════════════════════════════════════════════════════════╗
+ *  ║                               Shop-API Products                              ║
+ *  ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+/**
+ * Maps a shop-api Product to ProductItem used by the UI components
+ */
+export const mapShopAPIProduct = (product: ShopAPIProduct): ProductItem => {
+  // Calculate price range from product and its variants
+  const prices = [product.price, ...(product.variants?.map(v => v.price) || [])];
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+
+  // Map the first image to ProductImg format, or use a placeholder if no images exist
+  const img: ProductImg = product.images && product.images.length > 0
+    ? {
+        src: product.images[0].url,
+        alt: product.images[0].altText || product.title,
+        width: product.images[0].width || 800,
+        height: product.images[0].height || 800,
+        id: product.images[0].id || product.id,
+      }
+    : {
+        src: `https://placehold.co/800x800/e5e7eb/6b7280?text=${encodeURIComponent(product.title)}`,
+        alt: product.title,
+        width: 800,
+        height: 800,
+        id: product.id,
+      };
+
+  // Use product ID for routing since shop-api doesn't have unique handles
+  // Handles/slugs can be non-unique since they're generated from titles
+
+  return {
+    id: product.id,
+    name: product.title,
+    priceRange: {
+      minVariantPrice: {
+        amount: minPrice,
+        currencyCode: CurrencyCode.USD, // shop-api uses USD by default
+      },
+      maxVariantPrice: {
+        amount: maxPrice,
+        currencyCode: CurrencyCode.USD,
+      },
+    },
+    description: product.description,
+    descriptionHtml: DOMPurify.sanitize(product.description),
+    tags: product.tags,
+    href: `/shop/products/${product.id}`,
+    img,
+  };
+};
+
+/**
+ * Maps an array of shop-api Products to ProductItems
+ */
+export const mapShopAPIProducts = (products: ShopAPIProduct[]): ProductItem[] => {
+  return products.map(mapShopAPIProduct);
+};
+
+/**
+ * Maps shop-api Product to the full Product type expected by ProductView
+ */
+export const mapShopAPIProductToFull = (product: ShopAPIProduct) => {
+  const baseProduct = mapShopAPIProduct(product);
+
+  // Map all product images
+  const images: ProductImg[] = product.images?.map(img => ({
+    id: img.id || product.id,
+    src: img.url,
+    alt: img.altText || product.title,
+    width: img.width || 800,
+    height: img.height || 800,
+  })) || [];
+
+  // Map variants to the expected format
+  const variants = product.variants?.map(variant => {
+    const variantImage = variant.image ? {
+      id: variant.image.id || variant.id,
+      src: variant.image.url,
+      alt: variant.image.altText || variant.title,
+      width: variant.image.width || 800,
+      height: variant.image.height || 800,
+    } : undefined;
+
+    // Map variant options to the format expected by ProductView
+    const variantOptions: Record<string, string> = {};
+    variant.options?.forEach(opt => {
+      variantOptions[opt.name] = opt.value;
+    });
+
+    return {
+      id: variant.id,
+      title: variant.title,
+      price: {
+        amount: String(variant.price),
+        currencyCode: CurrencyCode.USD,
+      },
+      sku: variant.sku,
+      availableForSale: (variant.inventory || 0) > 0,
+      quantityAvailable: variant.inventory || 0,
+      image: variantImage,
+      ...variantOptions,
+    };
+  }) || [];
+
+  return {
+    ...baseProduct,
+    images,
+    variants,
+    // Customization fields - not yet supported in shop-api
+    customVariants: undefined,
+    customProductId: undefined,
+    metafields: undefined,
+  };
+};
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗

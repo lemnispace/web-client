@@ -79,6 +79,10 @@ const fetchTextMosaic = async (
   }
 
   try {
+    if (!env.TEXT_MOSAIC_API_URL) {
+      throw new Error("TEXT_MOSAIC_API_URL is not configured");
+    }
+
     // Make the POST request to the endpoint using fetch
     const response = await fetch(env.TEXT_MOSAIC_API_URL, {
       method: "POST",

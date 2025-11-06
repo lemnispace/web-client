@@ -2,6 +2,16 @@ import { ShopAPIProvider } from "@/lib/commerce/providers/shop-api";
 import { env } from "@/utils/env";
 import { NextResponse } from "next/server";
 
+const getShopAPI = () => {
+  if (!env.SHOP_API_URL) {
+    throw new Error("SHOP_API_URL is not configured");
+  }
+  return new ShopAPIProvider({
+    baseUrl: env.SHOP_API_URL,
+    apiKey: env.SHOP_API_KEY,
+  });
+};
+
 /**
  * Sync Printful Catalog
  *
@@ -13,10 +23,7 @@ import { NextResponse } from "next/server";
  */
 export async function POST() {
   try {
-    const shopAPI = new ShopAPIProvider({
-      baseUrl: env.SHOP_API_URL,
-      apiKey: env.SHOP_API_KEY,
-    });
+    const shopAPI = getShopAPI();
 
     const result = await shopAPI.syncPrintfulCatalog();
 

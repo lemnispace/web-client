@@ -13,7 +13,8 @@ interface CartItemProps {
 
 export function CartItem({ item }: CartItemProps) {
   const productTitle = item.product?.title || "Product";
-  const productHandle = item.product?.handle;
+  // Use productId for routing since shop-api doesn't have unique handles
+  const productId = item.productId;
 
   return (
     <li className="flex py-6 sm:py-10">
@@ -32,9 +33,9 @@ export function CartItem({ item }: CartItemProps) {
           <div>
             <div className="flex justify-between">
               <h3 className="text-sm">
-                {productHandle ? (
+                {productId ? (
                   <Link
-                    href={`/shop/products/${productHandle}`}
+                    href={`/shop/products/${productId}`}
                     className="font-medium text-gray-700 hover:text-gray-800"
                   >
                     {productTitle}

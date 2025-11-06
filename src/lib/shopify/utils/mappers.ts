@@ -55,7 +55,7 @@ interface ProductItem {
   tags: string[];
   variants?: ProductVariant[];
   href: string;
-  img?: ProductImg;
+  img: ProductImg;
 }
 
 export interface Product extends ProductItem {
@@ -109,7 +109,13 @@ export const mapProducts = (
             height: img.height,
             id: img.id,
           }
-        : undefined,
+        : {
+            src: `https://placehold.co/800x800/e5e7eb/6b7280?text=${encodeURIComponent(e.node.title)}`,
+            alt: e.node.title,
+            width: 800,
+            height: 800,
+            id: e.node.id,
+          },
       variants:
         e.node.variants &&
         mapProductVariantNodeToProductVariant(e.node.variants),
@@ -216,6 +222,17 @@ export function mapProduct(
     height: node.height,
     id: node.id,
   }));
+
+  // Extract the first image for the img field (required by ProductItem)
+  const firstImage = images?.[0];
+  const img: ProductImg = firstImage || {
+    src: `https://placehold.co/800x800/e5e7eb/6b7280?text=${encodeURIComponent(product.title)}`,
+    alt: product.title,
+    width: 800,
+    height: 800,
+    id: product.id,
+  };
+
   return {
     id: product.id,
     name: product.title,
@@ -225,6 +242,7 @@ export function mapProduct(
     priceRange: product.priceRange,
     type: product.productType,
     href: getNavigationLink(product.handle, "Product"),
+    img,
     images,
     metafields: product.metafields && mapMetafields(product.metafields),
     variants:

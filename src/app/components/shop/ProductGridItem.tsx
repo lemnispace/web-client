@@ -84,7 +84,7 @@ export const ProductGridItem = ({
       aria-labelledby={`${product.id}`}
       plain
     >
-      {product.img && <ProductGridItemImg {...product.img} />}
+      <ProductGridItemImg {...product.img} />
       <ProductGridItemTitle
         name={product.name}
         id={product.id}

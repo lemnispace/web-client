@@ -2,72 +2,32 @@
 
 ## Review Scope
 - Repository: `LemniSpace/web-client`
-- Focus: Cart workflows, customization/editor flows, mosaic generation, commerce provider usage, API integration, SSR data hydration.
+- Snapshot: current head after cart reroute + mosaic fixes
+- Focused areas: client cart workflow (`useCart`, components, API routes), product navigation, commerce types, and supporting utilities.
 
 ## Critical Findings
 
-1. **Cart removal crashes client (High)**  
-   - `src/app/components/cart/cartUtils.ts:59`  
-     `handleRemoveCartItem` still throws `Error("Not implemented")`, yet the UI wires this helper to the “Remove” buttons. A user clicking the button triggers an unhandled exception, halting cart interactions.  
-   - `src/app/components/cart/CartItemList.tsx:31`  
-     The list attaches `handleRemoveCartItem` directly to the click handler, so the throw surfaces immediately.  
-   - Recommendation: Implement the removal path to call the API route (see Finding 2) and return the updated cart; ensure the hook/state updates mirror add/update flows.
+1. **Cart additions still send the wrong product identifier (High)**  
+   - `useCart.addItem` posts a Shopify-style payload to `/api/cart`, ignoring the `productId` supplied by callers (`src/app/hooks/useCart.ts:48-83`). Only `merchandiseId` (variant id) is sent.  
+   - The API route converts that `merchandiseId` into both `productId` and `variantId` (`src/app/api/cart/route.ts:86-113`), as flagged by the in-code TODO. Shop-api expects a real product id alongside the variant; duplicating the variant id means the backend can’t look up catalog data reliably.  
+   - Result: cart creation will either fail (400/422) or store incorrect data, breaking pricing, fulfillment, or order creation.  
+   - Fix: include the real `productId` in the client request and update the API route to forward both fields to `shopAPI.addToCart`. Remove the stopgap assignment once the contract is corrected; add tests covering add-to-cart with distinct product/variant ids.
 
-2. **API rejects cart deletions (High)**  
-   - `src/utils/validators/cartInputValidator.ts:37`  
-     `CartLineUpdateInputSchema` sets `min: 1` which means `quantity: 0` is invalid.  
-   - `src/app/api/cart/line/route.ts:54`  
-     The route intends to treat `quantity === 0` as a removal, but validation fails first, so Ghost carts remain.  
-   - Recommendation: Allow zero in the schema (or provide a dedicated DELETE endpoint) so the PATCH route can legitimately call `shopAPI.removeCartItem`.
-
-3. **ShopAPIProvider mishandles 204 responses (High)**  
-   - `src/lib/commerce/providers/shop-api.ts:74`  
-     `request()` always invokes `response.json()`. The service comments note DELETE endpoints return 204 with no body; calling `json()` on 204 triggers a `SyntaxError`, bubbling up to the UI.  
-   - Affected call sites: `removeCartItem` (`src/lib/commerce/providers/shop-api.ts:231`), `deleteCustomizationImage` (`src/lib/commerce/providers/shop-api.ts:472`), `linkImageToCartItem` (`src/lib/commerce/providers/shop-api.ts:481`).  
-   - Recommendation: Detect empty-body responses (204 or `Content-Length: 0`) and return `undefined`. Alternatively provide a separate helper for no-content calls; whichever path is chosen, adjust all deletion callers accordingly.
-
-4. **Missing API key in `/api/cart/line` route (High)**  
-   - `src/app/api/cart/line/route.ts:21-23`  
-     The route constructs `ShopAPIProvider` with only `baseUrl`, unlike `/api/cart` which uses `env.SHOP_API_KEY`. Any secured shop-api call will yield 401.  
-   - Recommendation: Align the configuration with the other routes (`env.SHOP_API_URL`, `env.SHOP_API_KEY`).
-
-5. **SSR cart page ignores httpOnly cart cookie (High)**  
-   - `src/app/shop/cart/page.tsx:12`  
-     `tryFetchCart()` is called without an id; the helper only fetches when an id is provided. The cookie is never read server-side, so SSR always reports an empty cart.  
-   - `src/lib/shopify/services/ShopifyCartService.ts:42-55`  
-     The service expects a supplied id but the page does not provide one.  
-   - Recommendation: In the page route, read `cookies().get("cart_id")`, pass it to the service (or call the Next.js API route) so the SSR payload reflects the real cart state.
-
-6. **Cart cookies diverge between server and client (High)**  
-   - Server sets `cart_id` httpOnly: `src/utils/cookies/cartId.ts:6-15`.  
-   - Client hook reads `cartId`: `src/app/hooks/useCart.ts:28,49`.  
-   - Because httpOnly cookies are hidden from `document.cookie`, the client never sees the server cart, creating separate carts per environment.  
-   - Recommendation: Route all client operations through the Next.js API (per your direction), drop direct document.cookie access, and rely on the httpOnly cookie managed by the API. Alternatively, standardize on a single cookie name/visibility, but the API routing path is safer.
-
-7. **Cart hook still bypasses API (High)**  
-   - `src/app/hooks/useCart.ts:28-82`  
-     The hook instantiates `ShopAPIProvider` directly, calling shop-api from the browser with tokens pulled from `process.env`. This bypasses the Next.js API, duplicates cookie logic, and risks exposing backend secrets.  
-   - Recommendation: Replace direct provider usage with fetches to `/api/cart` and `/api/cart/line`. Persist cart state locally from API responses.
-
-8. **Mosaic preview ignores font size (Medium)**  
-   - Client posts `baseFontSize`: `src/app/components/editor/useEditorActions.tsx:145-166`.  
-   - API expects `base_font_size`: `src/app/api/mosaic/route.ts:53-85`.  
-   - The mismatch results in the validated payload discarding the user-provided size.  
-   - Recommendation: Either rename the form key to `base_font_size` before submission or adjust the API to accept both variants before validation.
+2. **Cart item links still 404 whenever `handle` is absent (High)**  
+   - `CartItem` builds detail URLs from `item.product?.handle`, falling back to `productId` (`src/app/components/cart/CartItem.tsx:14-33`).  
+   - Shop routes accept slugs/handles (`src/app/shop/products/[slug]/page.tsx`), not internal ids. If shop-api omits `handle` on cart items—common when the cart endpoint only returns ids—the link drills into `/shop/products/prod_123`, which 404s.  
+   - Fix: ensure the backend cart response includes a handle (or some routable slug) and treat missing handles as a signal to hide/disable the link. At minimum, guard against the fallback to productId so we don’t provide a broken navigation path.
 
 ## Additional Observations
 
-- `/api/cart/route.ts` maps `merchandiseId` to both `productId` and `variantId` (`src/app/api/cart/route.ts:131`), marked with TODO. Once shop-api is the sole backend, revisit proper product/variant mapping to avoid data integrity issues.
-- SSR utilities such as `ShopifyCartService.createCartWithManagedCookie` still rely on Shopify GraphQL. As shop-api becomes authoritative, consider pruning unused Shopify paths to reduce maintenance overhead.
-- The editor stack (`useEditorActions`, `fetchMosaic`, API route) mixes client fetches to `/api/mosaic` and direct shop-api usage. After routing everything through Next.js, keep editor network calls behind server routes for consistent auth and telemetry.
+- The new commerce `Product`/`CartItem` types assume `handle`/`product.handle` are always present (`src/lib/commerce/types.ts:12-44`). Validate that the shop-api responses actually include these fields; otherwise the type contract and the UI expectations diverge.  
+- `useCart` now powers both the cart page and product detail flow; consider centralising the hook via context or Zustand to avoid redundant API calls on every component mount.  
+- `QuantitySelector` still caps options at 20 via `MAX_QUANTITY`, even though `CartItem` passes `max={99}`—something to revisit if larger quantities should be supported.
 
 ## Suggested Next Steps
 
-1. Fix the cart API contract (schema adjusts, API key injection, ShopAPIProvider 204 handling).  
-2. Update `handleRemoveCartItem` and related client utilities to use the corrected API.  
-3. Refactor `useCart` (and any other client commerce adapters) to communicate exclusively through the Next.js routes.  
-4. Align SSR cart hydration with the server cookie and new API-backed hook.  
-5. Patch the mosaic key mismatch and add regression tests for quantitative fields.  
-6. Add integration/unit tests covering cart add/update/remove paths via the Next.js API to prevent regressions.
+1. Update the `/api/cart` request/handler to transmit true product ids alongside variant ids; add integration coverage to keep it correct.  
+2. Guarantee cart items expose a valid storefront handle (or remove the link when absent) to prevent 404 navigation.  
+3. Once the above ship, run the end-to-end cart flow (product page add → cart page → product link) to confirm state and routing behave correctly.
 
-Each recommendation favors consolidating cart state and network calls behind Next.js so the httpOnly cookie acts as the single source of truth, matching the direction you confirmed.
+Addressing these items will stabilise the shop-api cart integration and remove the last functional gaps from the refactor.

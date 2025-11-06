@@ -217,6 +217,13 @@ describe("mapProduct", () => {
       },
       type: "test product",
       href: "/shop/products/product-1",
+      img: {
+        src: "image1.jpg",
+        alt: "Image 1",
+        width: 640,
+        height: 640,
+        id: "image-1",
+      },
       images: [
         {
           src: "image1.jpg",
@@ -539,6 +546,13 @@ describe("mapCustomProduct", () => {
       },
       type: "custom",
       href: "/shop/products/custom-product-2",
+      img: {
+        src: "https://placehold.co/800x800/e5e7eb/6b7280?text=Custom%20Product%202",
+        alt: "Custom Product 2",
+        width: 800,
+        height: 800,
+        id: "2",
+      },
       images: [],
       variants: [
         {
