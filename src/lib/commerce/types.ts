@@ -45,6 +45,7 @@ export interface ProductImage {
   altText?: string;
   width?: number;
   height?: number;
+  variants?: string[]; // Array of variant SKUs associated with this image
 }
 
 export interface VariantSearchParams {

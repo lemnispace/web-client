@@ -58,12 +58,35 @@ export default function ImageGallery({
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
   );
+
+  // Determine the primary variant option to use for image filtering
+  const primaryVariantOption = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) {
+      return null;
+    }
+    // Priority: Color > Size > Material > Style
+    const firstVariant = product.variants[0];
+    if (firstVariant.Color) return "Color" as ProductVariantOptionType;
+    if (firstVariant.Size) return "Size" as ProductVariantOptionType;
+    if (firstVariant.Material) return "Material" as ProductVariantOptionType;
+    if (firstVariant.Style) return "Style" as ProductVariantOptionType;
+    return null;
+  }, [product.variants]);
+
   const images = useMemo(
-    () =>
-      selectedVariant?.Color
-        ? getImagesByVariant(product, "Color", selectedVariant.Color)
-        : [],
-    [selectedVariant, product]
+    () => {
+      if (!selectedVariant || !primaryVariantOption) {
+        // If no variant selected or no option to filter by, show variant's image if available
+        return selectedVariant?.image
+          ? [{ variantId: selectedVariant.id, ...selectedVariant.image }]
+          : [];
+      }
+      const optionValue = selectedVariant[primaryVariantOption];
+      return optionValue
+        ? getImagesByVariant(product, primaryVariantOption, optionValue)
+        : [];
+    },
+    [selectedVariant, product, primaryVariantOption]
   );
   const selectedIndex = useMemo(() => {
     if (!selectedVariant) {
