@@ -38,6 +38,9 @@ export class ShopAPIProvider implements CommerceProvider {
   private apiKey?: string;
 
   constructor(config: ShopAPIConfig) {
+    if (!config.baseUrl) {
+      throw new Error("SHOP_API_URL is required but not configured");
+    }
     this.baseUrl = config.baseUrl.replace(/\/$/, ""); // Remove trailing slash
     this.apiKey = config.apiKey;
   }

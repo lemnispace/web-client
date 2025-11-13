@@ -5,12 +5,10 @@
  * user-uploaded images for product customizations in shop-api.
  */
 
-import { POST } from '../route';
-import type { CustomizationUploadResponse } from '../route';
+import { POST, type CustomizationUploadResponse } from '../route';
 import * as commerceModule from '@/lib/commerce';
 import * as visitorIdModule from '@/utils/cookies/visitorId';
 import { MAX_IMG_FILE_SIZE } from '@/utils/constants';
-import { NextRequest } from 'next/server';
 
 // Mock dependencies
 jest.mock('@/lib/commerce');
