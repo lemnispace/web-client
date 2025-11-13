@@ -14,7 +14,7 @@
  */
 
 import { ShopAPIProvider } from '../shop-api';
-import type { Product, ListResponse, PaginationInfo } from '../../types';
+import type { Product } from '../../types';
 
 // Mock fetch globally
 global.fetch = jest.fn();

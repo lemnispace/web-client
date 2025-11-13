@@ -14,8 +14,11 @@ import { ShopAPIProvider } from '@/lib/commerce/providers/shop-api';
 import type { Cart, CartItem } from '@/lib/commerce/types';
 import * as cartIdCookies from '@/utils/cookies/cartId';
 
-// Mock NextResponse
+// Mock NextResponse - but we need to preserve NextRequest from the actual module
+const actualNextServer = jest.requireActual('next/server');
+
 jest.mock('next/server', () => ({
+  ...jest.requireActual('next/server'),
   NextResponse: {
     json: jest.fn((body, init) => {
       const headers = new Map([['content-type', 'application/json']]);
@@ -58,12 +61,11 @@ describe('Cart API Routes Integration Tests', () => {
     variantId: 'var_456',
     quantity: 2,
     price: 29.99,
-    title: 'Test Product',
+    product: {
+      title: 'Test Product',
+    },
     variant: {
-      id: 'var_456',
       title: 'Medium / Blue',
-      price: 29.99,
-      available: true,
     },
   };
 
@@ -163,7 +165,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockCreateCart = jest.fn().mockResolvedValue(mockEmptyCart);
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({}),
       }) as any;
@@ -184,7 +186,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockCreateCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({ customerId: mockCustomerId }),
       });
@@ -210,7 +212,7 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({ items }),
       });
@@ -231,7 +233,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockGetCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.getCart = mockGetCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({}),
       }) as any;
@@ -253,7 +255,7 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.getCart = mockGetCart;
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({}),
       }) as any;
@@ -272,7 +274,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockCreateCart = jest.fn().mockRejectedValue(new Error('Service unavailable'));
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: JSON.stringify({}),
       }) as any;
@@ -288,7 +290,7 @@ describe('Cart API Routes Integration Tests', () => {
     });
 
     it('should return 405 for non-POST methods', async () => {
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PUT',
       });
 
@@ -307,7 +309,7 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
       // Create request with invalid JSON
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'POST',
         body: 'invalid json',
         headers: {
@@ -337,7 +339,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockAddToCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -374,7 +376,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockAddToCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -411,7 +413,7 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -435,9 +437,7 @@ describe('Cart API Routes Integration Tests', () => {
         },
       ];
 
-      const mockAddToCartFail = jest.fn().mockRejectedValue(new Error('Cart not found'));
       const mockCreateCart = jest.fn().mockResolvedValue(mockEmptyCart);
-      const mockAddToCartSuccess = jest.fn().mockResolvedValue(mockCart);
 
       const mockAddToCart = jest.fn()
         .mockRejectedValueOnce(new Error('Cart not found')) // First call fails
@@ -446,7 +446,7 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
       mockShopAPIProvider.prototype.createCart = mockCreateCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -466,7 +466,7 @@ describe('Cart API Routes Integration Tests', () => {
         },
       ];
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(invalidCartLines),
       });
@@ -487,7 +487,7 @@ describe('Cart API Routes Integration Tests', () => {
         },
       ];
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(invalidCartLines),
       });
@@ -513,7 +513,7 @@ describe('Cart API Routes Integration Tests', () => {
         },
       ];
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -531,7 +531,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockAddToCart = jest.fn().mockRejectedValue(new Error('Service error'));
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify([
           { merchandiseId: 'var_456', quantity: 1 },
@@ -546,7 +546,7 @@ describe('Cart API Routes Integration Tests', () => {
     });
 
     it('should return 405 for non-PATCH methods', async () => {
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'DELETE',
       });
 
@@ -567,7 +567,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockAddToCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify(cartLines),
       });
@@ -600,7 +600,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify(updateData),
       });
@@ -624,7 +624,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify(updateData),
       });
@@ -649,7 +649,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify(updateData),
       });
@@ -666,7 +666,7 @@ describe('Cart API Routes Integration Tests', () => {
     it('should return 404 when no cart found', async () => {
       mockGetCartId.mockReturnValue(undefined);
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify([{ id: 'item_001', quantity: 2 }]),
       });
@@ -691,7 +691,7 @@ describe('Cart API Routes Integration Tests', () => {
         },
       ];
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify(invalidData),
       });
@@ -709,7 +709,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockRejectedValue(new Error('Update failed'));
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify([{ id: 'item_001', quantity: 2 }]),
       });
@@ -722,7 +722,7 @@ describe('Cart API Routes Integration Tests', () => {
     });
 
     it('should return 405 for non-PATCH methods', async () => {
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'POST',
       });
 
@@ -744,7 +744,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify(updateData),
       });
@@ -761,7 +761,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockRejectedValue(new Error('Item not found'));
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify([{ id: 'item_nonexistent', quantity: 2 }]),
       });
@@ -782,11 +782,11 @@ describe('Cart API Routes Integration Tests', () => {
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
       const requests = [
-        PATCH(new Request('http://localhost:3000/api/cart', {
+        PATCH(new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
           method: 'PATCH',
           body: JSON.stringify([{ merchandiseId: 'var_1', quantity: 1 }]),
         })),
-        PATCH(new Request('http://localhost:3000/api/cart', {
+        PATCH(new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
           method: 'PATCH',
           body: JSON.stringify([{ merchandiseId: 'var_2', quantity: 2 }]),
         })),
@@ -802,7 +802,7 @@ describe('Cart API Routes Integration Tests', () => {
     it('should handle empty cart lines array', async () => {
       mockGetCartId.mockReturnValue(mockCartId);
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify([]),
       });
@@ -820,7 +820,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify([{ id: specialId, quantity: 2 }]),
       });
@@ -838,7 +838,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockAddToCart = jest.fn().mockResolvedValue(mockCart);
       mockShopAPIProvider.prototype.addToCart = mockAddToCart;
 
-      const request = new Request('http://localhost:3000/api/cart', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart', {
         method: 'PATCH',
         body: JSON.stringify([{ merchandiseId: 'var_456', quantity: largeQuantity }]),
       });
@@ -884,7 +884,7 @@ describe('Cart API Routes Integration Tests', () => {
       const mockUpdateCartItem = jest.fn().mockResolvedValue(updatedCart);
       mockShopAPIProvider.prototype.updateCartItem = mockUpdateCartItem;
 
-      const request = new Request('http://localhost:3000/api/cart/line', {
+      const request = new actualNextServer.NextRequest('http://localhost:3000/api/cart/line', {
         method: 'PATCH',
         body: JSON.stringify([{ id: 'item_001', quantity: 5 }]),
       });

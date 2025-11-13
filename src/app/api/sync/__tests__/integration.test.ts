@@ -6,7 +6,6 @@
 
 import { POST } from '../route';
 import { ShopAPIProvider } from '@/lib/commerce/providers/shop-api';
-import { NextResponse } from 'next/server';
 
 // Mock NextResponse
 jest.mock('next/server', () => ({
