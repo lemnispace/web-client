@@ -82,15 +82,27 @@ export const mapShopAPIProductToFull = (product: ShopAPIProduct) => {
     height: img.height || 800,
   })) || [];
 
+  // Create a map of variant SKU to image for quick lookup
+  const variantToImageMap = new Map<string, ProductImg>();
+  product.images?.forEach(img => {
+    const mappedImg: ProductImg = {
+      id: img.id || product.id,
+      src: img.url,
+      alt: img.altText || product.title,
+      width: img.width || 800,
+      height: img.height || 800,
+    };
+
+    // Map each variant SKU associated with this image
+    img.variants?.forEach((variantSku: string) => {
+      variantToImageMap.set(variantSku, mappedImg);
+    });
+  });
+
   // Map variants to the expected format
   const variants = product.variants?.map(variant => {
-    const variantImage = variant.image ? {
-      id: variant.image.id || variant.id,
-      src: variant.image.url,
-      alt: variant.image.altText || variant.title,
-      width: variant.image.width || 800,
-      height: variant.image.height || 800,
-    } : undefined;
+    // Find the image associated with this variant's SKU
+    const variantImage = variant.sku ? variantToImageMap.get(variant.sku) : undefined;
 
     // Map variant options to the format expected by ProductView
     const variantOptions: Record<string, string> = {};
