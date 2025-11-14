@@ -75,11 +75,26 @@ export default function ImageGallery({
 
   const images = useMemo(
     () => {
-      if (!selectedVariant || !primaryVariantOption) {
-        // If no variant selected or no option to filter by, show variant's image if available
-        return selectedVariant?.image
-          ? [{ variantId: selectedVariant.id, ...selectedVariant.image }]
-          : [];
+      if (!primaryVariantOption) {
+        // No primary variant option: show all product images if available
+        if (product.images && product.images.length > 0) {
+          return product.images.map((img, idx) => ({
+            variantId: "", // No variant, so use empty string or `${idx}`
+            ...img,
+          }));
+        }
+        // If no product images, show the first available variant image
+        const firstVariantWithImage = product.variants?.find(v => v.image);
+        if (firstVariantWithImage && firstVariantWithImage.image) {
+          return [{
+            variantId: firstVariantWithImage.id,
+            ...firstVariantWithImage.image,
+          }];
+        }
+        return [];
+      }
+      if (!selectedVariant) {
+        return [];
       }
       const optionValue = selectedVariant[primaryVariantOption];
       return optionValue
