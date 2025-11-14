@@ -5,6 +5,8 @@ import { getDefaultProvider } from "@/lib/commerce";
 import { PRODUCTS_MAIN_MESSAGE_SECTION_TEXT } from "@/utils/text";
 import { mapShopAPIProducts } from "@/utils/mappers";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Shop() {
   const commerce = getDefaultProvider();
   const response = await commerce.getProducts({ limit: 20, status: 'active' });
