@@ -6,6 +6,9 @@
  * - POST /api/cart - Create new cart or return existing cart
  * - PATCH /api/cart - Add items to existing or new cart
  * - PATCH /api/cart/line - Update cart item quantity or remove item
+ *
+ * Note: These are mocked integration tests that test the API route handlers
+ * without requiring a running shop-api service.
  */
 
 import { GET, POST, PATCH } from '../route';

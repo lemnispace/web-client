@@ -14,7 +14,10 @@ import {
   createTestProvider,
 } from './setup';
 
-describe('Full Stack Integration Tests', () => {
+// Skip these tests in CI environment as they require shop-api to be running
+const describeOrSkip = process.env.CI === 'true' ? describe.skip : describe;
+
+describeOrSkip('Full Stack Integration Tests', () => {
   let provider: ShopAPIProvider;
 
   beforeAll(() => {
