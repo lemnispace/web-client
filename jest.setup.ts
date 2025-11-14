@@ -23,6 +23,14 @@ if (typeof global.FormData === 'undefined') {
   global.FormData = require('form-data');
 }
 
+// Polyfill TransformStream for Playwright tests
+// @ts-ignore
+if (typeof global.TransformStream === 'undefined') {
+  const { TransformStream } = require('node:stream/web');
+  // @ts-ignore
+  global.TransformStream = TransformStream;
+}
+
 // Set up environment variables for tests
 process.env.TEXT_MOSAIC_API_URL = 'http://localhost:3001';
 process.env.LEMNISPACE_MOCKUP_GEN_API_URL = 'https://api.printful.com';
