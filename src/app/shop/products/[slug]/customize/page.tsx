@@ -7,7 +7,7 @@ import { Orientation } from "@/lib/printful/types";
 import { mapPrintfulTemplates, mapShopAPIProductToFull } from "@/utils/mappers";
 import { toInt } from "@/utils/parsers";
 import { PRODUCTS_CREATE_MESSAGE_SECTION_TEXT } from "@/utils/text";
-import { ProductVariant } from "@/utils/types";
+import { ProductVariant, VariantTemplate } from "@/utils/types";
 import { isDefined } from "@/utils/validators";
 import { redirect } from "next/navigation";
 
@@ -87,12 +87,46 @@ export default async function CustomizeProduct(props: MosaicProps) {
       throw new Error("variant not found");
     }
 
-    // Fetch Printful templates
-    // Note: Shop-API products don't have orientation metafields yet, so passing undefined
-    const variantTemplates = await fetchVariantTemplates(
-      variant,
-      undefined
+    // Try to fetch Printful templates, but provide fallback if metafields are missing
+    let variantTemplates: any[] = [];
+    const catalogProductId = toInt(
+      variant.metafields?.printful_catalog_product_id?.value
     );
+    const catalogVariantId = toInt(
+      variant.metafields?.printful_catalog_variant_id?.value
+    );
+
+    if (isDefined(catalogProductId) && isDefined(catalogVariantId)) {
+      try {
+        variantTemplates = await fetchVariantTemplates(variant, undefined);
+      } catch (error) {
+        console.error("Error fetching Printful templates:", error);
+        // Continue with default template
+      }
+    }
+
+    // Use default template if no Printful templates available
+    const templates: VariantTemplate[] =
+      variantTemplates.length > 0
+        ? mapPrintfulTemplates(variantTemplates)
+        : [
+            {
+              templateId: 0,
+              imageUrl: "",
+              backgroundUrl: "",
+              backgroundColor: "#FFFFFF",
+              printfileId: 0,
+              templateWidth: 1800,
+              templateHeight: 2400,
+              printAreaWidth: 1800,
+              printAreaHeight: 2400,
+              printAreaTop: 0,
+              printAreaLeft: 0,
+              isTemplateOnFront: true,
+              orientation: "vertical" as const,
+              conflictingPlacements: [],
+            },
+          ];
 
     return (
       <main className="bg-white flex-1">
@@ -110,7 +144,7 @@ export default async function CustomizeProduct(props: MosaicProps) {
           <ImgEditor
             productVariant={variant}
             product={product}
-            template={mapPrintfulTemplates(variantTemplates)[0]}
+            template={templates[0]}
           />
         </Container>
       </main>

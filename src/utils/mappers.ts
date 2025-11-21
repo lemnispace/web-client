@@ -1,8 +1,8 @@
-import { Template } from "@/lib/printful/types";
 import { Product as ShopAPIProduct } from "@/lib/commerce/types";
-import { ProductItem, ProductImg, VariantTemplate } from "./types";
+import { Template } from "@/lib/printful/types";
 import { CurrencyCode } from "@/lib/shopify/types/shopifyCurrencyCodes";
 import DOMPurify from "isomorphic-dompurify";
+import { ProductImg, ProductItem, VariantTemplate } from "./types";
 
 /*
  *  ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -15,26 +15,40 @@ import DOMPurify from "isomorphic-dompurify";
  */
 export const mapShopAPIProduct = (product: ShopAPIProduct): ProductItem => {
   // Calculate price range from product and its variants
-  const prices = [product.price, ...(product.variants?.map(v => v.price) || [])];
+  const prices = [
+    product.price,
+    ...(product.variants?.map((v) => v.price) || []),
+  ];
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
 
   // Map the first image to ProductImg format, or use a placeholder if no images exist
-  const img: ProductImg = product.images && product.images.length > 0
-    ? {
-        src: product.images[0].url,
-        alt: product.images[0].altText || product.title,
-        width: product.images[0].width || 800,
-        height: product.images[0].height || 800,
-        id: product.images[0].id || product.id,
-      }
-    : {
-        src: `https://placehold.co/800x800/e5e7eb/6b7280?text=${encodeURIComponent(product.title)}`,
-        alt: product.title,
-        width: 800,
-        height: 800,
-        id: product.id,
-      };
+  const img: ProductImg =
+    product.images && product.images.length > 0
+      ? {
+          src: product.images[0].url,
+          alt: product.images[0].altText || product.title,
+          width: product.images[0].width || 800,
+          height: product.images[0].height || 800,
+          id: product.images[0].id || product.id,
+        }
+      : {
+          // Use local generated images based on product type
+          src:
+            product.tags?.includes("drinkware") || product.tags?.includes("mug")
+              ? "/products/mug.png"
+              : product.tags?.includes("apparel") ||
+                  product.tags?.includes("t-shirt")
+                ? "/products/tshirt.png"
+                : product.tags?.includes("canvas") ||
+                    product.tags?.includes("print")
+                  ? "/products/canvas.png"
+                  : "/products/mug.png", // default fallback
+          alt: product.title,
+          width: 800,
+          height: 800,
+          id: product.id,
+        };
 
   // Use product ID for routing since shop-api doesn't have unique handles
   // Handles/slugs can be non-unique since they're generated from titles
@@ -63,7 +77,9 @@ export const mapShopAPIProduct = (product: ShopAPIProduct): ProductItem => {
 /**
  * Maps an array of shop-api Products to ProductItems
  */
-export const mapShopAPIProducts = (products: ShopAPIProduct[]): ProductItem[] => {
+export const mapShopAPIProducts = (
+  products: ShopAPIProduct[]
+): ProductItem[] => {
   return products.map(mapShopAPIProduct);
 };
 
@@ -74,17 +90,18 @@ export const mapShopAPIProductToFull = (product: ShopAPIProduct) => {
   const baseProduct = mapShopAPIProduct(product);
 
   // Map all product images
-  const images: ProductImg[] = product.images?.map(img => ({
-    id: img.id || product.id,
-    src: img.url,
-    alt: img.altText || product.title,
-    width: img.width || 800,
-    height: img.height || 800,
-  })) || [];
+  const images: ProductImg[] =
+    product.images?.map((img) => ({
+      id: img.id || product.id,
+      src: img.url,
+      alt: img.altText || product.title,
+      width: img.width || 800,
+      height: img.height || 800,
+    })) || [];
 
   // Create a map of variant SKU to image for quick lookup
   const variantToImageMap = new Map<string, ProductImg>();
-  product.images?.forEach(img => {
+  product.images?.forEach((img) => {
     const mappedImg: ProductImg = {
       id: img.id || product.id,
       src: img.url,
@@ -99,31 +116,77 @@ export const mapShopAPIProductToFull = (product: ShopAPIProduct) => {
     });
   });
 
-  // Map variants to the expected format
-  const variants = product.variants?.map(variant => {
-    // Find the image associated with this variant's SKU
-    const variantImage = variant.sku ? variantToImageMap.get(variant.sku) : undefined;
-
-    // Map variant options to the format expected by ProductView
-    const variantOptions: Record<string, string> = {};
-    variant.options?.forEach(opt => {
-      variantOptions[opt.name] = opt.value;
-    });
+  // Get fallback image based on product tags
+  const getFallbackImage = (): ProductImg => {
+    const src =
+      product.tags?.includes("drinkware") || product.tags?.includes("mug")
+        ? "/products/mug.png"
+        : product.tags?.includes("apparel") || product.tags?.includes("t-shirt")
+          ? "/products/tshirt.png"
+          : product.tags?.includes("canvas") || product.tags?.includes("print")
+            ? "/products/canvas.png"
+            : "/products/mug.png";
 
     return {
-      id: variant.id,
-      title: variant.title,
-      price: {
-        amount: String(variant.price),
-        currencyCode: CurrencyCode.USD,
-      },
-      sku: variant.sku,
-      availableForSale: (variant.inventory || 0) > 0,
-      quantityAvailable: variant.inventory || 0,
-      image: variantImage,
-      ...variantOptions,
+      id: product.id,
+      src,
+      alt: product.title,
+      width: 800,
+      height: 800,
     };
-  }) || [];
+  };
+
+  // Map variants to the expected format
+  const variants =
+    product.variants?.map((variant) => {
+      // Find the image associated with this variant's SKU
+      const variantImage = variant.sku
+        ? variantToImageMap.get(variant.sku)
+        : undefined;
+
+      // Use fallback image if no variant image found
+      const finalImage = variantImage || getFallbackImage();
+
+      // Map variant options to the format expected by ProductView
+      const variantOptions: Record<string, string> = {};
+      variant.options?.forEach((opt) => {
+        variantOptions[opt.name] = opt.value;
+      });
+
+      // Extract Printful metadata from fulfillmentData
+      const metafields =
+        variant.fulfillmentData?.partnerId === "printful"
+          ? {
+              printful_catalog_product_id: {
+                id: `gid://shopify/Metafield/${variant.id}_catalog_product`,
+                namespace: "printful",
+                value: variant.fulfillmentData.partnerProductId,
+                type: "string",
+              },
+              printful_catalog_variant_id: {
+                id: `gid://shopify/Metafield/${variant.id}_catalog_variant`,
+                namespace: "printful",
+                value: variant.fulfillmentData.partnerVariantId,
+                type: "string",
+              },
+            }
+          : undefined;
+
+      return {
+        id: variant.id,
+        title: variant.title,
+        price: {
+          amount: String(variant.price),
+          currencyCode: CurrencyCode.USD,
+        },
+        sku: variant.sku,
+        availableForSale: (variant.inventory || 0) > 0,
+        quantityAvailable: variant.inventory || 0,
+        image: finalImage,
+        metafields,
+        ...variantOptions,
+      };
+    }) || [];
 
   return {
     ...baseProduct,
