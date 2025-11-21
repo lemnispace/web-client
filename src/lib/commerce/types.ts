@@ -32,6 +32,18 @@ export interface ProductVariant {
   inventory?: number;
   image?: ProductImage;
   options: VariantOption[];
+  fulfillmentData?: FulfillmentData;
+}
+
+export interface FulfillmentData {
+  partnerId: string;
+  partnerProductId: string;
+  partnerVariantId: string;
+  additionalData?: Record<string, any>;
+  hsCode?: string;
+  countryOfOrigin?: string;
+  harmonized?: boolean;
+  requiresShipping?: boolean;
 }
 
 export interface VariantOption {
