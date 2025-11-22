@@ -8,7 +8,7 @@ interface ProductDetailsProps {
   params: {
     slug: string;
   };
-  searchParams: { selectedVariantId?: string };
+  searchParams: { selectedVariantId?: string; imageId?: string };
 }
 
 export default async function ProductDetails(props: ProductDetailsProps) {
@@ -35,6 +35,7 @@ export default async function ProductDetails(props: ProductDetailsProps) {
           <ProductView
             product={mappedProduct}
             selectedCustomVariantId={props.searchParams.selectedVariantId}
+            customizationImageId={props.searchParams.imageId}
           />
         </Container>
       </main>

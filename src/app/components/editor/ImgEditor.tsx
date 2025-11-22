@@ -122,9 +122,17 @@ export default function ImgEditor({
               variantTitle: productVariant.title,
             });
             if (response) {
-              // redirect to the product details page:
+              // Store customization data in sessionStorage for display
+              sessionStorage.setItem(`customization_${response.imageId}`, JSON.stringify({
+                imageId: response.imageId,
+                imageUrl: response.imageUrl,
+                variantId: response.variantId,
+                productId: response.productId,
+              }));
+              
+              // redirect to the product details page with image ID:
               window.location.replace(
-                `${product.href}?selectedVariantId=${response.variantId}`
+                `${product.href}?selectedVariantId=${response.variantId}&imageId=${response.imageId}`
               );
             }
           }}

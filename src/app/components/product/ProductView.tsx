@@ -22,6 +22,7 @@ import ProductTitle from "./ProductTitle";
 interface ProductViewProps {
   product: ProductWithCustomization;
   selectedCustomVariantId?: string;
+  customizationImageId?: string;
 }
 
 interface ProductVariantContextProps {
@@ -37,6 +38,21 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
 });
 
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
+  // Retrieve customization image from sessionStorage if available
+  const customizationImage = useMemo(() => {
+    if (props.customizationImageId && typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem(`customization_${props.customizationImageId}`);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error('Failed to parse customization data:', e);
+        }
+      }
+    }
+    return null;
+  }, [props.customizationImageId]);
+
   const [selectedVariant, setSelectedVariant] = useState(
     props.selectedCustomVariantId
       ? ShopifyProductService.getProductVariantByCustomVariantId(
@@ -84,7 +100,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
       }}
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-        <ImageGallery product={product} />
+        <ImageGallery product={product} customizationImage={customizationImage} />
         {/* Product info */}
         <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
           <ProductTitle
@@ -99,7 +115,11 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
                 descriptionHtml={product.descriptionHtml}
               />
             </div>
-            <ProductSelectionForm product={product} className="mt-6 mb-6" />
+            <ProductSelectionForm 
+              product={product} 
+              className="mt-6 mb-6"
+              customizationImageId={props.customizationImageId}
+            />
             {/* <section aria-labelledby="details-heading" className="mt-12">
             <ProductSectionTitle id="details-heading">
               Additional details
