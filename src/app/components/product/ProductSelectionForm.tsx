@@ -37,13 +37,10 @@ export default function ProductSelectionForm({
   const { addItem } = useCart();
 
   // Check if there's a customization available
-  const hasCustomization = Boolean(
-    customizationImageId || selectedVariant?.customization
-  );
+  const hasCustomization = Boolean(customizationImageId);
   
   console.log('[ProductSelectionForm] Customization status:', {
     customizationImageId,
-    hasCustomVariant: Boolean(selectedVariant?.customization),
     hasCustomization,
     selectedVariantId: selectedVariant?.id
   });
@@ -53,23 +50,22 @@ export default function ProductSelectionForm({
       {...props}
       onSubmit={(e) => {
         e.preventDefault();
-        const variantToAdd = selectedVariant?.customization || selectedVariant;
         
         console.log('[ProductSelectionForm] Form submit:', {
           hasCustomization,
-          variantToAdd: variantToAdd?.id,
+          selectedVariantId: selectedVariant?.id,
           customizationImageId,
-          willAddToCart: Boolean(variantToAdd && hasCustomization)
+          willAddToCart: Boolean(selectedVariant && hasCustomization)
         });
         
-        if (variantToAdd && hasCustomization) {
+        if (selectedVariant && hasCustomization) {
           const itemData = {
             productId: product.id,
-            variantId: variantToAdd.id,
+            variantId: selectedVariant.id,
             quantity: 1,
-            customizationData: customizationImageId ? {
-              imageId: customizationImageId,
-            } : undefined,
+            customizationData: {
+              imageId: customizationImageId!,
+            },
           };
           
           console.log('[ProductSelectionForm] Adding item to cart:', itemData);

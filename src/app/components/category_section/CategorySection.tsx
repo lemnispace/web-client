@@ -1,6 +1,10 @@
 import { Container } from "@/components/container";
 import { Heading } from "@/components/Heading";
 
+const COLLECTIONS_TEXT = {
+  title: ["Browse Our", "Collections", ""],
+};
+
 export default function CategorySection() {
   // TODO: Fetch collections from API
 

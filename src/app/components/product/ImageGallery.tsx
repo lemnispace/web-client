@@ -178,7 +178,7 @@ export default function ImageGallery({
         <Tab.List className="grid grid-cols-4 gap-6">
           {images?.map((image, index) => (
             <Tab
-              key={image.src}
+              key={`${image.variantId}-${index}`}
               className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 lemni-focus-4"
             >
               {({ selected }) => (
@@ -214,8 +214,8 @@ export default function ImageGallery({
       </div>
 
       <Tab.Panels className="aspect-h-1 aspect-w-1 w-full">
-        {images?.map((image) => (
-          <Tab.Panel key={image.src} className="lemni-focus-4">
+        {images?.map((image, index) => (
+          <Tab.Panel key={`${image.variantId}-${index}`} className="lemni-focus-4">
             <Image
               src={image.src}
               alt={image.alt ?? ""}
