@@ -14,8 +14,7 @@ export function CartSummary({
   subtotal = 0,
   tax,
   total = 0,
-  checkoutUrl,
-}: CartSummaryProps) {
+}: Omit<CartSummaryProps, 'checkoutUrl'>) {
   return (
     <section
       aria-labelledby="summary-heading"

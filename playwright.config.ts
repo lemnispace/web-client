@@ -11,7 +11,7 @@ export default defineConfig({
     ["list"],
   ],
   use: {
-    baseURL: "http://localhost:3002",
+    baseURL: "http://localhost:4001",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -24,7 +24,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:3002",
+    url: "http://localhost:4001",
     reuseExistingServer: true,
     timeout: 120000,
   },

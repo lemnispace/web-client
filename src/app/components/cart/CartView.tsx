@@ -80,7 +80,6 @@ export function CartView({
             subtotal={cart.subtotal}
             tax={cart.estimatedTax}
             total={cart.totalPrice}
-            checkoutUrl={cart.checkoutUrl}
           />
         </form>
       </div>

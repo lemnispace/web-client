@@ -1,6 +1,5 @@
 import { Container } from "@/components/container";
 import { Heading } from "@/components/Heading";
-import { COLLECTIONS_TEXT } from "@/utils/text"; // Assuming this will exist
 
 export default function CategorySection() {
   // TODO: Fetch collections from API
