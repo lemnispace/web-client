@@ -369,7 +369,7 @@ export default function CheckoutPage() {
                       {isSubmitting ? "Processing..." : "Place Your Order"}
                     </button>
                     <p className="text-xs text-gray-500 mt-4 text-center">
-                      By clicking "Place Your Order", you agree to our{" "}
+                      By clicking &quot;Place Your Order&quot;, you agree to our{" "}
                       <a className="underline text-primary" href="#">
                         Terms of Service
                       </a>{" "}
