@@ -58,11 +58,7 @@ export function CartSummary({
       </dl>
 
       <div className="mt-6">
-        <Button
-          href={checkoutUrl || "/checkout"}
-          className="w-full"
-          type="button"
-        >
+        <Button href="/shop/checkout" className="w-full" type="button">
           Checkout
         </Button>
       </div>

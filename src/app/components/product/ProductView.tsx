@@ -41,13 +41,23 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
   // Retrieve customization image from sessionStorage if available
   const customizationImage = useMemo(() => {
     if (props.customizationImageId && typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem(`customization_${props.customizationImageId}`);
+      const storageKey = `customization_${props.customizationImageId}`;
+      console.log('[ProductView] Looking for customization in sessionStorage:', {
+        imageId: props.customizationImageId,
+        storageKey
+      });
+      
+      const stored = sessionStorage.getItem(storageKey);
       if (stored) {
         try {
-          return JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          console.log('[ProductView] Found customization data:', parsed);
+          return parsed;
         } catch (e) {
-          console.error('Failed to parse customization data:', e);
+          console.error('[ProductView] Failed to parse customization data:', e);
         }
+      } else {
+        console.warn('[ProductView] No customization data found in sessionStorage for key:', storageKey);
       }
     }
     return null;
