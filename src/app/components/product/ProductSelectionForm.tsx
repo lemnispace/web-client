@@ -40,6 +40,13 @@ export default function ProductSelectionForm({
   const hasCustomization = Boolean(
     customizationImageId || selectedVariant?.customization
   );
+  
+  console.log('[ProductSelectionForm] Customization status:', {
+    customizationImageId,
+    hasCustomVariant: Boolean(selectedVariant?.customization),
+    hasCustomization,
+    selectedVariantId: selectedVariant?.id
+  });
 
   return (
     <form
@@ -47,15 +54,27 @@ export default function ProductSelectionForm({
       onSubmit={(e) => {
         e.preventDefault();
         const variantToAdd = selectedVariant?.customization || selectedVariant;
+        
+        console.log('[ProductSelectionForm] Form submit:', {
+          hasCustomization,
+          variantToAdd: variantToAdd?.id,
+          customizationImageId,
+          willAddToCart: Boolean(variantToAdd && hasCustomization)
+        });
+        
         if (variantToAdd && hasCustomization) {
-          addItem({
+          const itemData = {
             productId: product.id,
             variantId: variantToAdd.id,
             quantity: 1,
             customizationData: customizationImageId ? {
               imageId: customizationImageId,
             } : undefined,
-          }).catch((error) => {
+          };
+          
+          console.log('[ProductSelectionForm] Adding item to cart:', itemData);
+          
+          addItem(itemData).catch((error) => {
             console.error("Failed to add item to cart:", error);
           });
         }

@@ -84,11 +84,23 @@ export default function ImageGallery({
     () => {
       // If there's a customization image for the selected variant, show it
       if (customizationImage && selectedVariant?.id === customizationImage.variantId) {
+        console.log('[ImageGallery] Showing customization image:', {
+          imageUrl: customizationImage.imageUrl,
+          variantId: customizationImage.variantId,
+          selectedVariantId: selectedVariant?.id
+        });
         return [{
           variantId: selectedVariant.id,
           src: customizationImage.imageUrl,
           alt: `Customized ${product.name}`,
         }];
+      }
+
+      if (customizationImage && selectedVariant) {
+        console.log('[ImageGallery] Customization image variant mismatch:', {
+          customizationVariantId: customizationImage.variantId,
+          selectedVariantId: selectedVariant.id
+        });
       }
 
       if (!primaryVariantOption) {

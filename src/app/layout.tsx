@@ -43,8 +43,12 @@ export default function RootLayout({
         inter.variable,
         lexend.variable
       )}
+      suppressHydrationWarning
     >
-      <body className="flex h-auto min-h-full flex-col">
+      <body
+        className="flex h-auto min-h-full flex-col"
+        suppressHydrationWarning
+      >
         <Header navLinks={navLinks} />
         {children}
         <Footer navLinks={navLinks} />

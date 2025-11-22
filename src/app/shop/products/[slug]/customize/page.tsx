@@ -106,13 +106,15 @@ export default async function CustomizeProduct(props: MosaicProps) {
     }
 
     // Use default template if no Printful templates available
+    // If variant has an image, use it as the template background
+    const defaultTemplateImage = variant.image?.src || product.images?.[0]?.src || "";
     const templates: VariantTemplate[] =
       variantTemplates.length > 0
         ? mapPrintfulTemplates(variantTemplates)
         : [
             {
               templateId: 0,
-              imageUrl: "",
+              imageUrl: defaultTemplateImage,
               backgroundUrl: "",
               backgroundColor: "#FFFFFF",
               printfileId: 0,
