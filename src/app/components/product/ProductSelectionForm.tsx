@@ -17,6 +17,7 @@ interface ProductSelectionFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
   onAddToFavorites?: () => void;
   product: Product;
+  customizationImageId?: string;
 }
 type ColorFormValue = {
   [K in keyof ProductColor as `color[${K}]`]: string;
@@ -29,21 +30,31 @@ export type ProductSelectionFormData = ColorFormValue & {
 export default function ProductSelectionForm({
   product,
   onAddToFavorites,
+  customizationImageId,
   ...props
 }: ProductSelectionFormProps) {
   const { selectedVariant } = useContext(ProductVariantContext);
   const { addItem } = useCart();
+
+  // Check if there's a customization available
+  const hasCustomization = Boolean(
+    customizationImageId || selectedVariant?.customization
+  );
 
   return (
     <form
       {...props}
       onSubmit={(e) => {
         e.preventDefault();
-        if (selectedVariant?.customization) {
+        const variantToAdd = selectedVariant?.customization || selectedVariant;
+        if (variantToAdd && hasCustomization) {
           addItem({
             productId: product.id,
-            variantId: selectedVariant.customization.id,
+            variantId: variantToAdd.id,
             quantity: 1,
+            customizationData: customizationImageId ? {
+              imageId: customizationImageId,
+            } : undefined,
           }).catch((error) => {
             console.error("Failed to add item to cart:", error);
           });
@@ -55,16 +66,16 @@ export default function ProductSelectionForm({
       <div className={clsx("mt-10 flex flex-col sm:w-full sm:flex-row")}>
         <Button
           type="submit"
-          color={selectedVariant?.hasCustomization ? "primary" : "zinc"}
+          color={hasCustomization ? "primary" : "zinc"}
           className={clsx(
             "flex max-w-xs flex-1 sm:w-full",
-            selectedVariant?.hasCustomization
+            hasCustomization
               ? "cursor-pointer"
               : "cursor-not-allowed"
           )}
-          disabled={!selectedVariant?.hasCustomization}
+          disabled={!hasCustomization}
           title={
-            !selectedVariant?.hasCustomization
+            !hasCustomization
               ? "Customization required"
               : undefined
           }

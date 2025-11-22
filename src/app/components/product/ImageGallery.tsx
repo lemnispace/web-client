@@ -18,6 +18,12 @@ import { ProductVariantContext } from "./ProductView";
 interface ImageGalleryProps {
   product: Product;
   className?: string;
+  customizationImage?: {
+    imageUrl: string;
+    imageId: string;
+    variantId: string;
+    productId: string;
+  } | null;
 }
 
 interface ImageVariant extends ProductImg {
@@ -54,6 +60,7 @@ const getImagesByVariant = (
 export default function ImageGallery({
   product,
   className,
+  customizationImage,
 }: ImageGalleryProps) {
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
@@ -75,11 +82,20 @@ export default function ImageGallery({
 
   const images = useMemo(
     () => {
+      // If there's a customization image for the selected variant, show it
+      if (customizationImage && selectedVariant?.id === customizationImage.variantId) {
+        return [{
+          variantId: selectedVariant.id,
+          src: customizationImage.imageUrl,
+          alt: `Customized ${product.name}`,
+        }];
+      }
+
       if (!primaryVariantOption) {
         // No primary variant option: show all product images if available
         if (product.images && product.images.length > 0) {
-          return product.images.map((img, idx) => ({
-            variantId: "", // No variant, so use empty string or `${idx}`
+          return product.images.map((img) => ({
+            variantId: "", // No variant, so use empty string
             ...img,
           }));
         }
@@ -101,7 +117,7 @@ export default function ImageGallery({
         ? getImagesByVariant(product, primaryVariantOption, optionValue)
         : [];
     },
-    [selectedVariant, product, primaryVariantOption]
+    [selectedVariant, product, primaryVariantOption, customizationImage]
   );
   const selectedIndex = useMemo(() => {
     if (!selectedVariant) {
