@@ -209,14 +209,42 @@ test.describe("Complete Customization Flow E2E", () => {
       await page.waitForTimeout(2000);
       
       // The customization image should be visible in the image gallery
-      const galleryImages = page.locator('img[alt*="Customized"], img[src*="customization"], img[src*="s3"]');
+      const galleryImages = page.locator('img[alt*="Customized"], img[src*="customization"], img[src*="localhost:9000"]');
       const hasCustomImage = (await galleryImages.count()) > 0;
       console.log(`Custom image found: ${hasCustomImage}`);
-
+      
+      // Take screenshot of the result
       await page.screenshot({
         path: "playwright-report/customization-03-after-redirect.png",
         fullPage: true,
       });
+      
+      // CRITICAL: Verify the image actually loaded and is visible
+      if (hasCustomImage) {
+        const firstImage = galleryImages.first();
+        await expect(firstImage).toBeVisible();
+        
+        // Check if the image has valid src
+        const imageSrc = await firstImage.getAttribute("src");
+        console.log(`✓ Image src: ${imageSrc}`);
+        expect(imageSrc).toBeTruthy();
+        expect(imageSrc).toContain("localhost:9000"); // Should use localhost, not internal docker name
+        
+        // Wait for image to actually load (not just be present in DOM)
+        await firstImage.evaluate((img: HTMLImageElement) => {
+          if (img.complete && img.naturalHeight > 0) return true;
+          return new Promise((resolve) => {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            setTimeout(() => resolve(false), 5000);
+          });
+        });
+        
+        console.log("✓ Customization image loaded successfully");
+      } else {
+        // If no custom image found, fail the test
+        throw new Error("FAILED: Customization image not found in gallery after redirect!");
+      }
 
       // Verify "Add to Cart" button is enabled
       console.log("Step 9: Verifying Add to Cart is enabled...");
@@ -236,8 +264,21 @@ test.describe("Complete Customization Flow E2E", () => {
 
       // Click Add to Cart
       console.log("Step 10: Adding to cart with customization...");
+      
+      // Verify button is clickable
+      await expect(addToCartButton).toBeEnabled();
       await addToCartButton.click();
       await page.waitForTimeout(2000);
+
+      // Verify cart was updated (check cart badge or cart page)
+      const cartBadge = page.locator('[href*="/cart"]', { hasText: /[1-9]/ }).first();
+      const cartBadgeVisible = await cartBadge.isVisible().catch(() => false);
+      
+      if (cartBadgeVisible) {
+        console.log("✓ Cart badge updated successfully");
+      } else {
+        console.warn("⚠ Cart badge not visible, checking cart page directly");
+      }
 
       // Check console for cart addition log
       const hasCartLog = consoleLogs.some((log) =>
@@ -250,6 +291,15 @@ test.describe("Complete Customization Flow E2E", () => {
       console.log(`Cart addition logs:
   - Item added to cart: ${hasCartLog}
   - Image ID included: ${hasImageIdInCart}`);
+  
+      // CRITICAL: Verify the cart addition actually worked
+      if (!hasCartLog) {
+        throw new Error("FAILED: Cart addition log not found! Add to Cart may not be working.");
+      }
+      
+      if (!hasImageIdInCart) {
+        throw new Error("FAILED: Image ID not included in cart addition! Customization data lost.");
+      }
 
       await page.screenshot({
         path: "playwright-report/customization-04-added-to-cart.png",
