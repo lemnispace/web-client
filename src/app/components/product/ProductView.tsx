@@ -65,7 +65,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
 
   const [selectedVariant, setSelectedVariant] = useState(
     props.selectedCustomVariantId
-      ? ShopifyProductService.getProductVariantByCustomVariantId(
+      ? ShopifyProductService.getVariantById(
           product,
           props.selectedCustomVariantId
         )
