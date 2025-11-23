@@ -110,7 +110,6 @@ test.describe("Complete Customization Flow E2E", () => {
     // Click first product
     console.log("Step 1: Navigating to product...");
     const productCards = page.locator('[href*="/shop/products/"]');
-    const firstProductLink = await productCards.first().getAttribute("href");
     await productCards.first().click();
     await page.waitForURL(/\/shop\/products\//);
     await page.waitForTimeout(1500);
