@@ -11,6 +11,7 @@ import React, {
   Dispatch,
   SetStateAction,
   createContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -38,8 +39,16 @@ export const ProductVariantContext = createContext<ProductVariantContextProps>({
 });
 
 export const ProductView = ({ product, ...props }: ProductViewProps) => {
-  // Retrieve customization image from sessionStorage if available
-  const customizationImage = useMemo(() => {
+  // Use state to store customization image to avoid hydration mismatch
+  const [customizationImage, setCustomizationImage] = useState<{
+    imageUrl: string;
+    imageId: string;
+    variantId: string;
+    productId: string;
+  } | null>(null);
+
+  // Retrieve customization image from sessionStorage after mount
+  useEffect(() => {
     if (props.customizationImageId && typeof window !== 'undefined') {
       const storageKey = `customization_${props.customizationImageId}`;
       console.log('[ProductView] Looking for customization in sessionStorage:', {
@@ -52,7 +61,7 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
         try {
           const parsed = JSON.parse(stored);
           console.log('[ProductView] Found customization data:', parsed);
-          return parsed;
+          setCustomizationImage(parsed);
         } catch (e) {
           console.error('[ProductView] Failed to parse customization data:', e);
         }
@@ -60,7 +69,6 @@ export const ProductView = ({ product, ...props }: ProductViewProps) => {
         console.warn('[ProductView] No customization data found in sessionStorage for key:', storageKey);
       }
     }
-    return null;
   }, [props.customizationImageId]);
 
   const [selectedVariant, setSelectedVariant] = useState(
