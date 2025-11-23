@@ -13,6 +13,7 @@
 import { ShopAPIProvider } from '../shop-api';
 
 // Mock fetch globally
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 global.fetch = jest.fn();
 
 describe('ShopAPIProvider - Customization Operations', () => {
@@ -38,10 +39,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         createdAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.uploadCustomizationImage(mockFile, 'user_456');
 
@@ -74,10 +72,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         createdAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.uploadCustomizationImage(mockFile, 'user_789', {
         cartId: 'cart_123',
@@ -100,10 +95,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         createdAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       await provider.uploadCustomizationImage(mockFile, 'user_123');
 
@@ -123,10 +115,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         createdAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       await provider.uploadCustomizationImage(mockFile, 'user_123');
 
@@ -139,12 +128,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle upload error responses', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Invalid file type' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Invalid file type' }));
 
       await expect(
         provider.uploadCustomizationImage(mockFile, 'user_123')
@@ -154,12 +138,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle user access control error (403)', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'User not authorized to upload images' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'User not authorized to upload images' }));
 
       await expect(
         provider.uploadCustomizationImage(mockFile, 'unauthorized_user')
@@ -169,12 +148,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle file size limit error (413)', async () => {
       const mockFile = new File(['x'.repeat(10_000_000)], 'large-file.jpg', { type: 'image/jpeg' });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 413,
-        statusText: 'Payload Too Large',
-        json: async () => ({ message: 'File size exceeds limit' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(413, 'Payload Too Large', { message: 'File size exceeds limit' }));
 
       await expect(
         provider.uploadCustomizationImage(mockFile, 'user_123')
@@ -203,10 +177,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         createdAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       await providerNoKey.uploadCustomizationImage(mockFile, 'user_123');
 
@@ -231,10 +202,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
           createdAt: '2025-10-19T00:00:00Z',
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.uploadCustomizationImage(mockFile, 'user_123');
         expect(result.id).toBe(`img_${fileType.name}`);
@@ -256,10 +224,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         height: 600,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.processCustomizationImage('img_123', 'user_456', operations);
 
@@ -292,10 +257,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         height: 500,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.processCustomizationImage('img_789', 'user_123', operations);
 
@@ -316,10 +278,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         height: 768,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.processCustomizationImage('img_456', 'user_789', operations);
 
@@ -341,10 +300,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         height: 800,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       const result = await provider.processCustomizationImage('img_original', 'user_999', operations);
 
@@ -362,10 +318,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         url: 'https://example.com/processed_test.jpg',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
       await provider.processCustomizationImage('img_test', 'specific_user_123', operations);
 
@@ -376,12 +329,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle user access control error during processing', async () => {
       const operations = [{ type: 'resize' as const, width: 800, height: 600 }];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'User does not own this image' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'User does not own this image' }));
 
       await expect(
         provider.processCustomizationImage('img_123', 'wrong_user', operations)
@@ -391,12 +339,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle image not found error', async () => {
       const operations = [{ type: 'resize' as const, width: 800, height: 600 }];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Image not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Image not found' }));
 
       await expect(
         provider.processCustomizationImage('nonexistent_img', 'user_123', operations)
@@ -408,12 +351,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         { type: 'resize' as const, width: -100, height: -100 },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Invalid dimensions' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Invalid dimensions' }));
 
       await expect(
         provider.processCustomizationImage('img_123', 'user_123', operations)
@@ -423,12 +361,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle processing timeout error', async () => {
       const operations = [{ type: 'removeBackground' as const }];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 504,
-        statusText: 'Gateway Timeout',
-        json: async () => ({ message: 'Processing timeout' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(504, 'Gateway Timeout', { message: 'Processing timeout' }));
 
       await expect(
         provider.processCustomizationImage('img_large', 'user_123', operations)
@@ -438,11 +371,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
 
   describe('deleteCustomizationImage', () => {
     it('should delete customization image with userId', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.deleteCustomizationImage('img_123', 'user_456');
 
@@ -459,11 +389,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle successful deletion with no response body', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       const result = await provider.deleteCustomizationImage('img_789', 'user_123');
 
@@ -471,11 +398,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should verify userId is included in query parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.deleteCustomizationImage('img_delete_test', 'specific_user_456');
 
@@ -484,12 +408,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle user access control error on delete', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'Cannot delete image belonging to another user' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Cannot delete image belonging to another user' }));
 
       await expect(
         provider.deleteCustomizationImage('img_123', 'unauthorized_user')
@@ -497,12 +416,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle image not found on delete', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Image not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Image not found' }));
 
       await expect(
         provider.deleteCustomizationImage('nonexistent_img', 'user_123')
@@ -510,12 +424,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle image in use error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 409,
-        statusText: 'Conflict',
-        json: async () => ({ message: 'Image is linked to active cart items' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(409, 'Conflict', { message: 'Image is linked to active cart items' }));
 
       await expect(
         provider.deleteCustomizationImage('img_in_use', 'user_123')
@@ -523,12 +432,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle server errors on delete', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Failed to delete image from storage' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Failed to delete image from storage' }));
 
       await expect(
         provider.deleteCustomizationImage('img_123', 'user_123')
@@ -546,11 +450,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
 
   describe('linkImageToCartItem', () => {
     it('should link customization image to cart item', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.linkImageToCartItem('img_123', 'user_456', 'cart_789', 'item_012');
 
@@ -568,11 +469,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should verify userId in query parameters when linking', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.linkImageToCartItem('img_link_test', 'specific_user_789', 'cart_abc', 'item_def');
 
@@ -582,11 +480,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should send cartId and itemId in request body', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.linkImageToCartItem('img_999', 'user_999', 'cart_specific', 'item_specific');
 
@@ -599,11 +494,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle successful link with no response body', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       const result = await provider.linkImageToCartItem('img_111', 'user_111', 'cart_111', 'item_111');
 
@@ -611,12 +503,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle user access control error on link', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'User does not own this image' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'User does not own this image' }));
 
       await expect(
         provider.linkImageToCartItem('img_123', 'wrong_user', 'cart_789', 'item_012')
@@ -624,12 +511,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle image not found when linking', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Image not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Image not found' }));
 
       await expect(
         provider.linkImageToCartItem('nonexistent_img', 'user_123', 'cart_789', 'item_012')
@@ -637,12 +519,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle cart not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart not found' }));
 
       await expect(
         provider.linkImageToCartItem('img_123', 'user_456', 'nonexistent_cart', 'item_012')
@@ -650,12 +527,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle cart item not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart item not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart item not found' }));
 
       await expect(
         provider.linkImageToCartItem('img_123', 'user_456', 'cart_789', 'nonexistent_item')
@@ -663,12 +535,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle image already linked error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 409,
-        statusText: 'Conflict',
-        json: async () => ({ message: 'Image already linked to a cart item' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(409, 'Conflict', { message: 'Image already linked to a cart item' }));
 
       await expect(
         provider.linkImageToCartItem('img_linked', 'user_123', 'cart_789', 'item_012')
@@ -676,12 +543,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle cart ownership mismatch error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'Cart does not belong to user' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Cart does not belong to user' }));
 
       await expect(
         provider.linkImageToCartItem('img_123', 'user_456', 'someone_elses_cart', 'item_012')
@@ -689,12 +551,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle invalid cart item for product error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Product does not support customization' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Product does not support customization' }));
 
       await expect(
         provider.linkImageToCartItem('img_123', 'user_456', 'cart_789', 'non_customizable_item')
@@ -714,32 +571,20 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should enforce userId for all customization operations', async () => {
       // Upload
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'img_1', url: 'url', createdAt: '2025-10-19T00:00:00Z' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'img_1', url: 'url', createdAt: '2025-10-19T00:00:00Z' }));
       await provider.uploadCustomizationImage(mockFile, 'user_access_test');
 
       // Process
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'proc_1', originalImageId: 'img_1', url: 'url' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'proc_1', originalImageId: 'img_1', url: 'url' }));
       await provider.processCustomizationImage('img_1', 'user_access_test', [{ type: 'resize', width: 100, height: 100 }]);
 
       // Delete
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
       await provider.deleteCustomizationImage('img_1', 'user_access_test');
 
       // Link
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({}));
       await provider.linkImageToCartItem('img_1', 'user_access_test', 'cart_1', 'item_1');
 
       // All calls should have been made
@@ -752,12 +597,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         { type: 'resize' as const, width: 800, height: 600 },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'Access denied' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Access denied' }));
 
       await expect(
         provider.processCustomizationImage('img_123', 'different_user', operations)
@@ -773,6 +613,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        text: async () => '{}',
         json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       } as unknown as Response);
 
@@ -788,6 +629,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        text: async () => '{}',
         json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       } as unknown as Response);
 
@@ -799,12 +641,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     it('should handle empty userId', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'userId is required' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'userId is required' }));
 
       await expect(
         provider.uploadCustomizationImage(mockFile, '')
@@ -812,11 +649,8 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle special characters in imageId', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       await provider.deleteCustomizationImage('img_123-abc_def', 'user_123');
 
@@ -847,12 +681,7 @@ describe('ShopAPIProvider - Customization Operations', () => {
     });
 
     it('should handle empty operations array for process', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'At least one operation required' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'At least one operation required' }));
 
       await expect(
         provider.processCustomizationImage('img_123', 'user_123', [])
