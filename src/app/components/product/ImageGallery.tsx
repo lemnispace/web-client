@@ -92,7 +92,7 @@ export default function ImageGallery({
         return [{
           variantId: selectedVariant.id,
           src: customizationImage.imageUrl,
-          alt: `Customized ${product.name}`,
+          alt: product.name,
         }];
       }
 
