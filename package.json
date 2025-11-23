@@ -15,7 +15,8 @@
     "test:seed-data": "ts-node __integration__/seed-test-data.ts",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "prepare": "husky"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.0-alpha.4",
@@ -54,6 +55,7 @@
     "eslint": "^8",
     "eslint-config-next": "^14.0.4",
     "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "node-fetch": "^2.7.0",

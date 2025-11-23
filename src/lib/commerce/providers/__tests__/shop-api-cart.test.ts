@@ -15,7 +15,7 @@
 
 import { ShopAPIProvider } from '../shop-api';
 import type { Cart, CartItemInput, CartCheckout } from '../../types';
-import { createMockResponse, createMockErrorResponse, createMock204Response } from '../test-helpers';
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 
 // Mock fetch globally
 global.fetch = jest.fn();
