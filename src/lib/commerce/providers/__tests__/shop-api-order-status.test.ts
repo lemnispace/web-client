@@ -4,7 +4,6 @@
 
 import { ShopAPIProvider } from "../shop-api";
 import type { Order, OrderStatusUpdate } from "../../types";
-import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 
 describe("ShopAPIProvider - updateOrderStatus", () => {
   let provider: ShopAPIProvider;
