@@ -311,15 +311,15 @@ export default function CheckoutPage() {
                               <div className="flex items-center gap-4">
                                 <div className="relative w-16 h-16 rounded-md overflow-hidden bg-gray-100">
                                   <Image
-                                    src={item.img.src}
-                                    alt={item.img.alt || item.name}
+                                    src={item.product?.image ?? "https://placehold.co/64x64"}
+                                    alt={item.product?.title || "Product image"}
                                     fill
                                     className="object-cover"
                                   />
                                 </div>
                                 <div>
                                   <p className="font-medium text-[#333333]">
-                                    {item.name}
+                                    {item.product?.title || "Product"}
                                   </p>
                                   <p className="text-sm text-gray-500">
                                     Quantity: {item.quantity}
@@ -327,10 +327,7 @@ export default function CheckoutPage() {
                                 </div>
                               </div>
                               <p className="font-medium text-[#333333]">
-                                {formatPrice(
-                                  item.price.amount,
-                                  item.price.currencyCode
-                                )}
+                                {formatPrice(item.price)}
                               </p>
                             </li>
                           ))}
