@@ -195,6 +195,7 @@ export default function ImageGallery({
                       }}
                       fill
                       priority
+                      sizes="(max-width: 640px) 25vw, (max-width: 1024px) 20vw, 15vw"
                       className="object-contain object-center"
                     />
                   </span>
@@ -223,6 +224,7 @@ export default function ImageGallery({
                 maxWidth: "100%",
               }}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
               className="object-contain object-center sm:rounded-lg"
             />
           </Tab.Panel>
