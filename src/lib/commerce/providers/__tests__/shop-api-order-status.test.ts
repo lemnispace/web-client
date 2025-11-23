@@ -4,6 +4,7 @@
 
 import { ShopAPIProvider } from "../shop-api";
 import type { Order, OrderStatusUpdate } from "../../types";
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 
 describe("ShopAPIProvider - updateOrderStatus", () => {
   let provider: ShopAPIProvider;
@@ -63,8 +64,9 @@ describe("ShopAPIProvider - updateOrderStatus", () => {
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
+      text: async () => JSON.stringify(mockUpdatedOrder),
       json: async () => mockUpdatedOrder,
-    });
+    } as Response);
 
     const result = await provider.updateOrderStatus(
       orderId,
@@ -118,11 +120,15 @@ describe("ShopAPIProvider - updateOrderStatus", () => {
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
+      text: async () => JSON.stringify({
+        id: orderId,
+        status: "processing",
+      }),
       json: async () => ({
         id: orderId,
         status: "processing",
       }),
-    });
+    } as Response);
 
     await provider.updateOrderStatus(orderId, statusUpdate, adminToken);
 
@@ -148,11 +154,15 @@ describe("ShopAPIProvider - updateOrderStatus", () => {
     for (const status of statuses) {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
+        text: async () => JSON.stringify({
+          id: orderId,
+          status,
+        }),
         json: async () => ({
           id: orderId,
           status,
         }),
-      });
+      } as Response);
 
       const result = await provider.updateOrderStatus(
         orderId,

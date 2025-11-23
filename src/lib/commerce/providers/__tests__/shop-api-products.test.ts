@@ -15,6 +15,7 @@
 
 import { ShopAPIProvider } from '../shop-api';
 import type { Product } from '../../types';
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -76,10 +77,7 @@ describe('ShopAPIProvider - Products', () => {
           pagination: { hasMore: false },
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.getProducts();
 
@@ -104,10 +102,7 @@ describe('ShopAPIProvider - Products', () => {
           pagination: { cursor: 'next_cursor', hasMore: true },
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.getProducts({
           collectionId: 'col_123',
@@ -138,10 +133,7 @@ describe('ShopAPIProvider - Products', () => {
           pagination: { cursor: 'next_cursor', hasMore: true },
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.getProducts({ limit: 10 });
 
@@ -156,10 +148,7 @@ describe('ShopAPIProvider - Products', () => {
           pagination: { hasMore: false },
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         await providerWithApiKey.getProducts();
 
@@ -180,10 +169,7 @@ describe('ShopAPIProvider - Products', () => {
           pagination: { hasMore: false },
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.getProducts();
 
@@ -196,10 +182,7 @@ describe('ShopAPIProvider - Products', () => {
           products: [mockProduct],
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockResponse,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
         const result = await provider.getProducts();
 
@@ -210,10 +193,10 @@ describe('ShopAPIProvider - Products', () => {
 
     describe('Query Parameter Serialization', () => {
       it('should serialize collectionId filter', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ collectionId: 'col_123' });
 
@@ -222,10 +205,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should serialize single tag', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ tags: ['featured'] });
 
@@ -234,10 +217,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should serialize multiple tags as comma-separated', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ tags: ['featured', 'new', 'sale'] });
 
@@ -246,10 +229,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should serialize status filter', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ status: 'active' });
 
@@ -258,10 +241,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should serialize limit parameter', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ limit: 50 });
 
@@ -270,10 +253,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should serialize cursor parameter', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ cursor: 'cursor_xyz' });
 
@@ -282,10 +265,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle empty filters object', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({});
 
@@ -294,10 +277,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle empty tags array', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ tags: [] });
 
@@ -310,10 +293,10 @@ describe('ShopAPIProvider - Products', () => {
         const statuses: Array<'active' | 'draft' | 'archived'> = ['active', 'draft', 'archived'];
 
         for (const status of statuses) {
-          mockFetch.mockResolvedValueOnce({
+          mockFetch.mockResolvedValueOnce(createMockResponse({
             ok: true,
             json: async () => ({ products: [], pagination: { hasMore: false } }),
-          } as Response);
+          }));
 
           await provider.getProducts({ status });
 
@@ -325,67 +308,37 @@ describe('ShopAPIProvider - Products', () => {
 
     describe('Error Handling', () => {
       it('should handle 404 Not Found error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 404,
-          statusText: 'Not Found',
-          json: async () => ({ message: 'Products not found' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Products not found' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Products not found');
       });
 
       it('should handle 500 Internal Server Error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => ({ message: 'Server error occurred' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Server error occurred' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Server error occurred');
       });
 
       it('should handle 401 Unauthorized error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-          json: async () => ({ message: 'Invalid API key' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid API key' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Invalid API key');
       });
 
       it('should handle 403 Forbidden error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 403,
-          statusText: 'Forbidden',
-          json: async () => ({ message: 'Access denied' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Access denied' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Access denied');
       });
 
       it('should handle 429 Rate Limit error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 429,
-          statusText: 'Too Many Requests',
-          json: async () => ({ message: 'Rate limit exceeded' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(429, 'Too Many Requests', { message: 'Rate limit exceeded' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Rate limit exceeded');
       });
 
       it('should handle 503 Service Unavailable error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          statusText: 'Service Unavailable',
-          json: async () => ({ message: 'Service temporarily unavailable' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(503, 'Service Unavailable', { message: 'Service temporarily unavailable' }));
 
         await expect(provider.getProducts()).rejects.toThrow('Service temporarily unavailable');
       });
@@ -407,6 +360,7 @@ describe('ShopAPIProvider - Products', () => {
           ok: false,
           status: 500,
           statusText: 'Server Error',
+          text: async () => '{}',
           json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
         } as unknown as Response);
 
@@ -414,23 +368,13 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should fallback to statusText when error message is empty', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => ({ message: '' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: '' }));
 
         await expect(provider.getProducts()).rejects.toThrow('HTTP 500');
       });
 
       it('should handle error without message field', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => ({}),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', {}));
 
         await expect(provider.getProducts()).rejects.toThrow('HTTP 500');
       });
@@ -438,10 +382,10 @@ describe('ShopAPIProvider - Products', () => {
 
     describe('Edge Cases', () => {
       it('should handle very large limit value', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ limit: 1000 });
 
@@ -450,10 +394,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle special characters in collectionId', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ collectionId: 'col_123-abc_xyz' });
 
@@ -462,10 +406,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle special characters in cursor', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ cursor: 'cursor_abc+xyz=123' });
 
@@ -474,10 +418,10 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle tags with special characters', async () => {
-        mockFetch.mockResolvedValueOnce({
+        mockFetch.mockResolvedValueOnce(createMockResponse({
           ok: true,
           json: async () => ({ products: [], pagination: { hasMore: false } }),
-        } as Response);
+        }));
 
         await provider.getProducts({ tags: ['tag-1', 'tag_2', 'tag 3'] });
 
@@ -486,10 +430,13 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should handle concurrent getProducts requests', async () => {
+        const responseData = { products: [mockProduct], pagination: { hasMore: false } };
+
         mockFetch.mockImplementation(() =>
           Promise.resolve({
             ok: true,
-            json: async () => ({ products: [mockProduct], pagination: { hasMore: false } }),
+            text: async () => JSON.stringify(responseData),
+            json: async () => responseData,
           } as Response)
         );
 
@@ -510,10 +457,7 @@ describe('ShopAPIProvider - Products', () => {
   describe('getProduct', () => {
     describe('Success Cases', () => {
       it('should fetch product successfully', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockProduct,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
         const result = await provider.getProduct('prod_123');
 
@@ -555,10 +499,7 @@ describe('ShopAPIProvider - Products', () => {
           ],
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => productWithVariants,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(productWithVariants));
 
         const result = await provider.getProduct('prod_123');
 
@@ -577,10 +518,7 @@ describe('ShopAPIProvider - Products', () => {
           ],
         };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => productWithImages,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(productWithImages));
 
         const result = await provider.getProduct('prod_123');
 
@@ -588,10 +526,7 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should include X-API-Key header when apiKey is provided', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockProduct,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
         await providerWithApiKey.getProduct('prod_123');
 
@@ -609,10 +544,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should fetch draft product', async () => {
         const draftProduct = { ...mockProduct, status: 'draft' as const };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => draftProduct,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(draftProduct));
 
         const result = await provider.getProduct('prod_123');
 
@@ -622,10 +554,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should fetch archived product', async () => {
         const archivedProduct = { ...mockProduct, status: 'archived' as const };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => archivedProduct,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(archivedProduct));
 
         const result = await provider.getProduct('prod_123');
 
@@ -635,45 +564,25 @@ describe('ShopAPIProvider - Products', () => {
 
     describe('Error Handling', () => {
       it('should handle 404 Not Found error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 404,
-          statusText: 'Not Found',
-          json: async () => ({ message: 'Product not found' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Product not found' }));
 
         await expect(provider.getProduct('prod_999')).rejects.toThrow('Product not found');
       });
 
       it('should handle 500 Internal Server Error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => ({ message: 'Server error occurred' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Server error occurred' }));
 
         await expect(provider.getProduct('prod_123')).rejects.toThrow('Server error occurred');
       });
 
       it('should handle 401 Unauthorized error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-          json: async () => ({ message: 'Invalid API key' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid API key' }));
 
         await expect(provider.getProduct('prod_123')).rejects.toThrow('Invalid API key');
       });
 
       it('should handle 403 Forbidden error', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 403,
-          statusText: 'Forbidden',
-          json: async () => ({ message: 'Access denied to this product' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Access denied to this product' }));
 
         await expect(provider.getProduct('prod_123')).rejects.toThrow('Access denied to this product');
       });
@@ -695,6 +604,7 @@ describe('ShopAPIProvider - Products', () => {
           ok: false,
           status: 500,
           statusText: 'Server Error',
+          text: async () => '{}',
           json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
         } as unknown as Response);
 
@@ -702,12 +612,7 @@ describe('ShopAPIProvider - Products', () => {
       });
 
       it('should fallback to HTTP status when no error message', async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 400,
-          statusText: 'Bad Request',
-          json: async () => ({}),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', {}));
 
         await expect(provider.getProduct('prod_123')).rejects.toThrow('HTTP 400');
       });
@@ -723,10 +628,7 @@ describe('ShopAPIProvider - Products', () => {
         ];
 
         for (const id of specialIds) {
-          mockFetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ ...mockProduct, id }),
-          } as Response);
+          mockFetch.mockResolvedValueOnce(createMockResponse({ ...mockProduct, id }));
 
           await provider.getProduct(id);
 
@@ -740,10 +642,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle product with no variants', async () => {
         const productNoVariants = { ...mockProduct, variants: [] };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => productNoVariants,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(productNoVariants));
 
         const result = await provider.getProduct('prod_123');
 
@@ -753,10 +652,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle product with no images', async () => {
         const productNoImages = { ...mockProduct, images: [] };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => productNoImages,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(productNoImages));
 
         const result = await provider.getProduct('prod_123');
 
@@ -766,10 +662,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle product with no tags', async () => {
         const productNoTags = { ...mockProduct, tags: [] };
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => productNoTags,
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse(productNoTags));
 
         const result = await provider.getProduct('prod_123');
 
@@ -779,9 +672,11 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle concurrent getProduct requests', async () => {
         mockFetch.mockImplementation((url) => {
           const id = (url as string).split('/').pop();
+          const responseData = { ...mockProduct, id };
           return Promise.resolve({
             ok: true,
-            json: async () => ({ ...mockProduct, id }),
+            text: async () => JSON.stringify(responseData),
+            json: async () => responseData,
           } as Response);
         });
 
@@ -803,10 +698,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle very long product IDs', async () => {
         const longId = 'prod_' + 'a'.repeat(100);
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ ...mockProduct, id: longId }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse({ ...mockProduct, id: longId }));
 
         await provider.getProduct(longId);
 
@@ -819,10 +711,7 @@ describe('ShopAPIProvider - Products', () => {
       it('should handle numeric-only product IDs', async () => {
         const numericId = '12345';
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ ...mockProduct, id: numericId }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse({ ...mockProduct, id: numericId }));
 
         await provider.getProduct(numericId);
 
@@ -836,10 +725,7 @@ describe('ShopAPIProvider - Products', () => {
 
   describe('Request Headers', () => {
     it('should always include Content-Type header', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockProduct,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
       await provider.getProduct('prod_123');
 
@@ -854,10 +740,7 @@ describe('ShopAPIProvider - Products', () => {
     });
 
     it('should not include X-API-Key when apiKey is not provided', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockProduct,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
       await provider.getProduct('prod_123');
 
@@ -869,10 +752,10 @@ describe('ShopAPIProvider - Products', () => {
     });
 
     it('should include X-API-Key when apiKey is provided', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
         ok: true,
         json: async () => ({ products: [], pagination: { hasMore: false } }),
-      } as Response);
+      }));
 
       await providerWithApiKey.getProducts();
 
@@ -893,10 +776,7 @@ describe('ShopAPIProvider - Products', () => {
         baseUrl: 'http://localhost:8080/',
       });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockProduct,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
       await providerWithSlash.getProduct('prod_123');
 
@@ -911,10 +791,7 @@ describe('ShopAPIProvider - Products', () => {
         baseUrl: 'http://localhost:8080',
       });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockProduct,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockProduct));
 
       await providerNoSlash.getProduct('prod_123');
 

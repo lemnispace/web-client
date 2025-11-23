@@ -14,6 +14,7 @@
 import { ShopAPIProvider } from '../shop-api';
 import type { CustomerInput, LoginResponse, Customer } from '../../types';
 
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 // Mock fetch globally
 global.fetch = jest.fn();
 
@@ -49,10 +50,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     };
 
     it('should successfully login with valid credentials', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockLoginResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockLoginResponse));
 
       const result = await provider.loginCustomer(email, password);
 
@@ -75,12 +73,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for invalid credentials (401)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Invalid email or password' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid email or password' }));
 
       await expect(provider.loginCustomer(email, password)).rejects.toThrow(
         'Invalid email or password'
@@ -90,12 +83,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for account not found (404)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Account not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Account not found' }));
 
       await expect(provider.loginCustomer(email, password)).rejects.toThrow(
         'Account not found'
@@ -103,12 +91,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for server error (500)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Server error occurred' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Server error occurred' }));
 
       await expect(provider.loginCustomer(email, password)).rejects.toThrow(
         'Server error occurred'
@@ -116,12 +99,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for rate limiting (429)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 429,
-        statusText: 'Too Many Requests',
-        json: async () => ({ message: 'Too many login attempts' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(429, 'Too Many Requests', { message: 'Too many login attempts' }));
 
       await expect(provider.loginCustomer(email, password)).rejects.toThrow(
         'Too many login attempts'
@@ -141,6 +119,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         ok: false,
         status: 500,
         statusText: 'Server Error',
+        text: async () => '{}',
         json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       } as unknown as Response);
 
@@ -150,10 +129,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should properly encode special characters in email', async () => {
       const specialEmail = 'test+tag@example.com';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockLoginResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockLoginResponse));
 
       await provider.loginCustomer(specialEmail, password);
 
@@ -190,10 +166,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     };
 
     it('should successfully register new customer with full details', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRegisterResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockRegisterResponse));
 
       const result = await provider.registerCustomer(mockCustomerInput);
 
@@ -221,17 +194,20 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         password: 'MinimalPass123!',
       };
 
+      const responseData = {
+        ...mockRegisterResponse,
+        customer: {
+          ...mockRegisterResponse.customer,
+          email: 'minimal@example.com',
+          firstName: undefined,
+          lastName: undefined,
+        },
+      };
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          ...mockRegisterResponse,
-          customer: {
-            ...mockRegisterResponse.customer,
-            email: 'minimal@example.com',
-            firstName: undefined,
-            lastName: undefined,
-          },
-        }),
+        text: async () => JSON.stringify(responseData),
+        json: async () => responseData,
       } as Response);
 
       const result = await provider.registerCustomer(minimalInput);
@@ -247,12 +223,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for duplicate email (409)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 409,
-        statusText: 'Conflict',
-        json: async () => ({ message: 'Email already registered' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(409, 'Conflict', { message: 'Email already registered' }));
 
       await expect(provider.registerCustomer(mockCustomerInput)).rejects.toThrow(
         'Email already registered'
@@ -260,12 +231,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for invalid email format (400)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Invalid email format' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Invalid email format' }));
 
       await expect(provider.registerCustomer(mockCustomerInput)).rejects.toThrow(
         'Invalid email format'
@@ -273,14 +239,9 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for weak password (400)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', {
           message: 'Password must be at least 8 characters',
-        }),
-      } as Response);
+        }));
 
       await expect(provider.registerCustomer(mockCustomerInput)).rejects.toThrow(
         'Password must be at least 8 characters'
@@ -308,10 +269,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         },
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRegisterResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockRegisterResponse));
 
       await provider.registerCustomer(inputWithAddress);
 
@@ -341,10 +299,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     };
 
     it('should successfully refresh access token', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRefreshResponse,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockRefreshResponse));
 
       const result = await provider.refreshAccessToken(refreshToken);
 
@@ -366,12 +321,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for invalid refresh token (401)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Invalid or expired refresh token' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid or expired refresh token' }));
 
       await expect(provider.refreshAccessToken(refreshToken)).rejects.toThrow(
         'Invalid or expired refresh token'
@@ -379,12 +329,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for revoked refresh token (403)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'Refresh token has been revoked' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Refresh token has been revoked' }));
 
       await expect(provider.refreshAccessToken(refreshToken)).rejects.toThrow(
         'Refresh token has been revoked'
@@ -394,12 +339,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should handle malformed refresh token', async () => {
       const malformedToken = 'not-a-valid-jwt-token';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Malformed token' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Malformed token' }));
 
       await expect(provider.refreshAccessToken(malformedToken)).rejects.toThrow(
         'Malformed token'
@@ -429,10 +369,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     };
 
     it('should successfully get customer profile with valid token', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCustomer));
 
       const result = await provider.getCustomerProfile(accessToken);
 
@@ -453,10 +390,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should verify Authorization header is set correctly', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCustomer));
 
       await provider.getCustomerProfile(accessToken);
 
@@ -468,12 +402,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should throw error for invalid token (401)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Invalid or expired access token' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid or expired access token' }));
 
       await expect(provider.getCustomerProfile(accessToken)).rejects.toThrow(
         'Invalid or expired access token'
@@ -483,12 +412,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should throw error for expired token (401)', async () => {
       const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.expired';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Access token expired' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Access token expired' }));
 
       await expect(provider.getCustomerProfile(expiredToken)).rejects.toThrow(
         'Access token expired'
@@ -498,12 +422,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should throw error for malformed token (400)', async () => {
       const malformedToken = 'not-a-valid-token';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Malformed authorization header' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Malformed authorization header' }));
 
       await expect(provider.getCustomerProfile(malformedToken)).rejects.toThrow(
         'Malformed authorization header'
@@ -519,12 +438,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should handle server errors (500)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Database connection failed' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Database connection failed' }));
 
       await expect(provider.getCustomerProfile(accessToken)).rejects.toThrow(
         'Database connection failed'
@@ -552,10 +466,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         phone: '+1999888777',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockUpdatedCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockUpdatedCustomer));
 
       const result = await provider.updateCustomerProfile(accessToken, updates);
 
@@ -580,10 +491,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should verify Authorization header is set correctly', async () => {
       const updates: Partial<CustomerInput> = { firstName: 'NewName' };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockUpdatedCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockUpdatedCustomer));
 
       await provider.updateCustomerProfile(accessToken, updates);
 
@@ -599,13 +507,10 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         phone: '+1111111111',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           ...mockUpdatedCustomer,
           phone: '+1111111111',
-        }),
-      } as Response);
+        }));
 
       const result = await provider.updateCustomerProfile(accessToken, updates);
 
@@ -621,13 +526,10 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         email: 'newemail@example.com',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           ...mockUpdatedCustomer,
           email: 'newemail@example.com',
-        }),
-      } as Response);
+        }));
 
       await provider.updateCustomerProfile(accessToken, updates);
 
@@ -642,10 +544,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         password: 'NewSecurePass456!',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockUpdatedCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockUpdatedCustomer));
 
       await provider.updateCustomerProfile(accessToken, updates);
 
@@ -658,12 +557,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should throw error for invalid token (401)', async () => {
       const updates: Partial<CustomerInput> = { firstName: 'Test' };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Invalid access token' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid access token' }));
 
       await expect(
         provider.updateCustomerProfile(accessToken, updates)
@@ -675,12 +569,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         email: 'existing@example.com',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 409,
-        statusText: 'Conflict',
-        json: async () => ({ message: 'Email already in use' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(409, 'Conflict', { message: 'Email already in use' }));
 
       await expect(
         provider.updateCustomerProfile(accessToken, updates)
@@ -692,12 +581,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         email: 'invalid-email',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Invalid email format' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Invalid email format' }));
 
       await expect(
         provider.updateCustomerProfile(accessToken, updates)
@@ -717,12 +601,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should handle server errors (500)', async () => {
       const updates: Partial<CustomerInput> = { firstName: 'Test' };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Database update failed' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Database update failed' }));
 
       await expect(
         provider.updateCustomerProfile(accessToken, updates)
@@ -732,10 +611,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should handle empty updates object', async () => {
       const updates: Partial<CustomerInput> = {};
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockUpdatedCustomer,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockUpdatedCustomer));
 
       await provider.updateCustomerProfile(accessToken, updates);
 
@@ -753,15 +629,12 @@ describe('ShopAPIProvider - Authentication Methods', () => {
         acceptsMarketing: false,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           ...mockUpdatedCustomer,
           firstName: 'Multi',
           lastName: 'Update',
           phone: '+1222333444',
-        }),
-      } as Response);
+        }));
 
       const result = await provider.updateCustomerProfile(accessToken, updates);
 
@@ -779,15 +652,12 @@ describe('ShopAPIProvider - Authentication Methods', () => {
       const specialToken =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           id: 'cus_123',
           email: 'test@example.com',
           createdAt: '2025-10-15T10:00:00Z',
           updatedAt: '2025-10-15T10:00:00Z',
-        }),
-      } as Response);
+        }));
 
       await provider.getCustomerProfile(specialToken);
 
@@ -800,15 +670,12 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should not double-prefix Bearer token', async () => {
       const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.token';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           id: 'cus_123',
           email: 'test@example.com',
           createdAt: '2025-10-15T10:00:00Z',
           updatedAt: '2025-10-15T10:00:00Z',
-        }),
-      } as Response);
+        }));
 
       await provider.getCustomerProfile(accessToken);
 
@@ -820,12 +687,7 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should handle empty string token gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Missing authorization token' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Missing authorization token' }));
 
       await expect(provider.getCustomerProfile('')).rejects.toThrow(
         'Missing authorization token'
@@ -843,14 +705,17 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     });
 
     it('should not include X-API-Key header when API key is not provided', async () => {
+      const responseData = {
+        customer: { id: 'cus_123', email: 'test@example.com', createdAt: '2025-10-15T10:00:00Z', updatedAt: '2025-10-15T10:00:00Z' },
+        accessToken: 'token',
+        refreshToken: 'refresh',
+        expiresAt: '2025-10-15T11:00:00Z',
+      };
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          customer: { id: 'cus_123', email: 'test@example.com', createdAt: '2025-10-15T10:00:00Z', updatedAt: '2025-10-15T10:00:00Z' },
-          accessToken: 'token',
-          refreshToken: 'refresh',
-          expiresAt: '2025-10-15T11:00:00Z',
-        }),
+        text: async () => JSON.stringify(responseData),
+        json: async () => responseData,
       } as Response);
 
       await providerNoKey.loginCustomer('test@example.com', 'password');
@@ -865,15 +730,12 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should work with getCustomerProfile without API key', async () => {
       const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.token';
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockFetch.mockResolvedValueOnce(createMockResponse({
           id: 'cus_123',
           email: 'test@example.com',
           createdAt: '2025-10-15T10:00:00Z',
           updatedAt: '2025-10-15T10:00:00Z',
-        }),
-      } as Response);
+        }));
 
       await providerNoKey.getCustomerProfile(accessToken);
 
@@ -887,15 +749,18 @@ describe('ShopAPIProvider - Authentication Methods', () => {
 
   describe('Concurrent Authentication Requests', () => {
     it('should handle concurrent login requests', async () => {
+      const responseData = {
+        customer: { id: 'cus_123', email: 'test@example.com', createdAt: '2025-10-15T10:00:00Z', updatedAt: '2025-10-15T10:00:00Z' },
+        accessToken: 'token',
+        refreshToken: 'refresh',
+        expiresAt: '2025-10-15T11:00:00Z',
+      };
+
       mockFetch.mockImplementation(() =>
         Promise.resolve({
           ok: true,
-          json: async () => ({
-            customer: { id: 'cus_123', email: 'test@example.com', createdAt: '2025-10-15T10:00:00Z', updatedAt: '2025-10-15T10:00:00Z' },
-            accessToken: 'token',
-            refreshToken: 'refresh',
-            expiresAt: '2025-10-15T11:00:00Z',
-          }),
+          text: async () => JSON.stringify(responseData),
+          json: async () => responseData,
         } as Response)
       );
 
@@ -914,16 +779,19 @@ describe('ShopAPIProvider - Authentication Methods', () => {
     it('should handle concurrent profile updates', async () => {
       const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.token';
 
+      const responseData = {
+        id: 'cus_123',
+        email: 'test@example.com',
+        firstName: 'Updated',
+        createdAt: '2025-10-15T10:00:00Z',
+        updatedAt: '2025-10-15T11:00:00Z',
+      };
+
       mockFetch.mockImplementation(() =>
         Promise.resolve({
           ok: true,
-          json: async () => ({
-            id: 'cus_123',
-            email: 'test@example.com',
-            firstName: 'Updated',
-            createdAt: '2025-10-15T10:00:00Z',
-            updatedAt: '2025-10-15T11:00:00Z',
-          }),
+          text: async () => JSON.stringify(responseData),
+          json: async () => responseData,
         } as Response)
       );
 
