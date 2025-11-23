@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { useCart } from "@/app/hooks/useCart";
 import { useRouter } from "next/navigation";
 import CheckoutPage from "../page";
@@ -30,9 +31,10 @@ describe("CheckoutPage", () => {
     mockUseCart.mockReturnValue({
       cart: null,
       isLoading: true,
+      error: null,
       addItem: jest.fn(),
       removeItem: jest.fn(),
-      updateQuantity: jest.fn(),
+      updateItem: jest.fn(),
       clearCart: jest.fn(),
     });
 
@@ -42,11 +44,21 @@ describe("CheckoutPage", () => {
 
   it("should render empty cart message", () => {
     mockUseCart.mockReturnValue({
-      cart: { items: [], totalPrice: 0 },
+      cart: {
+        id: "cart-1",
+        items: [],
+        subtotal: 0,
+        estimatedTax: 0,
+        estimatedShipping: 0,
+        totalPrice: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
       isLoading: false,
+      error: null,
       addItem: jest.fn(),
       removeItem: jest.fn(),
-      updateQuantity: jest.fn(),
+      updateItem: jest.fn(),
       clearCart: jest.fn(),
     });
 
@@ -56,6 +68,7 @@ describe("CheckoutPage", () => {
 
   it("should render cart items with product images correctly", () => {
     const mockCart = {
+      id: "cart-1",
       items: [
         {
           id: "item-1",
@@ -83,15 +96,21 @@ describe("CheckoutPage", () => {
           },
         },
       ],
+      subtotal: 7997,
+      estimatedTax: 0,
+      estimatedShipping: 0,
       totalPrice: 7997,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     mockUseCart.mockReturnValue({
       cart: mockCart,
       isLoading: false,
+      error: null,
       addItem: jest.fn(),
       removeItem: jest.fn(),
-      updateQuantity: jest.fn(),
+      updateItem: jest.fn(),
       clearCart: jest.fn(),
     });
 
@@ -106,6 +125,7 @@ describe("CheckoutPage", () => {
 
   it("should handle cart items without product images", () => {
     const mockCart = {
+      id: "cart-1",
       items: [
         {
           id: "item-1",
@@ -119,15 +139,21 @@ describe("CheckoutPage", () => {
           },
         },
       ],
+      subtotal: 2999,
+      estimatedTax: 0,
+      estimatedShipping: 0,
       totalPrice: 2999,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     mockUseCart.mockReturnValue({
       cart: mockCart,
       isLoading: false,
+      error: null,
       addItem: jest.fn(),
       removeItem: jest.fn(),
-      updateQuantity: jest.fn(),
+      updateItem: jest.fn(),
       clearCart: jest.fn(),
     });
 
@@ -138,6 +164,7 @@ describe("CheckoutPage", () => {
 
   it("should handle cart items without product data", () => {
     const mockCart = {
+      id: "cart-1",
       items: [
         {
           id: "item-1",
@@ -148,15 +175,21 @@ describe("CheckoutPage", () => {
           // No product field at all
         },
       ],
+      subtotal: 2999,
+      estimatedTax: 0,
+      estimatedShipping: 0,
       totalPrice: 2999,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     mockUseCart.mockReturnValue({
       cart: mockCart,
       isLoading: false,
+      error: null,
       addItem: jest.fn(),
       removeItem: jest.fn(),
-      updateQuantity: jest.fn(),
+      updateItem: jest.fn(),
       clearCart: jest.fn(),
     });
 
