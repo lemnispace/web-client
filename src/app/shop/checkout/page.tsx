@@ -1,9 +1,7 @@
 "use client";
 
 import { useCart } from "@/app/hooks/useCart";
-import { Container } from "@/components/container";
 import { formatPrice } from "@/utils/formatters";
-import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Image from "next/image";
