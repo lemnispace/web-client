@@ -1,4 +1,4 @@
-const InifinityLoadingIcon = ({
+const InfinityLoadingIcon = ({
   style,
   ...props
 }: React.SVGProps<SVGSVGElement>) => {
@@ -41,4 +41,4 @@ const InifinityLoadingIcon = ({
   );
 };
 
-export default InifinityLoadingIcon;
+export default InfinityLoadingIcon;

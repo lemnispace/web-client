@@ -38,7 +38,7 @@ export default function ProductSelectionForm({
 
   // Check if there's a customization available
   const hasCustomization = Boolean(customizationImageId);
-  
+
   console.log('[ProductSelectionForm] Customization status:', {
     customizationImageId,
     hasCustomization,
@@ -50,14 +50,14 @@ export default function ProductSelectionForm({
       {...props}
       onSubmit={(e) => {
         e.preventDefault();
-        
+
         console.log('[ProductSelectionForm] Form submit:', {
           hasCustomization,
           selectedVariantId: selectedVariant?.id,
           customizationImageId,
           willAddToCart: Boolean(selectedVariant && hasCustomization)
         });
-        
+
         if (selectedVariant && hasCustomization) {
           const itemData = {
             productId: product.id,
@@ -67,9 +67,9 @@ export default function ProductSelectionForm({
               imageId: customizationImageId!,
             },
           };
-          
+
           console.log('[ProductSelectionForm] Adding item to cart:', itemData);
-          
+
           addItem(itemData).catch((error) => {
             console.error("Failed to add item to cart:", error);
           });
