@@ -210,12 +210,8 @@ export const removeBackground = async (
  * @returns A promise that resolves to the image file.
  */
 export const canvasToFile = async (canvas: Canvas): Promise<File> => {
-  // highest quality possible - Fabric.js toDataURL accepts options object
-  const dataURL = canvas.toDataURL({
-    format: 'png',
-    quality: 1,
-    multiplier: 1
-  });
+  // highest quality possible
+  const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0, multiplier: 1 });
   const blob = await (await fetch(dataURL)).blob();
   return new File([blob], "image.png", { type: "image/png" });
 };

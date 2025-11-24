@@ -115,17 +115,51 @@ export default function ImgEditor({
             inputRef.current?.click();
           }}
           onEditComplete={async (imgFile) => {
+            console.log('[ImgEditor] Starting upload for:', {
+              productId: product.id,
+              variantId: productVariant.id,
+              variantTitle: productVariant.title,
+              fileSize: imgFile.size,
+              fileType: imgFile.type,
+            });
+            
             const response = await createCustomProduct({
               file: imgFile,
               productId: product.id,
               variantId: productVariant.id,
               variantTitle: productVariant.title,
             });
+            
             if (response) {
-              // redirect to the product details page:
-              window.location.replace(
-                `${product.href}?selectedVariantId=${response.variantId}`
-              );
+              console.log('[ImgEditor] Upload successful:', response);
+              
+              // Store customization data in sessionStorage for display
+              const customizationData = {
+                imageId: response.imageId,
+                imageUrl: response.imageUrl,
+                variantId: response.variantId,
+                productId: response.productId,
+              };
+              const storageKey = `customization_${response.imageId}`;
+              
+              console.log('[ImgEditor] Storing in sessionStorage:', {
+                key: storageKey,
+                data: customizationData
+              });
+              
+              sessionStorage.setItem(storageKey, JSON.stringify(customizationData));
+              
+              // Verify storage
+              const verification = sessionStorage.getItem(storageKey);
+              console.log('[ImgEditor] Verification - data stored:', verification !== null);
+              
+              // redirect to the product details page with image ID:
+              const redirectUrl = `${product.href}?selectedVariantId=${response.variantId}&imageId=${response.imageId}`;
+              console.log('[ImgEditor] Redirecting to:', redirectUrl);
+              
+              window.location.replace(redirectUrl);
+            } else {
+              console.error('[ImgEditor] Upload failed - no response');
             }
           }}
         />

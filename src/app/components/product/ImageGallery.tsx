@@ -18,6 +18,12 @@ import { ProductVariantContext } from "./ProductView";
 interface ImageGalleryProps {
   product: Product;
   className?: string;
+  customizationImage?: {
+    imageUrl: string;
+    imageId: string;
+    variantId: string;
+    productId: string;
+  } | null;
 }
 
 interface ImageVariant extends ProductImg {
@@ -54,6 +60,7 @@ const getImagesByVariant = (
 export default function ImageGallery({
   product,
   className,
+  customizationImage,
 }: ImageGalleryProps) {
   const { selectedVariant, setSelectedVariant } = useContext(
     ProductVariantContext
@@ -75,18 +82,54 @@ export default function ImageGallery({
 
   const images = useMemo(
     () => {
-      if (!selectedVariant || !primaryVariantOption) {
-        // If no variant selected or no option to filter by, show variant's image if available
-        return selectedVariant?.image
-          ? [{ variantId: selectedVariant.id, ...selectedVariant.image }]
-          : [];
+      // If there's a customization image for the selected variant, show it
+      if (customizationImage && selectedVariant?.id === customizationImage.variantId) {
+        console.log('[ImageGallery] Showing customization image:', {
+          imageUrl: customizationImage.imageUrl,
+          variantId: customizationImage.variantId,
+          selectedVariantId: selectedVariant?.id
+        });
+        return [{
+          variantId: selectedVariant.id,
+          src: customizationImage.imageUrl,
+          alt: product.name,
+        }];
+      }
+
+      if (customizationImage && selectedVariant) {
+        console.log('[ImageGallery] Customization image variant mismatch:', {
+          customizationVariantId: customizationImage.variantId,
+          selectedVariantId: selectedVariant.id
+        });
+      }
+
+      if (!primaryVariantOption) {
+        // No primary variant option: show all product images if available
+        if (product.images && product.images.length > 0) {
+          return product.images.map((img) => ({
+            variantId: "", // No variant, so use empty string
+            ...img,
+          }));
+        }
+        // If no product images, show the first available variant image
+        const firstVariantWithImage = product.variants?.find(v => v.image);
+        if (firstVariantWithImage && firstVariantWithImage.image) {
+          return [{
+            variantId: firstVariantWithImage.id,
+            ...firstVariantWithImage.image,
+          }];
+        }
+        return [];
+      }
+      if (!selectedVariant) {
+        return [];
       }
       const optionValue = selectedVariant[primaryVariantOption];
       return optionValue
         ? getImagesByVariant(product, primaryVariantOption, optionValue)
         : [];
     },
-    [selectedVariant, product, primaryVariantOption]
+    [selectedVariant, product, primaryVariantOption, customizationImage]
   );
   const selectedIndex = useMemo(() => {
     if (!selectedVariant) {
@@ -135,7 +178,7 @@ export default function ImageGallery({
         <Tab.List className="grid grid-cols-4 gap-6">
           {images?.map((image, index) => (
             <Tab
-              key={image.src}
+              key={`${image.variantId}-${index}`}
               className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 lemni-focus-4"
             >
               {({ selected }) => (
@@ -152,6 +195,7 @@ export default function ImageGallery({
                       }}
                       fill
                       priority
+                      sizes="(max-width: 640px) 25vw, (max-width: 1024px) 20vw, 15vw"
                       className="object-contain object-center"
                     />
                   </span>
@@ -171,8 +215,8 @@ export default function ImageGallery({
       </div>
 
       <Tab.Panels className="aspect-h-1 aspect-w-1 w-full">
-        {images?.map((image) => (
-          <Tab.Panel key={image.src} className="lemni-focus-4">
+        {images?.map((image, index) => (
+          <Tab.Panel key={`${image.variantId}-${index}`} className="lemni-focus-4">
             <Image
               src={image.src}
               alt={image.alt ?? ""}
@@ -180,6 +224,7 @@ export default function ImageGallery({
                 maxWidth: "100%",
               }}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
               className="object-contain object-center sm:rounded-lg"
             />
           </Tab.Panel>

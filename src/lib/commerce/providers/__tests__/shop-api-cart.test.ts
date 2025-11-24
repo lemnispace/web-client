@@ -15,6 +15,7 @@
 
 import { ShopAPIProvider } from '../shop-api';
 import type { Cart, CartItemInput, CartCheckout } from '../../types';
+import { createMockResponse, createMockErrorResponse } from '../test-helpers';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -49,10 +50,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.createCart();
 
@@ -87,10 +85,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.createCart(customerId);
 
@@ -106,12 +101,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle cart creation errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Failed to create cart' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Failed to create cart' }));
 
       await expect(provider.createCart()).rejects.toThrow('Failed to create cart');
     });
@@ -129,10 +119,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         expiresAt: '2025-10-20T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.createCart();
       expect(result.expiresAt).toBe('2025-10-20T00:00:00Z');
@@ -155,10 +142,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.getCart('cart_123');
 
@@ -213,10 +197,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.getCart('cart_123');
 
@@ -226,12 +207,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle cart not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart not found' }));
 
       await expect(provider.getCart('invalid_cart')).rejects.toThrow('Cart not found');
     });
@@ -267,10 +243,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.getCart('cart_123');
       expect(result.items[0].customizationData).toBeDefined();
@@ -312,16 +285,10 @@ describe('ShopAPIProvider - Cart Operations', () => {
       };
 
       // Mock the POST to add item
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCartItem,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCartItem));
 
       // Mock the GET to fetch updated cart
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.addToCart('cart_123', items);
 
@@ -368,17 +335,11 @@ describe('ShopAPIProvider - Cart Operations', () => {
 
       // Mock POST for each item
       items.forEach(() => {
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ id: 'item_123' }),
-        } as Response);
+        mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'item_123' }));
       });
 
       // Mock final GET
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.addToCart('cart_123', items);
 
@@ -430,15 +391,9 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'item_1' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'item_1' }));
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.addToCart('cart_123', items);
 
@@ -455,12 +410,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         { productId: 'prod_1', variantId: 'invalid_variant', quantity: 1 },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Invalid variant ID' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Invalid variant ID' }));
 
       await expect(provider.addToCart('cart_123', items)).rejects.toThrow('Invalid variant ID');
     });
@@ -472,15 +422,13 @@ describe('ShopAPIProvider - Cart Operations', () => {
       ];
 
       // First item succeeds
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'item_1' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'item_1' }));
 
       // Second item fails
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
+        text: async () => JSON.stringify({ message: 'Invalid variant' }),
         json: async () => ({ message: 'Invalid variant' }),
       } as Response);
 
@@ -515,16 +463,10 @@ describe('ShopAPIProvider - Cart Operations', () => {
       };
 
       // Mock PUT to update item
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCartItem,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCartItem));
 
       // Mock GET to fetch updated cart
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.updateCartItem('cart_123', 'item_123', 5);
 
@@ -555,27 +497,16 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'item_123', quantity: 1 }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'item_123', quantity: 1 }));
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.updateCartItem('cart_123', 'item_123', 1);
       expect(result.items[0].quantity).toBe(1);
     });
 
     it('should handle item not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart item not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart item not found' }));
 
       await expect(provider.updateCartItem('cart_123', 'invalid_item', 5)).rejects.toThrow(
         'Cart item not found'
@@ -583,12 +514,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle invalid quantity error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request',
-        json: async () => ({ message: 'Quantity must be greater than 0' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(400, 'Bad Request', { message: 'Quantity must be greater than 0' }));
 
       await expect(provider.updateCartItem('cart_123', 'item_123', 0)).rejects.toThrow(
         'Quantity must be greater than 0'
@@ -610,15 +536,9 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'item_1', quantity: 3 }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ id: 'item_1', quantity: 3 }));
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.updateCartItem('cart_123', 'item_1', 3);
       expect(result.items).toHaveLength(2);
@@ -643,17 +563,11 @@ describe('ShopAPIProvider - Cart Operations', () => {
       };
 
       // Mock DELETE (204 No Content)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
       // Mock GET to fetch updated cart
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.removeCartItem('cart_123', 'item_123');
 
@@ -683,16 +597,10 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 204,
-        json: async () => ({}),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(({}),
+      ));
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockFinalCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockFinalCart));
 
       const result = await provider.removeCartItem('cart_123', 'item_1');
       expect(result.items).toHaveLength(1);
@@ -700,12 +608,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle item not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart item not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart item not found' }));
 
       await expect(provider.removeCartItem('cart_123', 'invalid_item')).rejects.toThrow(
         'Cart item not found'
@@ -713,12 +616,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle cart not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart not found' }));
 
       await expect(provider.removeCartItem('invalid_cart', 'item_123')).rejects.toThrow(
         'Cart not found'
@@ -726,12 +624,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle server error during item removal', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Failed to remove item' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Failed to remove item' }));
 
       await expect(provider.removeCartItem('cart_123', 'item_123')).rejects.toThrow(
         'Failed to remove item'
@@ -753,10 +646,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         itemCount: 3,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCheckout,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCheckout));
 
       const result = await provider.getCartCheckout('cart_123');
 
@@ -784,10 +674,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         itemCount: 0,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCheckout,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCheckout));
 
       const result = await provider.getCartCheckout('cart_123');
       expect(result.itemCount).toBe(0);
@@ -795,12 +682,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle cart not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Cart not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Cart not found' }));
 
       await expect(provider.getCartCheckout('invalid_cart')).rejects.toThrow('Cart not found');
     });
@@ -815,10 +697,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         itemCount: 10,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCheckout,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCheckout));
 
       const result = await provider.getCartCheckout('cart_456');
       expect(result.subtotal).toBe(299.95);
@@ -866,10 +745,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ carts: mockCarts }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ carts: mockCarts }));
 
       const result = await provider.getCustomerCarts('customer_123');
 
@@ -896,10 +772,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ carts: mockCarts }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ carts: mockCarts }));
 
       const result = await provider.getCustomerCarts('customer_456', false);
 
@@ -936,10 +809,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ carts: mockCarts }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ carts: mockCarts }));
 
       const result = await provider.getCustomerCarts('customer_789', true);
 
@@ -950,10 +820,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should return empty array when customer has no carts', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ carts: [] }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ carts: [] }));
 
       const result = await provider.getCustomerCarts('customer_new');
       expect(result).toEqual([]);
@@ -961,12 +828,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle customer not found error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        json: async () => ({ message: 'Customer not found' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(404, 'Not Found', { message: 'Customer not found' }));
 
       await expect(provider.getCustomerCarts('invalid_customer')).rejects.toThrow(
         'Customer not found'
@@ -974,12 +836,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
     });
 
     it('should handle server error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Database connection failed' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error', { message: 'Database connection failed' }));
 
       await expect(provider.getCustomerCarts('customer_123')).rejects.toThrow(
         'Database connection failed'
@@ -1017,10 +874,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         },
       ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ carts: mockCarts }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse({ carts: mockCarts }));
 
       const result = await provider.getCustomerCarts('customer_999');
       expect(result).toHaveLength(2);
@@ -1034,34 +888,19 @@ describe('ShopAPIProvider - Cart Operations', () => {
   // ============================================================================
   describe('Edge Cases and Error Handling', () => {
     it('should handle 401 Unauthorized error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: async () => ({ message: 'Invalid API key' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(401, 'Unauthorized', { message: 'Invalid API key' }));
 
       await expect(provider.getCart('cart_123')).rejects.toThrow('Invalid API key');
     });
 
     it('should handle 403 Forbidden error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        json: async () => ({ message: 'Access denied to this cart' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(403, 'Forbidden', { message: 'Access denied to this cart' }));
 
       await expect(provider.getCart('cart_123')).rejects.toThrow('Access denied to this cart');
     });
 
     it('should handle 429 Rate Limit error', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 429,
-        statusText: 'Too Many Requests',
-        json: async () => ({ message: 'Rate limit exceeded' }),
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockErrorResponse(429, 'Too Many Requests', { message: 'Rate limit exceeded' }));
 
       await expect(provider.createCart()).rejects.toThrow('Rate limit exceeded');
     });
@@ -1071,6 +910,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         ok: false,
         status: 500,
         statusText: 'Server Error',
+        text: async () => '{}',
         json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       } as unknown as Response);
 
@@ -1096,10 +936,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       await provider.getCart(specialCartId);
 
@@ -1122,10 +959,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       const result = await provider.getCart('cart_123');
       expect(result.checkoutUrl).toBe('https://example.com/checkout/cart_123');
@@ -1150,6 +984,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
 
       mockFetch.mockResolvedValue({
         ok: true,
+        text: async () => JSON.stringify(mockCart),
         json: async () => mockCart,
       } as Response);
 
@@ -1181,10 +1016,7 @@ describe('ShopAPIProvider - Cart Operations', () => {
         updatedAt: '2025-10-19T00:00:00Z',
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockCart,
-      } as Response);
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockCart));
 
       await providerNoKey.getCart('cart_123');
 

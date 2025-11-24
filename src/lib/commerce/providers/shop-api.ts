@@ -76,11 +76,12 @@ export class ShopAPIProvider implements CommerceProvider {
 
     // Handle 204 No Content and other empty responses
     // DELETE endpoints and some PATCH endpoints return 204 with no body
-    if (response.status === 204 || response.headers?.get('content-length') === '0') {
+    const responseText = await response.text();
+    if (response.status === 204 || responseText.trim() === "") {
       return undefined as T;
     }
 
-    return response.json();
+    return JSON.parse(responseText) as T;
   }
 
   // ============================================================================

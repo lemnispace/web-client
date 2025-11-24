@@ -14,8 +14,7 @@ export function CartSummary({
   subtotal = 0,
   tax,
   total = 0,
-  checkoutUrl,
-}: CartSummaryProps) {
+}: Omit<CartSummaryProps, 'checkoutUrl'>) {
   return (
     <section
       aria-labelledby="summary-heading"
@@ -58,11 +57,7 @@ export function CartSummary({
       </dl>
 
       <div className="mt-6">
-        <Button
-          href={checkoutUrl || "/checkout"}
-          className="w-full"
-          type="button"
-        >
+        <Button href="/shop/checkout" className="w-full" type="button">
           Checkout
         </Button>
       </div>
